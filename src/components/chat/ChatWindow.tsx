@@ -81,9 +81,9 @@ export default function ChatWindow({ conversationId, currentUserId }: ChatWindow
   };
 
   return (
-    <div className="flex flex-col h-[600px] bg-white rounded-2xl border border-gray-100 overflow-hidden">
+    <div className="flex flex-col h-full bg-transparent overflow-hidden">
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-hide">
+      <div className="flex-1 overflow-y-auto p-4 space-y-5 scrollbar-thin">
         {messages.length === 0 && (
           <div className="text-center text-gray-400 py-10">
             <p>No messages yet. Start the conversation!</p>
@@ -94,24 +94,24 @@ export default function ChatWindow({ conversationId, currentUserId }: ChatWindow
           return (
             <div
               key={msg.id}
-              className={`flex ${isOwn ? "justify-end" : "justify-start"}`}
+              className={`flex ${isOwn ? "justify-end" : "justify-start"} animate-[fadeInUp_0.3s_ease-out]`}
             >
               <div
-                className={`max-w-[75%] rounded-2xl px-4 py-3 ${
+                className={`max-w-[85%] sm:max-w-[75%] rounded-2xl px-4 py-3 shadow-sm ${
                   isOwn
-                    ? "bg-primary-500 text-white rounded-br-md"
-                    : "bg-gray-100 text-gray-800 rounded-bl-md"
+                    ? "bg-gradient-to-br from-violet-500 to-indigo-500 text-white rounded-br-sm shadow-violet-500/20"
+                    : "bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-100 dark:border-slate-700/50 rounded-bl-sm"
                 }`}
               >
                 {!isOwn && (
-                  <p className="text-xs font-semibold mb-1 text-primary-600">
+                  <p className="text-xs font-semibold mb-1 text-violet-600 dark:text-violet-400">
                     {(msg as any).profile?.full_name || "Admin"}
                   </p>
                 )}
                 <p className="text-sm leading-relaxed">{msg.content}</p>
                 <p
-                  className={`text-xs mt-1 ${
-                    isOwn ? "text-primary-100" : "text-gray-400"
+                  className={`text-xs mt-1.5 ${
+                    isOwn ? "text-violet-100/80" : "text-slate-400 dark:text-slate-500"
                   }`}
                 >
                   {formatDateTime(msg.created_at)}
@@ -124,24 +124,24 @@ export default function ChatWindow({ conversationId, currentUserId }: ChatWindow
       </div>
 
       {/* Input */}
-      <form onSubmit={sendMessage} className="p-4 border-t border-gray-100 flex gap-2">
+      <form onSubmit={sendMessage} className="p-4 border-t border-slate-100/80 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900/50 flex gap-2 shrink-0">
         <button
           type="button"
-          className="p-2.5 rounded-full hover:bg-gray-100 transition-colors"
+          className="p-2.5 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-400 transition-colors"
         >
-          <ImagePlus className="w-5 h-5 text-gray-400" />
+          <ImagePlus className="w-5 h-5" />
         </button>
         <input
           type="text"
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
           placeholder="Type a message..."
-          className="flex-1 input-field py-2.5"
+          className="flex-1 py-2.5 px-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 rounded-xl outline-none focus:ring-2 focus:ring-violet-500/40 focus:border-violet-500/50 text-sm text-slate-800 dark:text-slate-100 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
         />
         <button
           type="submit"
           disabled={!newMessage.trim() || loading}
-          className="btn-primary py-2.5 px-4 disabled:opacity-50"
+          className="py-2.5 px-5 bg-gradient-to-r from-violet-500 to-indigo-500 text-white rounded-xl hover:shadow-lg hover:shadow-violet-500/30 dark:hover:shadow-violet-500/50 disabled:opacity-50 disabled:shadow-none transition-all flex items-center justify-center hover:scale-105 disabled:hover:scale-100"
         >
           <Send className="w-4 h-4" />
         </button>

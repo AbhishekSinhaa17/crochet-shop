@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import ChatWindow from "@/components/chat/ChatWindow";
-import { MessageCircle, Plus, Sparkles, X, Send, MessageSquare, Clock, ChevronRight } from "lucide-react";
+import { MessageCircle, Plus, Sparkles, X, Send, MessageSquare, Clock, ChevronRight, ArrowLeft } from "lucide-react";
 import { Conversation } from "@/types";
 import { formatDateTime } from "@/lib/utils";
 
@@ -113,10 +113,10 @@ export default function ChatPage() {
           </div>
         </div>
 
-        <div className="grid lg:grid-cols-[380px_1fr] gap-6">
+        <div className="grid lg:grid-cols-[380px_1fr] gap-6 lg:h-[calc(100vh-180px)] min-h-[500px]">
           {/* Conversation List */}
           <div 
-            className="animate-[fadeInLeft_0.6s_ease-out]"
+            className={`animate-[fadeInLeft_0.6s_ease-out] flex flex-col h-[600px] lg:h-full ${selectedConv ? 'hidden lg:flex' : 'flex'}`}
             style={{ animationDelay: "0.1s", animationFillMode: "both" }}
           >
             <div className="relative group">
@@ -168,7 +168,7 @@ export default function ChatPage() {
                 </div>
 
                 {/* Conversation List */}
-                <div className="p-3 max-h-[calc(100vh-340px)] overflow-y-auto scrollbar-thin">
+                <div className="p-3 flex-1 overflow-y-auto scrollbar-thin">
                   {isLoading ? (
                     // Skeleton Loading
                     <div className="space-y-3">
@@ -258,14 +258,28 @@ export default function ChatPage() {
 
           {/* Chat Window */}
           <div 
-            className="animate-[fadeInRight_0.6s_ease-out] lg:h-[calc(100vh-180px)]"
+            className={`animate-[fadeInRight_0.6s_ease-out] flex flex-col h-[600px] lg:h-full ${!selectedConv ? 'hidden lg:flex' : 'flex'}`}
             style={{ animationDelay: "0.2s", animationFillMode: "both" }}
           >
             {selectedConv ? (
-              <div className="h-full relative group">
-                <div className="absolute -inset-1 bg-gradient-to-r from-violet-600/10 via-indigo-600/10 to-purple-600/10 dark:from-violet-600/20 dark:via-indigo-600/20 dark:to-purple-600/20 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="relative h-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-2xl border border-white/60 dark:border-slate-700/60 shadow-[0_8px_40px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_40px_rgba(0,0,0,0.4)] overflow-hidden">
-                  <ChatWindow conversationId={selectedConv} currentUserId={userId} />
+              <div className="flex-1 relative group flex flex-col min-h-0">
+                <div className="absolute -inset-1 bg-gradient-to-r from-violet-600/10 via-indigo-600/10 to-purple-600/10 dark:from-violet-600/20 dark:via-indigo-600/20 dark:to-purple-600/20 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                <div className="relative flex-1 flex flex-col bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-2xl border border-white/60 dark:border-slate-700/60 shadow-[0_8px_40px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_40px_rgba(0,0,0,0.4)] overflow-hidden min-h-0">
+                  <div className="lg:hidden p-3 border-b border-slate-200/50 dark:border-slate-700/50 bg-white/50 dark:bg-slate-800/50 backdrop-blur-md flex items-center shrink-0 z-10">
+                    <button 
+                      onClick={() => setSelectedConv(null)}
+                      className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                    >
+                      <ArrowLeft className="w-4 h-4" />
+                      Back
+                    </button>
+                    <span className="ml-3 font-medium text-slate-800 dark:text-slate-100 text-sm truncate flex-1">
+                      {conversations.find(c => c.id === selectedConv)?.subject}
+                    </span>
+                  </div>
+                  <div className="flex-1 overflow-hidden">
+                    <ChatWindow conversationId={selectedConv} currentUserId={userId} />
+                  </div>
                 </div>
               </div>
             ) : (
