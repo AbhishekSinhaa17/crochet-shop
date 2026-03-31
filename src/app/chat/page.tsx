@@ -244,7 +244,7 @@ export default function ChatPage() {
                           </div>
 
                           {/* Unread Indicator */}
-                          {conv.status === 'active' && selectedConv !== conv.id && (
+                          {!conv.is_closed && selectedConv !== conv.id && (
                             <span className="absolute top-3 right-3 w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-lg shadow-emerald-500/50" />
                           )}
                         </button>
