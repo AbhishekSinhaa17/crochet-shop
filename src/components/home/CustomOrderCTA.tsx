@@ -374,7 +374,7 @@ export default function CustomOrderCTA() {
         }
       `}</style>
 
-      <section ref={sectionRef} className="py-12 lg:py-16 relative overflow-hidden">
+      <section ref={sectionRef} className="py-10 lg:py-12 relative overflow-hidden">
         {/* === BACKGROUND === */}
         <div className="absolute inset-0">
           {/* Base gradient */}
@@ -592,7 +592,7 @@ export default function CustomOrderCTA() {
           
           {/* Section Header */}
           <div 
-            className={`text-center mb-16 transition-all duration-1000 ${
+            className={`text-center mb-10 lg:mb-12 transition-all duration-1000 ${
               isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
             }`}
           >
@@ -622,7 +622,7 @@ export default function CustomOrderCTA() {
 
           {/* Process Steps - Interactive Timeline */}
           <div 
-            className={`mb-16 transition-all duration-1000 delay-200 ${
+            className={`mb-10 lg:mb-12 transition-all duration-1000 delay-200 ${
               isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
             }`}
           >
@@ -801,15 +801,7 @@ export default function CustomOrderCTA() {
                           <ArrowRight className="relative z-10 w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
                         </Link>
 
-                        <Link
-                          href="/gallery"
-                          className="group inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-semibold text-white glass-white hover:bg-white/25 transition-all duration-300"
-                        >
-                          <div className="w-11 h-11 rounded-xl bg-white/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                            <Camera className="w-5 h-5 text-white" />
-                          </div>
-                          <span>View Gallery</span>
-                        </Link>
+
                       </div>
                     </div>
 

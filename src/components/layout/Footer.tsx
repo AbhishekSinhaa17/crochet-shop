@@ -210,12 +210,11 @@ export default function Footer() {
               </div>
               Support
             </h3>
-            <ul className="space-y-1">
+            <ul className="space-y-3">
               {[
-                { href: "/orders", label: "Track Order" },
-                { href: "/chat", label: "Contact Us" },
-                { href: "#", label: "Shipping Info" },
-                { href: "#", label: "Returns Policy" },
+                { href: "/return-policy", label: "Returns Policy" },
+                { href: "#", label: "Terms of Service" },
+                { href: "#", label: "Privacy Policy" },
                 { href: "/faq", label: "FAQ" },
               ].map((link, i) => (
                 <li key={link.label}>

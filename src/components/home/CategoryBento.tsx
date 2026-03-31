@@ -210,7 +210,7 @@ export default function CategoryBento({ categories }: CategoryBentoProps) {
         }
       `}</style>
 
-      <section className="pt-12 pb-4 lg:pt-16 lg:pb-6 relative overflow-hidden">
+      <section className="pt-8 pb-4 lg:pt-12 lg:pb-6 relative overflow-hidden">
         {/* === BACKGROUND === */}
         <div className="absolute inset-0">
           {/* Base gradient */}
@@ -390,7 +390,7 @@ export default function CategoryBento({ categories }: CategoryBentoProps) {
           
           {/* Section Header */}
           <div 
-            className={`text-center mb-16 transition-all duration-700 ${
+            className={`text-center mb-10 lg:mb-12 transition-all duration-700 ${
               isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
             }`}
           >

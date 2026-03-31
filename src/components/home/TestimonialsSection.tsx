@@ -329,7 +329,7 @@ export default function TestimonialsSection() {
         }
       `}</style>
 
-      <section className="py-12 lg:py-16 relative overflow-hidden">
+      <section className="py-10 lg:py-12 relative overflow-hidden">
         {/* === BACKGROUND === */}
         <div className="absolute inset-0">
           {/* Base gradient */}
@@ -510,7 +510,7 @@ export default function TestimonialsSection() {
           
           {/* Section Header */}
           <div 
-            className={`text-center mb-16 transition-all duration-700 ${
+            className={`text-center mb-10 lg:mb-12 transition-all duration-700 ${
               isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
             }`}
           >

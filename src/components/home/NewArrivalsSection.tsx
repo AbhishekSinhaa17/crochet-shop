@@ -220,7 +220,7 @@ export default function NewArrivalsSection({ products }: NewArrivalsSectionProps
         }
       `}</style>
 
-      <section className="py-12 lg:py-16 relative overflow-hidden">
+      <section className="py-10 lg:py-12 relative overflow-hidden">
         {/* === BACKGROUND === */}
         <div className="absolute inset-0">
           {/* Base gradient */}
