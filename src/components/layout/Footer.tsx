@@ -57,7 +57,7 @@ export default function Footer() {
         <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-br from-violet-500/10 to-purple-500/10 dark:from-violet-500/20 dark:to-purple-500/20 rounded-full blur-3xl animate-[pulse_8s_ease-in-out_infinite]" />
         <div className="absolute -top-40 -right-40 w-[500px] h-[500px] bg-gradient-to-br from-pink-500/8 to-rose-500/8 dark:from-pink-500/15 dark:to-rose-500/15 rounded-full blur-3xl animate-[pulse_10s_ease-in-out_infinite_2s]" />
         <div className="absolute bottom-1/3 right-1/4 w-72 h-72 bg-gradient-to-br from-indigo-500/5 to-cyan-500/5 dark:from-indigo-500/10 dark:to-cyan-500/10 rounded-full blur-3xl animate-[pulse_12s_ease-in-out_infinite_4s]" />
-        
+
         {/* Floating Particles */}
         {[...Array(5)].map((_, i) => (
           <div
@@ -118,11 +118,14 @@ export default function Footer() {
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
           {/* Brand */}
-          <div 
+          <div
             className="lg:col-span-1"
             style={{ animation: "footerFadeUp 0.6s ease-out both" }}
           >
-            <Link href="/" className="inline-flex items-center gap-3 mb-6 group">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-3 mb-6 group"
+            >
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-violet-600 to-purple-600 rounded-2xl blur-lg opacity-40 group-hover:opacity-60 transition-opacity duration-300 animate-pulse" />
                 <div className="relative w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-600 via-purple-600 to-pink-500 flex items-center justify-center shadow-lg shadow-violet-500/30 dark:shadow-violet-500/40 transition-all duration-500 group-hover:scale-110 group-hover:rotate-[-8deg] overflow-hidden">
@@ -140,17 +143,34 @@ export default function Footer() {
                 </span>
               </div>
             </Link>
-            
+
             <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-6 max-w-xs">
-              Handmade with love, each piece tells a story. Discover unique crochet creations crafted with care and passion for every occasion.
+              Handmade with love, each piece tells a story. Discover unique
+              crochet creations crafted with care and passion for every
+              occasion.
             </p>
 
             {/* Social Links */}
             <div className="flex gap-3">
               {[
-                { icon: Instagram, label: "Instagram", hoverColor: "from-pink-500 to-purple-500", hoverShadow: "shadow-pink-500/40" },
-                { icon: Facebook, label: "Facebook", hoverColor: "from-blue-500 to-blue-600", hoverShadow: "shadow-blue-500/40" },
-                { icon: Youtube, label: "YouTube", hoverColor: "from-red-500 to-red-600", hoverShadow: "shadow-red-500/40" },
+                {
+                  icon: Instagram,
+                  label: "Instagram",
+                  hoverColor: "from-pink-500 to-purple-500",
+                  hoverShadow: "shadow-pink-500/40",
+                },
+                {
+                  icon: Facebook,
+                  label: "Facebook",
+                  hoverColor: "from-blue-500 to-blue-600",
+                  hoverShadow: "shadow-blue-500/40",
+                },
+                {
+                  icon: Youtube,
+                  label: "YouTube",
+                  hoverColor: "from-red-500 to-red-600",
+                  hoverShadow: "shadow-red-500/40",
+                },
               ].map(({ icon: Icon, label, hoverColor, hoverShadow }) => (
                 <a
                   key={label}
@@ -159,9 +179,13 @@ export default function Footer() {
                   className="group/social relative w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-110 hover:-translate-y-1 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 overflow-hidden"
                 >
                   {/* Hover gradient */}
-                  <div className={`absolute inset-0 bg-gradient-to-br ${hoverColor} opacity-0 group-hover/social:opacity-100 transition-opacity duration-300`} />
+                  <div
+                    className={`absolute inset-0 bg-gradient-to-br ${hoverColor} opacity-0 group-hover/social:opacity-100 transition-opacity duration-300`}
+                  />
                   {/* Glow effect */}
-                  <div className={`absolute inset-0 bg-gradient-to-br ${hoverColor} blur-xl opacity-0 group-hover/social:opacity-50 transition-opacity duration-300 ${hoverShadow}`} />
+                  <div
+                    className={`absolute inset-0 bg-gradient-to-br ${hoverColor} blur-xl opacity-0 group-hover/social:opacity-50 transition-opacity duration-300 ${hoverShadow}`}
+                  />
                   <Icon className="w-5 h-5 text-slate-500 dark:text-slate-400 relative z-10 transition-all duration-300 group-hover/social:text-white group-hover/social:scale-110" />
                 </a>
               ))}
@@ -245,9 +269,24 @@ export default function Footer() {
             </h3>
             <ul className="space-y-2">
               {[
-                { icon: MapPin, text: "123 Craft Lane, Creative City, IN 560001", href: "#", color: "violet" },
-                { icon: Phone, text: "+91 98765 43210", href: "tel:+919876543210", color: "blue" },
-                { icon: Mail, text: "hello@crochetcraft.in", href: "mailto:hello@crochetcraft.in", color: "emerald" },
+                {
+                  icon: MapPin,
+                  text: "123 Craft Lane, Creative City, IN 560001",
+                  href: "#",
+                  color: "violet",
+                },
+                {
+                  icon: Phone,
+                  text: "+91 98765 43210",
+                  href: "tel:+919876543210",
+                  color: "blue",
+                },
+                {
+                  icon: Mail,
+                  text: "hello@crochetcraft.in",
+                  href: "mailto:hello@crochetcraft.in",
+                  color: "emerald",
+                },
               ].map(({ icon: Icon, text, href, color }, i) => (
                 <li
                   key={text}
@@ -259,16 +298,24 @@ export default function Footer() {
                     href={href}
                     className="group/contact flex items-start gap-3 p-3 -mx-3 rounded-xl transition-all duration-300 hover:bg-slate-100 dark:hover:bg-slate-800/80"
                   >
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all duration-300 group-hover/contact:scale-110 ${
-                      color === 'violet' ? 'bg-violet-100 dark:bg-violet-900/30' :
-                      color === 'blue' ? 'bg-blue-100 dark:bg-blue-900/30' :
-                      'bg-emerald-100 dark:bg-emerald-900/30'
-                    }`}>
-                      <Icon className={`w-5 h-5 ${
-                        color === 'violet' ? 'text-violet-600 dark:text-violet-400' :
-                        color === 'blue' ? 'text-blue-600 dark:text-blue-400' :
-                        'text-emerald-600 dark:text-emerald-400'
-                      }`} />
+                    <div
+                      className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all duration-300 group-hover/contact:scale-110 ${
+                        color === "violet"
+                          ? "bg-violet-100 dark:bg-violet-900/30"
+                          : color === "blue"
+                            ? "bg-blue-100 dark:bg-blue-900/30"
+                            : "bg-emerald-100 dark:bg-emerald-900/30"
+                      }`}
+                    >
+                      <Icon
+                        className={`w-5 h-5 ${
+                          color === "violet"
+                            ? "text-violet-600 dark:text-violet-400"
+                            : color === "blue"
+                              ? "text-blue-600 dark:text-blue-400"
+                              : "text-emerald-600 dark:text-emerald-400"
+                        }`}
+                      />
                     </div>
                     <div className="flex items-start gap-1 pt-2 min-w-0">
                       <span className="text-sm text-slate-600 dark:text-slate-400 transition-colors duration-200 group-hover/contact:text-slate-800 dark:group-hover/contact:text-slate-200 break-words">
@@ -291,13 +338,13 @@ export default function Footer() {
           {/* Background */}
           <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 via-purple-500/5 to-pink-500/5 dark:from-violet-500/10 dark:via-purple-500/10 dark:to-pink-500/10" />
           <div className="absolute inset-0 bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl" />
-          
+
           {/* Border */}
           <div className="absolute inset-0 rounded-3xl border border-slate-200/80 dark:border-slate-700/80" />
-          
+
           {/* Gradient border effect */}
           <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-violet-500/20 via-purple-500/20 to-pink-500/20 dark:from-violet-500/30 dark:via-purple-500/30 dark:to-pink-500/30 opacity-0 hover:opacity-100 transition-opacity duration-500 -z-10 blur-xl" />
-          
+
           {/* Decorative elements */}
           <div className="absolute -top-20 -right-20 w-40 h-40 bg-gradient-to-br from-violet-500/20 to-purple-500/20 rounded-full blur-3xl" />
           <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-gradient-to-br from-pink-500/20 to-rose-500/20 rounded-full blur-3xl" />
@@ -312,11 +359,15 @@ export default function Footer() {
                 Stay in the loop 🧶
               </h3>
               <p className="text-sm text-slate-600 dark:text-slate-400">
-                Get updates on new patterns, exclusive offers, and crafting inspiration delivered to your inbox.
+                Get updates on new patterns, exclusive offers, and crafting
+                inspiration delivered to your inbox.
               </p>
             </div>
-            
-            <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+
+            <form
+              onSubmit={handleSubscribe}
+              className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto"
+            >
               <div className="relative flex-1 lg:w-72">
                 <div className="absolute inset-0 bg-gradient-to-r from-violet-500 to-purple-500 rounded-xl blur opacity-0 focus-within:opacity-20 transition-opacity duration-300" />
                 <div className="relative bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm focus-within:shadow-lg focus-within:border-violet-400 dark:focus-within:border-violet-500 transition-all duration-300">
@@ -331,7 +382,7 @@ export default function Footer() {
                   />
                 </div>
               </div>
-              
+
               <button
                 type="submit"
                 disabled={subscribed}
@@ -339,13 +390,13 @@ export default function Footer() {
               >
                 {/* Background */}
                 <div className="absolute inset-0 bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600" />
-                
+
                 {/* Shimmer */}
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover/sub:translate-x-full transition-transform duration-700 ease-in-out" />
-                
+
                 {/* Glow */}
                 <div className="absolute inset-0 bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 blur-xl opacity-0 group-hover/sub:opacity-50 transition-opacity duration-300" />
-                
+
                 <span className="relative z-10 flex items-center gap-2">
                   {subscribed ? (
                     <>
@@ -376,16 +427,18 @@ export default function Footer() {
 
             {/* Bottom Links */}
             <div className="flex flex-wrap items-center justify-center gap-6 order-1 md:order-2">
-              {["Privacy Policy", "Terms of Service", "Cookies"].map((label) => (
-                <a
-                  key={label}
-                  href="#"
-                  className="text-sm text-slate-500 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors duration-200 relative group/link"
-                >
-                  {label}
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-violet-500 to-purple-500 group-hover/link:w-full transition-all duration-300" />
-                </a>
-              ))}
+              {["Privacy Policy", "Terms of Service", "Cookies"].map(
+                (label) => (
+                  <a
+                    key={label}
+                    href="#"
+                    className="text-sm text-slate-500 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors duration-200 relative group/link"
+                  >
+                    {label}
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-violet-500 to-purple-500 group-hover/link:w-full transition-all duration-300" />
+                  </a>
+                ),
+              )}
             </div>
 
             <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 order-3">
