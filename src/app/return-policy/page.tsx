@@ -83,7 +83,7 @@ export default function ReturnPolicyPage() {
         ))}
       </div>
 
-      <div className="max-w-5xl mx-auto px-6 py-20 lg:py-28 relative z-10">
+      <div className="max-w-5xl mx-auto px-6 pt-8 pb-20 lg:pt-12 lg:pb-28 relative z-10">
         
         {/* Back Navigation */}
         <div className="animate-fade-in-down">

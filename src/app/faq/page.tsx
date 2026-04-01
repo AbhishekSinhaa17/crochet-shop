@@ -11,6 +11,7 @@ import {
   Sparkles,
   ArrowRight,
   Search,
+  ArrowLeft,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -81,7 +82,7 @@ export default function FAQPage() {
   });
 
   return (
-    <div className="min-h-screen pt-32 pb-20 relative overflow-hidden">
+    <div className="min-h-screen pt-12 pb-20 relative overflow-hidden">
       {/* Animated Background */}
       <div className="fixed inset-0 bg-slate-50 dark:bg-slate-950 -z-30" />
 
@@ -120,6 +121,19 @@ export default function FAQPage() {
       </div>
 
       <div className="max-w-5xl mx-auto px-6 lg:px-8 relative">
+        {/* Back Navigation */}
+        <div className="animate-fade-in-down mb-12">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-3 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all duration-300 group"
+          >
+            <div className="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 shadow-lg shadow-slate-200/50 dark:shadow-slate-900/50 flex items-center justify-center group-hover:bg-violet-50 dark:group-hover:bg-violet-900/20 group-hover:shadow-violet-200/50 dark:group-hover:shadow-violet-900/30 transition-all duration-300 group-hover:-translate-x-1">
+              <ArrowLeft className="w-4 h-4 group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors" />
+            </div>
+            <span className="group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">Back to Home</span>
+          </Link>
+        </div>
+
         {/* Hero Header */}
         <div className="text-center mb-20 relative">
           {/* Decorative elements */}

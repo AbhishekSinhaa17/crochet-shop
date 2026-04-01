@@ -21,6 +21,10 @@ import {
   Truck,
   Shield,
   CheckCircle,
+  FileText,
+  ShieldCheck,
+  RotateCcw,
+  HelpCircle,
 } from "lucide-react";
 
 export default function Footer() {
@@ -236,23 +240,31 @@ export default function Footer() {
             </h3>
             <ul className="space-y-3">
               {[
-                { href: "/return-policy", label: "Returns Policy" },
-                { href: "#", label: "Terms of Service" },
-                { href: "#", label: "Privacy Policy" },
-                { href: "/faq", label: "FAQ" },
+                { href: "/return-policy", label: "Returns Policy", icon: RotateCcw, color: "pink" },
+                { href: "/terms", label: "Terms of Service", icon: FileText, color: "violet" },
+                { href: "/privacy", label: "Privacy Policy", icon: ShieldCheck, color: "blue" },
+                { href: "/faq", label: "FAQ", icon: HelpCircle, color: "emerald" },
               ].map((link, i) => (
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="group/link flex items-center gap-2 text-sm py-2 px-3 -mx-3 rounded-xl transition-all duration-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 text-slate-600 dark:text-slate-400 hover:text-pink-600 dark:hover:text-pink-400"
+                    className="group/link flex items-center gap-3 py-2.5 px-3 -mx-3 rounded-xl transition-all duration-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                     style={{
                       animation: `footerSlideIn 0.3s ease-out ${0.25 + i * 0.05}s both`,
                     }}
                   >
-                    <ChevronRight className="w-4 h-4 opacity-0 -translate-x-2 group-hover/link:opacity-100 group-hover/link:translate-x-0 transition-all duration-300 text-pink-500" />
-                    <span className="transition-all duration-200 group-hover/link:translate-x-1">
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-300 group-hover/link:scale-110 ${
+                      link.color === 'pink' ? 'bg-pink-100 dark:bg-pink-900/30 text-pink-600 dark:text-pink-400' :
+                      link.color === 'violet' ? 'bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400' :
+                      link.color === 'blue' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' :
+                      'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400'
+                    }`}>
+                      <link.icon className="w-4 h-4" />
+                    </div>
+                    <span className="text-sm font-medium transition-all duration-200 group-hover/link:translate-x-1">
                       {link.label}
                     </span>
+                    <ChevronRight className="w-3.5 h-3.5 ml-auto opacity-0 -translate-x-2 group-hover/link:opacity-100 group-hover/link:translate-x-0 transition-all duration-300 text-slate-400" />
                   </Link>
                 </li>
               ))}
@@ -427,18 +439,20 @@ export default function Footer() {
 
             {/* Bottom Links */}
             <div className="flex flex-wrap items-center justify-center gap-6 order-1 md:order-2">
-              {["Privacy Policy", "Terms of Service", "Cookies"].map(
-                (label) => (
-                  <a
-                    key={label}
-                    href="#"
-                    className="text-sm text-slate-500 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors duration-200 relative group/link"
-                  >
-                    {label}
-                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-violet-500 to-purple-500 group-hover/link:w-full transition-all duration-300" />
-                  </a>
-                ),
-              )}
+              {[
+                { label: "Privacy Policy", href: "/privacy" },
+                { label: "Terms of Service", href: "/terms" },
+                { label: "Cookies", href: "/cookies" },
+              ].map((link) => (
+                <Link
+                  key={link.label}
+                  href={link.href}
+                  className="text-sm text-slate-500 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors duration-200 relative group/link"
+                >
+                  {link.label}
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-violet-500 to-purple-500 group-hover/link:w-full transition-all duration-300" />
+                </Link>
+              ))}
             </div>
 
             <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 order-3">
