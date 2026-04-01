@@ -114,6 +114,21 @@ export default function Header() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [userMenuOpen]);
 
+  // Keyboard listeners for Search
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setSearchOpen(true);
+      }
+      if (e.key === "Escape" && searchOpen) {
+        setSearchOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [searchOpen]);
+
   useEffect(() => {
     setMenuOpen(false);
     setSearchOpen(false);
@@ -186,8 +201,13 @@ export default function Header() {
 
         {/* Close Button */}
         <button
-          onClick={() => setSearchOpen(false)}
-          className="absolute top-6 right-6 p-3 rounded-2xl bg-white/10 backdrop-blur-sm text-white/80 hover:text-white hover:bg-white/20 transition-all duration-300 group"
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            setSearchOpen(false);
+          }}
+          className="absolute top-6 right-6 z-50 p-3 rounded-2xl bg-white/10 backdrop-blur-sm text-white/80 hover:text-white hover:bg-white/20 transition-all duration-300 group"
+          aria-label="Close search"
         >
           <X className="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" />
         </button>
