@@ -20,9 +20,24 @@ function drand(i: number, seed: number) {
 
 export default function FeaturedProductsSection({ products }: FeaturedProductsSectionProps) {
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const t = setTimeout(() => setIsLoaded(true), 120);
+    
+    const fetchAdminStatus = async () => {
+      try {
+        const res = await fetch("/api/profile");
+        const json = await res.json();
+        if (json.profile?.role?.toLowerCase()?.trim() === "admin") {
+          setIsAdmin(true);
+        }
+      } catch (e) {
+        console.error("Error fetching admin status:", e);
+      }
+    };
+    fetchAdminStatus();
+
     return () => clearTimeout(t);
   }, []);
 
@@ -217,7 +232,7 @@ export default function FeaturedProductsSection({ products }: FeaturedProductsSe
           </div>
 
           {/* Product Grid */}
-          <ProductGrid products={products || []} showHeader={false} />
+          <ProductGrid products={products || []} showHeader={false} isAdmin={isAdmin} />
 
 
         </div>

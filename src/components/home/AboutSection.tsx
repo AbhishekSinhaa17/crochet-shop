@@ -59,12 +59,6 @@ export default function AboutSection() {
     { number: "100%", label: "Handmade", icon: Heart, color: "from-emerald-500 to-teal-600" },
   ];
 
-  const features = [
-    { icon: Sparkles, color: "from-violet-500 to-purple-600", title: "Authentic Art", desc: "Original designs you won't find anywhere else" },
-    { icon: Shield, color: "from-emerald-500 to-teal-600", title: "Made to Last", desc: "Premium materials for durability" },
-    { icon: Zap, color: "from-amber-500 to-orange-600", title: "Quick Delivery", desc: "Fast shipping with careful packaging" },
-    { icon: Award, color: "from-rose-500 to-pink-600", title: "Quality Assured", desc: "Each piece inspected before shipping" },
-  ];
 
   const values = [
     { icon: Heart, title: "Passion", desc: "Every stitch made with love" },
@@ -675,41 +669,6 @@ export default function AboutSection() {
             </div>
           </div>
 
-          {/* Features Grid */}
-          <div 
-            className={`mb-20 transition-all duration-1000 delay-600 ${
-              isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-            }`}
-          >
-            <div className="text-center mb-10">
-              <h3 className="text-2xl lg:text-3xl font-bold text-foreground mb-4">
-                Why Choose <span className="text-gradient-primary">Us</span>
-              </h3>
-              <p className="text-muted-foreground max-w-xl mx-auto">
-                We're committed to delivering exceptional quality and experience
-              </p>
-            </div>
-
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-              {features.map((feature, idx) => (
-                <div 
-                  key={feature.title}
-                  className="group relative p-6 rounded-2xl glass-card shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-2 overflow-hidden"
-                >
-                  {/* Hover background */}
-                  <div className={`absolute inset-0 bg-linear-to-br ${feature.color}/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
-                  
-                  <div className="relative">
-                    <div className={`w-14 h-14 rounded-2xl bg-linear-to-br ${feature.color} flex items-center justify-center shadow-lg mb-4 group-hover:scale-110 transition-transform duration-300`}>
-                      <feature.icon className="w-7 h-7 text-white" />
-                    </div>
-                    <h4 className="text-lg font-bold text-foreground mb-2">{feature.title}</h4>
-                    <p className="text-sm text-muted-foreground">{feature.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
 
 
         </div>

@@ -37,6 +37,19 @@ export default function ReviewForm({ productId, onSuccess }: ReviewFormProps) {
       return;
     }
 
+    // Check if user is admin
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+    if (profile?.role?.toLowerCase()?.trim() === "admin") {
+      toast.error("Administrators are not allowed to leave reviews.");
+      setLoading(false);
+      return;
+    }
+
     const { error } = await supabase.from("reviews").upsert({
       user_id: user.id,
       product_id: productId,

@@ -738,10 +738,6 @@ function CartItemCard({
           <Heart className="w-4 h-4" />
           Save for Later
         </button>
-        <button className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-amber-600 dark:hover:text-amber-400 transition-colors">
-          <Gift className="w-4 h-4" />
-          Add Gift Wrap
-        </button>
       </div>
     </div>
   );

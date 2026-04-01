@@ -426,31 +426,35 @@ export default function Header() {
               </button>
 
               {/* Wishlist */}
-              <Link
-                href="/wishlist"
-                className="relative hidden sm:flex p-2.5 rounded-xl text-slate-500 dark:text-slate-400 hover:text-pink-500 hover:bg-pink-50 dark:hover:bg-pink-500/10 transition-all duration-300 group"
-              >
-                <Heart className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
-                <Heart className="absolute inset-0 m-auto w-5 h-5 text-pink-500 opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-125 transition-all duration-500 fill-pink-500" />
-              </Link>
+              {!isAdmin && (
+                <Link
+                  href="/wishlist"
+                  className="relative hidden sm:flex p-2.5 rounded-xl text-slate-500 dark:text-slate-400 hover:text-pink-500 hover:bg-pink-50 dark:hover:bg-pink-500/10 transition-all duration-300 group"
+                >
+                  <Heart className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
+                  <Heart className="absolute inset-0 m-auto w-5 h-5 text-pink-500 opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-125 transition-all duration-500 fill-pink-500" />
+                </Link>
+              )}
 
               {/* Cart */}
-              <Link
-                href="/cart"
-                className="relative p-2.5 rounded-xl text-slate-500 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-500/10 transition-all duration-300 group"
-              >
-                <ShoppingBag className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
+              {!isAdmin && (
+                <Link
+                  href="/cart"
+                  className="relative p-2.5 rounded-xl text-slate-500 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-500/10 transition-all duration-300 group"
+                >
+                  <ShoppingBag className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
 
-                {/* Cart Badge */}
-                {mounted && itemCount > 0 && (
-                  <span className="absolute -top-1 -right-1 flex items-center justify-center">
-                    <span className="absolute w-5 h-5 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full animate-ping opacity-75" />
-                    <span className="relative w-5 h-5 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-lg">
-                      {itemCount}
+                  {/* Cart Badge */}
+                  {mounted && itemCount > 0 && (
+                    <span className="absolute -top-1 -right-1 flex items-center justify-center">
+                      <span className="absolute w-5 h-5 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full animate-ping opacity-75" />
+                      <span className="relative w-5 h-5 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-lg">
+                        {itemCount}
+                      </span>
                     </span>
-                  </span>
-                )}
-              </Link>
+                  )}
+                </Link>
+              )}
 
               {/* Divider */}
               <div className="hidden md:block w-px h-8 bg-gradient-to-b from-transparent via-slate-300 dark:via-slate-600 to-transparent mx-1" />
@@ -505,7 +509,7 @@ export default function Header() {
                             {[
                               { label: "Profile", icon: User, href: "/profile" },
                               { label: "Orders", icon: Package, href: "/orders" },
-                              { label: "Wishlist", icon: Heart, href: "/wishlist" },
+                              ...(!isAdmin ? [{ label: "Wishlist", icon: Heart, href: "/wishlist" }] : []),
                               { label: "Messages", icon: MessageCircle, href: "/chat" },
                             ].map((item) => (
                               <Link
@@ -669,17 +673,19 @@ export default function Header() {
               })}
 
               {/* Wishlist Link */}
-              <Link
-                href="/wishlist"
-                onClick={() => setMenuOpen(false)}
-                className="flex items-center gap-4 p-4 rounded-2xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-300"
-              >
-                <div className="w-12 h-12 rounded-xl bg-pink-100 dark:bg-pink-500/20 flex items-center justify-center text-pink-500">
-                  <Heart className="w-5 h-5" />
-                </div>
-                <p className="flex-1 font-semibold">Wishlist</p>
-                <ChevronRight className="w-5 h-5 text-slate-300 dark:text-slate-600" />
-              </Link>
+              {!isAdmin && (
+                <Link
+                  href="/wishlist"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-4 p-4 rounded-2xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-300"
+                >
+                  <div className="w-12 h-12 rounded-xl bg-pink-100 dark:bg-pink-500/20 flex items-center justify-center text-pink-500">
+                    <Heart className="w-5 h-5" />
+                  </div>
+                  <p className="flex-1 font-semibold">Wishlist</p>
+                  <ChevronRight className="w-5 h-5 text-slate-300 dark:text-slate-600" />
+                </Link>
+              )}
             </nav>
 
             {/* Promo Banner */}
@@ -693,7 +699,7 @@ export default function Header() {
                     Free Shipping
                   </p>
                   <p className="text-sm text-slate-500 dark:text-slate-400">
-                    On orders over $50
+                    On orders over ₹999
                   </p>
                 </div>
               </div>

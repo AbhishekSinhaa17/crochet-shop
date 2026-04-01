@@ -593,21 +593,13 @@ export default function HeroSection() {
 
                 {/* Floating Card - Bottom Right */}
                 <div className="absolute -right-4 bottom-16 z-20 animate-float-medium" style={{ animationDelay: '1s' }}>
-                  <div className="px-5 py-4 glass-premium rounded-2xl shadow-premium hover-lift">
-                    <div className="flex items-center gap-2 mb-2">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
-                      ))}
+                  <div className="flex items-center gap-3 px-5 py-4 glass-premium rounded-2xl shadow-premium hover-lift">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-500 to-pink-500 flex items-center justify-center shadow-lg">
+                      <Heart className="w-6 h-6 text-white fill-current" />
                     </div>
-                    <div className="flex items-center gap-2">
-                      <div className="flex -space-x-2">
-                        {['bg-rose-400', 'bg-violet-400', 'bg-amber-400'].map((color, i) => (
-                          <div key={i} className={`w-8 h-8 rounded-full ${color} border-2 border-white dark:border-slate-800 flex items-center justify-center text-white text-xs font-bold`}>
-                            {['S', 'E', 'J'][i]}
-                          </div>
-                        ))}
-                      </div>
-                      <span className="text-xs text-muted-foreground">2.5k+ Reviews</span>
+                    <div>
+                      <div className="text-sm font-bold text-foreground">100+</div>
+                      <div className="text-xs text-muted-foreground">Happy Customers</div>
                     </div>
                   </div>
                 </div>

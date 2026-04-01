@@ -6,8 +6,7 @@ export default function TrustMarquee() {
   const topItems = [
     { icon: Sparkles, text: 'Handmade with Love', color: 'from-violet-500 to-purple-500', bg: 'from-violet-500/10 to-purple-500/10' },
     { icon: Shield, text: '100% Quality Assured', color: 'from-emerald-500 to-teal-500', bg: 'from-emerald-500/10 to-teal-500/10' },
-    { icon: Truck, text: 'Free Shipping ₹500+', color: 'from-blue-500 to-cyan-500', bg: 'from-blue-500/10 to-cyan-500/10' },
-    { icon: Gift, text: 'Beautiful Gift Wrap', color: 'from-pink-500 to-rose-500', bg: 'from-pink-500/10 to-rose-500/10' },
+    { icon: Truck, text: 'Free Shipping ₹999+', color: 'from-blue-500 to-cyan-500', bg: 'from-blue-500/10 to-cyan-500/10' },
     { icon: Heart, text: '100+ Happy Customers', color: 'from-rose-500 to-red-500', bg: 'from-rose-500/10 to-red-500/10' },
     { icon: Award, text: 'Premium Yarn Only', color: 'from-amber-500 to-orange-500', bg: 'from-amber-500/10 to-orange-500/10' },
   ];

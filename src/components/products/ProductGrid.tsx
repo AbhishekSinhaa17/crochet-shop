@@ -10,9 +10,10 @@ interface ProductGridProps {
   title?: string;
   subtitle?: string;
   showHeader?: boolean;
+  isAdmin?: boolean;
 }
 
-export default function ProductGrid({ products, title, subtitle, showHeader = true }: ProductGridProps) {
+export default function ProductGrid({ products, title, subtitle, showHeader = true, isAdmin = false }: ProductGridProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const sectionRef = useRef<HTMLElement>(null);
@@ -211,7 +212,7 @@ export default function ProductGrid({ products, title, subtitle, showHeader = tr
                       </div>
                     )}
 
-                    <ProductCard product={product} />
+                    <ProductCard product={product} isAdmin={isAdmin} />
                   </div>
 
                   {/* Reflection Effect */}

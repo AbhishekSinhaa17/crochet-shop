@@ -14,9 +14,10 @@ import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from
 interface ProductCardProps {
   product: Product;
   index?: number;
+  isAdmin?: boolean;
 }
 
-export default function ProductCard({ product, index = 0 }: ProductCardProps) {
+export default function ProductCard({ product, index = 0, isAdmin = false }: ProductCardProps) {
   const addItem = useCartStore((s) => s.addItem);
   const [wishlisted, setWishlisted] = useState(false);
   const [imgError, setImgError] = useState(false);
@@ -289,124 +290,128 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
             transition={{ duration: 0.3, ease: "easeOut" }}
           >
             {/* Wishlist button */}
-            <motion.button
-              onClick={handleWishlist}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              className="relative w-10 h-10 rounded-full flex items-center justify-center overflow-hidden group/btn"
-              style={{
-                background: "rgba(255, 255, 255, 0.9)",
-                backdropFilter: "blur(10px)",
-                boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
-              }}
-            >
-              <motion.div
-                animate={wishlisted ? { scale: [1, 1.3, 1] } : {}}
-                transition={{ duration: 0.3 }}
+            {!isAdmin && (
+              <motion.button
+                onClick={handleWishlist}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                className="relative w-10 h-10 rounded-full flex items-center justify-center overflow-hidden group/btn"
+                style={{
+                  background: "rgba(255, 255, 255, 0.9)",
+                  backdropFilter: "blur(10px)",
+                  boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
+                }}
               >
-                <Heart
-                  className={`w-4 h-4 transition-all duration-300 ${
-                    wishlisted 
-                      ? "fill-rose-500 text-rose-500" 
-                      : "text-gray-600 group-hover/btn:text-rose-500"
-                  }`}
-                />
-              </motion.div>
-              {/* Ripple effect */}
-              {wishlisted && (
                 <motion.div
-                  initial={{ scale: 0, opacity: 0.5 }}
-                  animate={{ scale: 2.5, opacity: 0 }}
-                  transition={{ duration: 0.5 }}
-                  className="absolute inset-0 bg-rose-500 rounded-full"
-                />
-              )}
-            </motion.button>
+                  animate={wishlisted ? { scale: [1, 1.3, 1] } : {}}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Heart
+                    className={`w-4 h-4 transition-all duration-300 ${
+                      wishlisted 
+                        ? "fill-rose-500 text-rose-500" 
+                        : "text-gray-600 group-hover/btn:text-rose-500"
+                    }`}
+                  />
+                </motion.div>
+                {/* Ripple effect */}
+                {wishlisted && (
+                  <motion.div
+                    initial={{ scale: 0, opacity: 0.5 }}
+                    animate={{ scale: 2.5, opacity: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="absolute inset-0 bg-rose-500 rounded-full"
+                  />
+                )}
+              </motion.button>
+            )}
 
 
           </motion.div>
 
           {/* Add to Cart button */}
-          <motion.div
-            className="absolute bottom-0 left-0 right-0 p-4 z-20"
-            initial={false}
-            animate={{ 
-              y: isHovered ? 0 : 20,
-              opacity: isHovered ? 1 : 0
-            }}
-            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <motion.button
-              onClick={handleAddToCart}
-              disabled={product.stock <= 0 || isAddingToCart}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className={`
-                w-full py-3 px-4 rounded-2xl font-semibold text-sm
-                flex items-center justify-center gap-2
-                transition-all duration-300
-                disabled:opacity-50 disabled:cursor-not-allowed
-                ${addedToCart 
-                  ? "bg-green-500 text-white" 
-                  : "bg-white text-gray-900 hover:bg-gray-50"
-                }
-              `}
-              style={{
-                backdropFilter: "blur(10px)",
-                boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
+          {!isAdmin && (
+            <motion.div
+              className="absolute bottom-0 left-0 right-0 p-4 z-20"
+              initial={false}
+              animate={{ 
+                y: isHovered ? 0 : 20,
+                opacity: isHovered ? 1 : 0
               }}
+              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
             >
-              <AnimatePresence mode="wait">
-                {isAddingToCart ? (
-                  <motion.div
-                    key="loading"
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.8 }}
-                    className="flex items-center gap-2"
-                  >
-                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                      <circle 
-                        className="opacity-25" 
-                        cx="12" cy="12" r="10" 
-                        stroke="currentColor" 
-                        strokeWidth="4" 
-                        fill="none" 
-                      />
-                      <path 
-                        className="opacity-75" 
-                        fill="currentColor" 
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" 
-                      />
-                    </svg>
-                    Adding...
-                  </motion.div>
-                ) : addedToCart ? (
-                  <motion.div
-                    key="added"
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.8 }}
-                    className="flex items-center gap-2"
-                  >
-                    <Check className="w-4 h-4" />
-                    Added to Cart!
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="default"
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.8 }}
-                    className="flex items-center gap-2"
-                  >
-                    <ShoppingBag className="w-4 h-4" />
-                    {product.stock <= 0 ? "Out of Stock" : "Add to Cart"}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.button>
-          </motion.div>
+              <motion.button
+                onClick={handleAddToCart}
+                disabled={product.stock <= 0 || isAddingToCart}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className={`
+                  w-full py-3 px-4 rounded-2xl font-semibold text-sm
+                  flex items-center justify-center gap-2
+                  transition-all duration-300
+                  disabled:opacity-50 disabled:cursor-not-allowed
+                  ${addedToCart 
+                    ? "bg-green-500 text-white" 
+                    : "bg-white text-gray-900 hover:bg-gray-50"
+                  }
+                `}
+                style={{
+                  backdropFilter: "blur(10px)",
+                  boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
+                }}
+              >
+                <AnimatePresence mode="wait">
+                  {isAddingToCart ? (
+                    <motion.div
+                      key="loading"
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                      className="flex items-center gap-2"
+                    >
+                      <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                        <circle 
+                          className="opacity-25" 
+                          cx="12" cy="12" r="10" 
+                          stroke="currentColor" 
+                          strokeWidth="4" 
+                          fill="none" 
+                        />
+                        <path 
+                          className="opacity-75" 
+                          fill="currentColor" 
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" 
+                        />
+                      </svg>
+                      Adding...
+                    </motion.div>
+                  ) : addedToCart ? (
+                    <motion.div
+                      key="added"
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                      className="flex items-center gap-2"
+                    >
+                      <Check className="w-4 h-4" />
+                      Added to Cart!
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="default"
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                      className="flex items-center gap-2"
+                    >
+                      <ShoppingBag className="w-4 h-4" />
+                      {product.stock <= 0 ? "Out of Stock" : "Add to Cart"}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.button>
+            </motion.div>
+          )}
         </div>
 
         {/* Card content */}

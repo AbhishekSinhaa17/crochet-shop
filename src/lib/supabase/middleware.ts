@@ -47,23 +47,26 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
-  if (adminRoutes.some((route) => pathname.startsWith(route))) {
-    if (!user) {
-      return NextResponse.redirect(new URL("/auth/login", request.url));
-    }
+  const retailPages = ["/cart", "/wishlist", "/checkout"];
+  const isAdminRoute = adminRoutes.some((route) => pathname.startsWith(route));
+  const isRetailPage = retailPages.some((route) => pathname.startsWith(route));
+
+  if (user && (isAdminRoute || isRetailPage)) {
     const { data: profile } = await supabase
       .from("profiles")
       .select("role")
       .eq("id", user.id)
       .maybeSingle();
 
-    console.log(`Middleware Checking User ID: ${user.id}, Role: ${profile?.role}`);
+    const role = profile?.role?.toLowerCase()?.trim();
 
-    if (profile?.role?.toLowerCase()?.trim() !== "admin") {
-      console.log(`Middleware: Access denied for role: ${profile?.role}. Redirecting to /`);
+    if (isAdminRoute && role !== "admin") {
       return NextResponse.redirect(new URL("/", request.url));
     }
-    console.log(`Middleware: Access granted for role: ${profile?.role}`);
+
+    if (isRetailPage && role === "admin") {
+      return NextResponse.redirect(new URL("/admin", request.url));
+    }
   }
 
   return supabaseResponse;

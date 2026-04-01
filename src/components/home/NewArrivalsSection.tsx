@@ -25,9 +25,24 @@ interface NewArrivalsSectionProps {
 export default function NewArrivalsSection({ products }: NewArrivalsSectionProps) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [timeLeft, setTimeLeft] = useState({ hours: 23, minutes: 59, seconds: 59 });
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoaded(true), 100);
+    
+    const fetchAdminStatus = async () => {
+      try {
+        const res = await fetch("/api/profile");
+        const json = await res.json();
+        if (json.profile?.role?.toLowerCase()?.trim() === "admin") {
+          setIsAdmin(true);
+        }
+      } catch (e) {
+        console.error("Error fetching admin status:", e);
+      }
+    };
+    fetchAdminStatus();
+
     return () => clearTimeout(timer);
   }, []);
 
@@ -494,7 +509,7 @@ export default function NewArrivalsSection({ products }: NewArrivalsSectionProps
           </div>
 
           {/* Product Grid */}
-          <ProductGrid products={products || []} showHeader={false} />
+          <ProductGrid products={products || []} showHeader={false} isAdmin={isAdmin} />
 
 
         </div>

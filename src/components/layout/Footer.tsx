@@ -49,7 +49,6 @@ export default function Footer() {
   const features = [
     { icon: Truck, label: "Free Shipping", desc: "On orders over ₹999" },
     { icon: Shield, label: "Secure Payment", desc: "100% protected" },
-    { icon: Gift, label: "Gift Wrapping", desc: "Available on request" },
     { icon: Star, label: "Premium Quality", desc: "Handcrafted items" },
   ];
 

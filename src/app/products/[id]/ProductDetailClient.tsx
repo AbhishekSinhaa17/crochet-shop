@@ -49,10 +49,23 @@ export default function ProductDetailClient({
   const [isLoaded, setIsLoaded] = useState(false);
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const addItem = useCartStore((s) => s.addItem);
 
   useEffect(() => {
     setIsLoaded(true);
+    const fetchAdminStatus = async () => {
+      try {
+        const res = await fetch("/api/profile");
+        const json = await res.json();
+        if (json.profile?.role?.toLowerCase()?.trim() === "admin") {
+          setIsAdmin(true);
+        }
+      } catch (e) {
+        console.error("Error fetching admin status:", e);
+      }
+    };
+    fetchAdminStatus();
   }, []);
 
   const parsedImages = getProductImages(product.images);
@@ -64,6 +77,7 @@ export default function ProductDetailClient({
     product.compare_price && product.compare_price > product.price;
 
   const handleAddToCart = () => {
+    if (isAdmin) return;
     if (product.stock <= 0) {
       toast.error("Out of stock!");
       return;
@@ -75,6 +89,7 @@ export default function ProductDetailClient({
   };
 
   const handleWishlist = async () => {
+    if (isAdmin) return;
     const supabase = createClient();
     const {
       data: { user },
@@ -185,21 +200,23 @@ export default function ProductDetailClient({
                 </div>
 
                 {/* Quick Actions */}
-                <div className="absolute top-4 right-4 flex flex-col gap-2 z-20 opacity-0 group-hover:opacity-100 translate-x-4 group-hover:translate-x-0 transition-all duration-300">
-                  <button
-                    onClick={handleWishlist}
-                    className={`p-3 rounded-full backdrop-blur-md transition-all duration-300 ${
-                      isWishlisted 
-                        ? "bg-red-500 text-white" 
-                        : "bg-white/80 dark:bg-gray-800/80 text-gray-700 dark:text-gray-200 hover:bg-red-500 hover:text-white dark:hover:bg-red-500"
-                    }`}
-                  >
-                    <Heart className={`w-5 h-5 ${isWishlisted ? "fill-current" : ""}`} />
-                  </button>
-                  <button className="p-3 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md rounded-full text-gray-700 dark:text-gray-200 hover:bg-amber-500 hover:text-white transition-all duration-300">
-                    <Share2 className="w-5 h-5" />
-                  </button>
-                </div>
+                {!isAdmin && (
+                  <div className="absolute top-4 right-4 flex flex-col gap-2 z-20 opacity-0 group-hover:opacity-100 translate-x-4 group-hover:translate-x-0 transition-all duration-300">
+                    <button
+                      onClick={handleWishlist}
+                      className={`p-3 rounded-full backdrop-blur-md transition-all duration-300 ${
+                        isWishlisted 
+                          ? "bg-red-500 text-white" 
+                          : "bg-white/80 dark:bg-gray-800/80 text-gray-700 dark:text-gray-200 hover:bg-red-500 hover:text-white dark:hover:bg-red-500"
+                      }`}
+                    >
+                      <Heart className={`w-5 h-5 ${isWishlisted ? "fill-current" : ""}`} />
+                    </button>
+                    <button className="p-3 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md rounded-full text-gray-700 dark:text-gray-200 hover:bg-amber-500 hover:text-white transition-all duration-300">
+                      <Share2 className="w-5 h-5" />
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -320,62 +337,64 @@ export default function ProductDetailClient({
             </div>
 
             {/* Quantity & Add to Cart */}
-            <div className="space-y-4 p-6 bg-gradient-to-br from-white to-amber-50/50 dark:from-gray-900/50 dark:to-amber-900/20 rounded-2xl border border-amber-100/50 dark:border-amber-800/30 shadow-lg shadow-amber-100/20 dark:shadow-black/20">
-              <div className="flex items-center gap-4">
-                <span className="text-gray-700 dark:text-gray-300 font-medium">Quantity:</span>
-                <div className="flex items-center bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-700 rounded-full overflow-hidden shadow-inner">
+            {!isAdmin && (
+              <div className="space-y-4 p-6 bg-gradient-to-br from-white to-amber-50/50 dark:from-gray-900/50 dark:to-amber-900/20 rounded-2xl border border-amber-100/50 dark:border-amber-800/30 shadow-lg shadow-amber-100/20 dark:shadow-black/20">
+                <div className="flex items-center gap-4">
+                  <span className="text-gray-700 dark:text-gray-300 font-medium">Quantity:</span>
+                  <div className="flex items-center bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-700 rounded-full overflow-hidden shadow-inner">
+                    <button
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      className="p-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors active:scale-95"
+                    >
+                      <Minus className="w-4 h-4 dark:text-gray-300" />
+                    </button>
+                    <span className="w-14 text-center font-bold text-lg dark:text-white">{quantity}</span>
+                    <button
+                      onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
+                      className="p-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors active:scale-95"
+                    >
+                      <Plus className="w-4 h-4 dark:text-gray-300" />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex gap-3">
                   <button
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="p-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors active:scale-95"
+                    onClick={handleAddToCart}
+                    disabled={product.stock <= 0}
+                    className={`flex-1 py-4 px-8 rounded-xl font-bold text-lg transition-all duration-500 flex items-center justify-center gap-3 ${
+                      addedToCart
+                        ? "bg-emerald-500 text-white"
+                        : "bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 bg-size-200 bg-pos-0 hover:bg-pos-100 text-white shadow-lg shadow-amber-500/30 hover:shadow-xl hover:shadow-amber-500/40 hover:-translate-y-0.5"
+                    } disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0`}
+                    style={{ backgroundSize: "200% auto" }}
                   >
-                    <Minus className="w-4 h-4 dark:text-gray-300" />
+                    {addedToCart ? (
+                      <>
+                        <Check className="w-6 h-6 animate-bounce" />
+                        Added to Cart!
+                      </>
+                    ) : (
+                      <>
+                        <ShoppingBag className="w-6 h-6" />
+                        Add to Cart
+                      </>
+                    )}
                   </button>
-                  <span className="w-14 text-center font-bold text-lg dark:text-white">{quantity}</span>
+
                   <button
-                    onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
-                    className="p-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors active:scale-95"
+                    onClick={handleWishlist}
+                    className={`p-4 rounded-xl border-2 transition-all duration-300 ${
+                      isWishlisted
+                        ? "bg-red-500 border-red-500 text-white"
+                        : "border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-red-200 dark:hover:border-red-900/50 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-500"
+                    }`}
                   >
-                    <Plus className="w-4 h-4 dark:text-gray-300" />
+                    <Heart className={`w-6 h-6 ${isWishlisted ? "fill-current animate-pulse" : ""}`} />
                   </button>
                 </div>
               </div>
-
-              <div className="flex gap-3">
-                <button
-                  onClick={handleAddToCart}
-                  disabled={product.stock <= 0}
-                  className={`flex-1 py-4 px-8 rounded-xl font-bold text-lg transition-all duration-500 flex items-center justify-center gap-3 ${
-                    addedToCart
-                      ? "bg-emerald-500 text-white"
-                      : "bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 bg-size-200 bg-pos-0 hover:bg-pos-100 text-white shadow-lg shadow-amber-500/30 hover:shadow-xl hover:shadow-amber-500/40 hover:-translate-y-0.5"
-                  } disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0`}
-                  style={{ backgroundSize: "200% auto" }}
-                >
-                  {addedToCart ? (
-                    <>
-                      <Check className="w-6 h-6 animate-bounce" />
-                      Added to Cart!
-                    </>
-                  ) : (
-                    <>
-                      <ShoppingBag className="w-6 h-6" />
-                      Add to Cart
-                    </>
-                  )}
-                </button>
-
-                <button
-                  onClick={handleWishlist}
-                  className={`p-4 rounded-xl border-2 transition-all duration-300 ${
-                    isWishlisted
-                      ? "bg-red-500 border-red-500 text-white"
-                      : "border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-red-200 dark:hover:border-red-900/50 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-500"
-                  }`}
-                >
-                  <Heart className={`w-6 h-6 ${isWishlisted ? "fill-current animate-pulse" : ""}`} />
-                </button>
-              </div>
-            </div>
+            )}
 
             {/* Premium Features */}
             <div className="grid grid-cols-3 gap-4">
@@ -438,26 +457,28 @@ export default function ProductDetailClient({
                 {currentReviews.length} reviews from verified buyers
               </p>
             </div>
-            <button
-              onClick={() => setShowReviewForm(!showReviewForm)}
-              className={`px-6 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center gap-2 ${
-                showReviewForm
-                  ? "bg-gray-100 text-gray-600"
-                  : "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/30 hover:shadow-xl hover:-translate-y-0.5"
-              }`}
-            >
-              {showReviewForm ? (
-                <>
-                  <X className="w-5 h-5" />
-                  Cancel
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-5 h-5" />
-                  Write a Review
-                </>
-              )}
-            </button>
+            {!isAdmin && (
+              <button
+                onClick={() => setShowReviewForm(!showReviewForm)}
+                className={`px-6 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center gap-2 ${
+                  showReviewForm
+                    ? "bg-gray-100 text-gray-600"
+                    : "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/30 hover:shadow-xl hover:-translate-y-0.5"
+                }`}
+              >
+                {showReviewForm ? (
+                  <>
+                    <X className="w-5 h-5" />
+                    Cancel
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-5 h-5" />
+                    Write a Review
+                  </>
+                )}
+              </button>
+            )}
           </div>
 
           {/* Review Stats */}
@@ -510,12 +531,14 @@ export default function ProductDetailClient({
             <div className="text-center py-16 bg-gradient-to-br from-white to-amber-50/50 dark:from-gray-900/50 dark:to-amber-900/20 rounded-2xl border border-amber-100/50 dark:border-amber-800/30">
               <Package className="w-16 h-16 text-amber-300 dark:text-amber-900/50 mx-auto mb-4" />
               <p className="text-gray-500 dark:text-gray-400 text-lg mb-4">No reviews yet.</p>
-              <button
-                onClick={() => setShowReviewForm(true)}
-                className="text-amber-600 dark:text-amber-500 font-semibold hover:underline"
-              >
-                Be the first to review this product!
-              </button>
+              {!isAdmin && (
+                <button
+                  onClick={() => setShowReviewForm(true)}
+                  className="text-amber-600 dark:text-amber-500 font-semibold hover:underline"
+                >
+                  Be the first to review this product!
+                </button>
+              )}
             </div>
           ) : (
             <div className="grid md:grid-cols-2 gap-6">
@@ -624,7 +647,7 @@ export default function ProductDetailClient({
                   className="transform hover:-translate-y-2 transition-transform duration-500"
                   style={{ animationDelay: `${idx * 100}ms` }}
                 >
-                  <ProductCard product={p} />
+                  <ProductCard product={p} isAdmin={isAdmin} />
                 </div>
               ))}
             </div>

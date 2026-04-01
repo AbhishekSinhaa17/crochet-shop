@@ -66,6 +66,7 @@ export default function ProductsPageClient({
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000]);
   const [showOnlyInStock, setShowOnlyInStock] = useState(false);
   const [showOnlyOnSale, setShowOnlyOnSale] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     setIsLoaded(true);
@@ -74,6 +75,19 @@ export default function ProductsPageClient({
     if (savedView === "grid" || savedView === "list") {
       setViewMode(savedView);
     }
+
+    const fetchAdminStatus = async () => {
+      try {
+        const res = await fetch("/api/profile");
+        const json = await res.json();
+        if (json.profile?.role?.toLowerCase()?.trim() === "admin") {
+          setIsAdmin(true);
+        }
+      } catch (e) {
+        console.error("Error fetching admin status:", e);
+      }
+    };
+    fetchAdminStatus();
   }, []);
 
   const handleViewChange = (mode: "grid" | "list") => {
@@ -489,9 +503,9 @@ export default function ProductsPageClient({
                       }}
                     >
                       {viewMode === "grid" ? (
-                        <ProductCard product={product} />
+                        <ProductCard product={product} isAdmin={isAdmin} />
                       ) : (
-                        <ProductListCard product={product} />
+                        <ProductListCard product={product} isAdmin={isAdmin} />
                       )}
                     </div>
                   ))}
@@ -586,7 +600,7 @@ export default function ProductsPageClient({
 }
 
 // Product List Card Component
-function ProductListCard({ product }: { product: Product }) {
+function ProductListCard({ product, isAdmin = false }: { product: Product; isAdmin?: boolean }) {
   const addItem = useCartStore((s) => s.addItem);
   const [isWishlisted, setIsWishlisted] = useState(false);
   const hasDiscount = product.compare_price && product.compare_price > product.price;
@@ -595,6 +609,7 @@ function ProductListCard({ product }: { product: Product }) {
     e.preventDefault();
     e.stopPropagation();
 
+    if (isAdmin) return;
     if (product.stock <= 0) {
       toast.error("Out of stock!");
       return;
@@ -607,6 +622,7 @@ function ProductListCard({ product }: { product: Product }) {
   const handleWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (isAdmin) return;
     setIsWishlisted(!isWishlisted);
     toast.success(isWishlisted ? "Removed from wishlist" : "Added to wishlist!");
   };
@@ -680,25 +696,27 @@ function ProductListCard({ product }: { product: Product }) {
             )}
           </div>
           
-          <div className="flex items-center gap-2">
-            <button 
-              onClick={handleWishlist}
-              className={cn(
-                "p-2 rounded-lg transition-colors",
-                isWishlisted
-                  ? "bg-red-500 text-white shadow-md shadow-red-500/20"
-                  : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-red-100 dark:hover:bg-red-900/30 hover:text-red-500 dark:hover:text-red-400"
-              )}
-            >
-              <Heart className={cn("w-5 h-5", isWishlisted && "fill-current")} />
-            </button>
-            <button 
-              onClick={handleAddToCart}
-              className="p-2 rounded-lg bg-amber-500 text-white hover:bg-amber-600 shadow-md shadow-amber-500/20 transition-all active:scale-95"
-            >
-              <ShoppingBag className="w-5 h-5" />
-            </button>
-          </div>
+          {!isAdmin && (
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={handleWishlist}
+                className={cn(
+                  "p-2 rounded-lg transition-colors",
+                  isWishlisted
+                    ? "bg-red-500 text-white shadow-md shadow-red-500/20"
+                    : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-red-100 dark:hover:bg-red-900/30 hover:text-red-500 dark:hover:text-red-400"
+                )}
+              >
+                <Heart className={cn("w-5 h-5", isWishlisted && "fill-current")} />
+              </button>
+              <button 
+                onClick={handleAddToCart}
+                className="p-2 rounded-lg bg-amber-500 text-white hover:bg-amber-600 shadow-md shadow-amber-500/20 transition-all active:scale-95"
+              >
+                <ShoppingBag className="w-5 h-5" />
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </Link>
