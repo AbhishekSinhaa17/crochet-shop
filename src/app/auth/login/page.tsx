@@ -55,7 +55,7 @@ export default function LoginPage() {
             <Scissors className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-3xl font-display font-bold mb-2">Welcome Back</h1>
-          <p className="text-gray-500">Sign in to your CrochetCraft account</p>
+          <p className="text-gray-500">Sign in to your Strokes of Craft account</p>
         </div>
 
         <div className="card p-8">

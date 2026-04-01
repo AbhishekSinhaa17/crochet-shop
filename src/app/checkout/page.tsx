@@ -85,7 +85,7 @@ export default function CheckoutPage() {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount: total * 100,
         currency: "INR",
-        name: "CrochetCraft",
+        name: "Strokes of Craft",
         description: "Handmade Crochet Products",
         order_id: data.orderId,
         handler: async (response: any) => {
@@ -105,7 +105,7 @@ export default function CheckoutPage() {
             if (!verifyData.verified) throw new Error("Payment verification failed");
 
             // Create order in database
-            const orderNumber = `CC-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
+            const orderNumber = `SC-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
             const orderItems = items.map((item) => ({
               product_id: item.id,
               name: item.name,

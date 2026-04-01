@@ -26,12 +26,11 @@ export default function CategoryBento({ categories }: CategoryBentoProps) {
   }, []);
 
   const sizes = [
-    'col-span-12 md:col-span-6 lg:col-span-4 row-span-2',
-    'col-span-6 md:col-span-6 lg:col-span-4 row-span-1',
-    'col-span-6 md:col-span-6 lg:col-span-4 row-span-1',
-    'col-span-12 md:col-span-6 lg:col-span-4 row-span-2',
-    'col-span-6 md:col-span-6 lg:col-span-4 row-span-1',
-    'col-span-6 md:col-span-6 lg:col-span-4 row-span-1',
+    'col-span-12 md:col-span-12 lg:col-span-4 row-span-2', // Massive Featured Item
+    'col-span-6 md:col-span-6 lg:col-span-4 row-span-1',   // Top Middle
+    'col-span-6 md:col-span-6 lg:col-span-4 row-span-1',   // Top Right
+    'col-span-6 md:col-span-6 lg:col-span-4 row-span-1',   // Bottom Middle
+    'col-span-6 md:col-span-6 lg:col-span-4 row-span-1',   // Bottom Right
   ];
 
   const gradients = [
@@ -40,7 +39,6 @@ export default function CategoryBento({ categories }: CategoryBentoProps) {
     'from-amber-500 via-orange-500 to-yellow-500',
     'from-emerald-500 via-teal-500 to-cyan-500',
     'from-blue-500 via-indigo-500 to-violet-500',
-    'from-pink-500 via-rose-500 to-orange-500',
   ];
 
   const iconColors = [
@@ -49,7 +47,6 @@ export default function CategoryBento({ categories }: CategoryBentoProps) {
     'text-amber-500',
     'text-emerald-500',
     'text-blue-500',
-    'text-pink-500',
   ];
 
   return (
@@ -446,7 +443,7 @@ export default function CategoryBento({ categories }: CategoryBentoProps) {
           {/* Bento Grid */}
           <div className="grid grid-cols-12 gap-4 md:gap-6 auto-rows-[180px] md:auto-rows-[200px]">
             {(categories || []).map((cat, idx) => {
-              const isLarge = idx === 0 || idx === 3;
+              const isLarge = idx === 0;
               const gradient = gradients[idx % gradients.length];
               const iconColor = iconColors[idx % iconColors.length];
 

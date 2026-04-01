@@ -139,7 +139,7 @@ export default function PrivacyPolicyPage() {
         {/* Footer Info */}
         <div className="text-center animate-fade-in-up animation-delay-1200">
           <p className="text-sm text-slate-500 dark:text-slate-400">
-            For any data-related queries, please email us at <Link href="mailto:privacy@crochetcraft.in" className="text-emerald-600 font-bold hover:underline">privacy@crochetcraft.in</Link>
+            For any data-related queries, please email us at <Link href="mailto:hello@strokesofcraft.in" className="text-emerald-600 font-bold hover:underline">hello@strokesofcraft.in</Link>
           </p>
         </div>
       </div>

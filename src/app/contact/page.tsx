@@ -22,7 +22,7 @@ export default function ContactPage() {
   };
 
   const contactInfo = [
-    { icon: Mail, title: "Email Us", value: "hello@crochetcraft.in", href: "mailto:hello@crochetcraft.in", color: "violet" },
+    { icon: Mail, title: "Email Us", value: "hello@strokesofcraft.in", href: "mailto:hello@strokesofcraft.in", color: "violet" },
     { icon: Phone, title: "Call Us", value: "+91 98765 43210", href: "tel:+919876543210", color: "blue" },
     { icon: MapPin, title: "Visit Us", value: "123 Craft Lane, Creative City, IN", href: "#", color: "pink" },
   ];

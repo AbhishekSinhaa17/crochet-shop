@@ -49,7 +49,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <Scissors className="w-5 h-5 text-white" />
             </div>
             <div>
-              <p className="font-display font-bold">CrochetCraft</p>
+              <p className="font-display font-bold">Strokes of Craft</p>
               <p className="text-xs text-gray-500">Admin Panel</p>
             </div>
           </Link>

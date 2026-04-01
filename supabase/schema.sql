@@ -1,5 +1,5 @@
 -- ============================================
--- CrochetCraft Database Schema
+-- Strokes of Craft Database Schema
 -- ============================================
 
 -- Enable UUID extension
@@ -354,7 +354,6 @@ INSERT INTO public.categories (name, slug, description, image_url) VALUES
   ('Amigurumi', 'amigurumi', 'Adorable crocheted stuffed toys and figures', 'https://images.unsplash.com/photo-1615529151169-7b1ff50dc7f2?w=400'),
   ('Home Decor', 'home-decor', 'Beautiful crochet pieces for your home', 'https://images.unsplash.com/photo-1615529151169-7b1ff50dc7f2?w=400'),
   ('Accessories', 'accessories', 'Handmade crochet accessories and jewelry', 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=400'),
-  ('Clothing', 'clothing', 'Cozy crocheted clothing items', 'https://images.unsplash.com/photo-1591154665854-01fe24139d07?w=400'),
   ('Baby Items', 'baby-items', 'Soft and safe crochet items for babies', 'https://images.unsplash.com/photo-1519689680058-324335c77eba?w=400'),
   ('Bags & Purses', 'bags-purses', 'Stylish crocheted bags and purses', 'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?w=400');
 

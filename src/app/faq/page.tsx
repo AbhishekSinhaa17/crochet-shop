@@ -16,7 +16,7 @@ import {
 import Link from "next/link";
 
 // export const metadata = {
-//   title: 'FAQ | CrochetCraft',
+//   title: 'FAQ | Strokes of Craft',
 //   description: 'Frequently asked questions about our handmade crochet products, shipping, and custom orders.',
 // };
 

@@ -15,7 +15,7 @@ import GoToTop from "@/components/common/GoToTop";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "CrochetCraft – Handmade with Love",
+  title: "Strokes of Craft – Handmade with Love",
   description:
     "Shop unique handmade crochet products. Amigurumi, home decor, accessories, baby items and custom orders.",
 };
@@ -40,7 +40,7 @@ export default async function HomePage() {
   const { data: categories } = await supabase
     .from("categories")
     .select("*")
-    .limit(6);
+    .limit(5);
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">

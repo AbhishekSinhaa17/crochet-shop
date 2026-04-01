@@ -11,7 +11,7 @@ export default function TermsOfServicePage() {
   const sections = [
     {
       title: "Agreement to Terms",
-      content: "By accessing or using CrochetCraft, you agree to be bound by these Terms of Service. If you do not agree with any part of these terms, please do not use our website or services. These terms apply to all visitors, users, and others who access or use the service.",
+      content: "By accessing or using Strokes of Craft, you agree to be bound by these Terms of Service. If you do not agree with any part of these terms, please do not use our website or services. These terms apply to all visitors, users, and others who access or use the service.",
       icon: Scale,
       color: "violet"
     },
@@ -29,7 +29,7 @@ export default function TermsOfServicePage() {
     },
     {
       title: "Intellectual Property",
-      content: "All designs, patterns, photographs, and content on CrochetCraft are the intellectual property of our artisans. You may not reproduce, redistribute, or sell our patterns or finished items without explicit written permission.",
+      content: "All designs, patterns, photographs, and content on Strokes of Craft are the intellectual property of our artisans. You may not reproduce, redistribute, or sell our patterns or finished items without explicit written permission.",
       icon: Shield,
       color: "amber"
     },
@@ -92,7 +92,7 @@ export default function TermsOfServicePage() {
           </h1>
           
           <p className="text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed animate-fade-in-up animation-delay-400">
-            Welcome to CrochetCraft. Please read these terms carefully before using our services. 
+            Welcome to Strokes of Craft. Please read these terms carefully before using our services. 
             Updated on <span className="font-semibold text-violet-600 dark:text-violet-400">October 2023.</span>
           </p>
         </div>

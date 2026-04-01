@@ -126,10 +126,7 @@ export default function Footer() {
             className="lg:col-span-1"
             style={{ animation: "footerFadeUp 0.6s ease-out both" }}
           >
-            <Link
-              href="/"
-              className="inline-flex items-center gap-3 mb-6 group"
-            >
+            <Link href="/" className="inline-flex items-center gap-3 mb-6 group">
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-violet-600 to-purple-600 rounded-2xl blur-lg opacity-40 group-hover:opacity-60 transition-opacity duration-300 animate-pulse" />
                 <div className="relative w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-600 via-purple-600 to-pink-500 flex items-center justify-center shadow-lg shadow-violet-500/30 dark:shadow-violet-500/40 transition-all duration-500 group-hover:scale-110 group-hover:rotate-[-8deg] overflow-hidden">
@@ -139,16 +136,21 @@ export default function Footer() {
                 </div>
               </div>
               <div className="flex flex-col">
-                <span className="text-2xl font-bold bg-gradient-to-r from-slate-900 via-violet-900 to-purple-900 dark:from-white dark:via-violet-200 dark:to-purple-200 bg-clip-text text-transparent">
-                  CrochetCraft
-                </span>
+                <div className="flex items-baseline gap-0.5">
+                  <span className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                    Strokes
+                  </span>
+                  <span className="text-2xl font-black bg-gradient-to-r from-pink-500 via-purple-500 to-violet-500 bg-clip-text text-transparent tracking-tight">
+                    of Craft
+                  </span>
+                </div>
                 <span className="text-[10px] uppercase tracking-[0.2em] font-semibold text-violet-600 dark:text-violet-400 opacity-0 group-hover:opacity-100 transition-all duration-300 -mt-0.5">
                   Handmade with love
                 </span>
               </div>
             </Link>
 
-            <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-6 max-w-xs">
+            <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-6 max-w-xs transition-colors duration-300">
               Handmade with love, each piece tells a story. Discover unique
               crochet creations crafted with care and passion for every
               occasion.
@@ -240,7 +242,6 @@ export default function Footer() {
             </h3>
             <ul className="space-y-3">
               {[
-                { href: "/return-policy", label: "Returns Policy", icon: RotateCcw, color: "pink" },
                 { href: "/terms", label: "Terms of Service", icon: FileText, color: "violet" },
                 { href: "/privacy", label: "Privacy Policy", icon: ShieldCheck, color: "blue" },
                 { href: "/faq", label: "FAQ", icon: HelpCircle, color: "emerald" },
@@ -295,8 +296,8 @@ export default function Footer() {
                 },
                 {
                   icon: Mail,
-                  text: "hello@crochetcraft.in",
-                  href: "mailto:hello@crochetcraft.in",
+                  text: "hello@strokesofcraft.in",
+                  href: "mailto:hello@strokesofcraft.in",
                   color: "emerald",
                 },
               ].map(({ icon: Icon, text, href, color }, i) => (
@@ -433,8 +434,8 @@ export default function Footer() {
           style={{ animation: "footerFadeUp 0.6s ease-out 0.5s both" }}
         >
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <p className="text-sm text-slate-500 dark:text-slate-400 order-2 md:order-1">
-              © {currentYear} CrochetCraft. All rights reserved.
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+              © {currentYear} Strokes of Craft. All rights reserved.
             </p>
 
             {/* Bottom Links */}

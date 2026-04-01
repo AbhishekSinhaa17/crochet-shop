@@ -560,7 +560,7 @@ export default function AboutSection() {
               {/* Description */}
               <div className="space-y-4 text-lg text-muted-foreground leading-relaxed mb-10">
                 <p>
-                  At <span className="text-foreground font-bold text-gradient-purple">CrochetCraft</span>, 
+                  At <span className="text-foreground font-bold text-gradient-purple">Strokes of Craft</span>, 
                   we believe every stitch carries emotion, every pattern tells a story, 
                   and every piece becomes a treasured keepsake.
                 </p>

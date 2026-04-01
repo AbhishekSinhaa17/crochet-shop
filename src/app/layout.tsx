@@ -6,8 +6,8 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "CrochetCraft – Handmade Crochet Products",
-    template: "%s | CrochetCraft",
+    default: "Strokes of Craft – Handmade Crochet Products",
+    template: "%s | Strokes of Craft",
   },
   description:
     "Discover unique handmade crochet products. Amigurumi, home decor, accessories, and custom orders crafted with love.",
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_IN",
-    siteName: "CrochetCraft",
+    siteName: "Strokes of Craft",
   },
 };
 

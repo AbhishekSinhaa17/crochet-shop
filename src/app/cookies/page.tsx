@@ -66,7 +66,7 @@ export default function CookiesPolicyPage() {
           </h1>
           
           <p className="text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed animate-fade-in-up animation-delay-400">
-            We use cookies to ensure you get the best experience on CrochetCraft. Learn more about how we use them and how you can manage them.
+            We use cookies to ensure you get the best experience on Strokes of Craft. Learn more about how we use them and how you can manage them.
           </p>
         </div>
 
@@ -123,6 +123,7 @@ export default function CookiesPolicyPage() {
           <h2 className="text-2xl font-bold mb-4">How to manage cookies</h2>
           <p className="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed mb-6">
             Most web browsers allow you to control cookies through their settings preferences. However, if you limit the ability of websites to set cookies, you may worsen your overall user experience, as it will no longer be personalized to you.
+            For any data-related queries, please email us at <Link href="mailto:hello@strokesofcraft.in" className="text-emerald-600 font-bold hover:underline">hello@strokesofcraft.in</Link>
           </p>
           <div className="inline-flex items-center gap-2 text-rose-600 font-bold hover:underline cursor-pointer">
             Explore your browser settings <ArrowRight className="w-4 h-4" />

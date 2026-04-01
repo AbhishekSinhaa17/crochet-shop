@@ -335,10 +335,10 @@ export default function Header() {
               <div className="hidden sm:flex flex-col">
                 <div className="flex items-baseline gap-0.5">
                   <span className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-                    Crochet
+                    Strokes
                   </span>
                   <span className="text-3xl font-black bg-gradient-to-r from-pink-500 via-purple-500 to-violet-500 bg-clip-text text-transparent tracking-tight">
-                    Craft
+                    of Craft
                   </span>
                 </div>
                 <span className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">

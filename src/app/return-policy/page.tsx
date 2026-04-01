@@ -5,8 +5,8 @@ import Link from "next/link";
 import { useState } from "react";
 
 // export const metadata: Metadata = {
-//   title: "Returns Policy | CrochetCraft",
-//   description: "Learn about our 7-day return and exchange policy for handmade crochet items.",
+//   title: "Returns Policy | Strokes of Craft",
+//   description: "Our policies and procedures for product returns, exchanges, and refunds.",
 // };
 
 export default function ReturnPolicyPage() {
