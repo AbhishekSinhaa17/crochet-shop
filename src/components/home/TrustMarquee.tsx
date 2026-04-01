@@ -13,7 +13,7 @@ export default function TrustMarquee() {
   ];
 
   const bottomItems = [
-    { icon: Clock, text: 'Fast 5-7 Day Delivery', color: 'from-indigo-500 to-violet-500', bg: 'from-indigo-500/10 to-violet-500/10' },
+    { icon: Clock, text: 'Fast 10 Day Delivery', color: 'from-indigo-500 to-violet-500', bg: 'from-indigo-500/10 to-violet-500/10' },
     { icon: Crown, text: 'Exclusive Designs', color: 'from-amber-500 to-yellow-500', bg: 'from-amber-500/10 to-yellow-500/10' },
     { icon: Star, text: '4.9★ Customer Rating', color: 'from-yellow-500 to-amber-500', bg: 'from-yellow-500/10 to-amber-500/10' },
     { icon: Gem, text: 'Unique Creations', color: 'from-purple-500 to-pink-500', bg: 'from-purple-500/10 to-pink-500/10' },

@@ -884,7 +884,7 @@ export default function CustomOrderPage() {
                   { step: 2, title: "Review & Quote", desc: "We review and send quote", time: "24-48h" },
                   { step: 3, title: "Confirm & Pay", desc: "Approve and make payment", time: "1 day" },
                   { step: 4, title: "Crafting", desc: "Artisan creates your piece", time: "7-14 days" },
-                  { step: 5, title: "Delivery", desc: "Shipped with love!", time: "3-5 days" },
+                  { step: 5, title: "Delivery", desc: "Shipped with love!", time: "10 days" },
                 ].map((item, i) => (
                   <div key={i} className="flex gap-4">
                     <div className="flex flex-col items-center">

@@ -17,7 +17,7 @@ export default function ReturnPolicyPage() {
     { step: 1, title: "Contact Us", description: "Reach out within 7 days of delivery via chat or email", icon: MessageCircle },
     { step: 2, title: "Get Address", description: "We'll provide you with a return shipping address", icon: Package },
     { step: 3, title: "Ship Item", description: "Securely pack and ship the item back to us", icon: RefreshCcw },
-    { step: 4, title: "Get Refund", description: "Refund processed within 5-7 business days", icon: Check },
+    { step: 4, title: "Get Refund", description: "Refund processed within 10 business days", icon: Check },
   ];
 
   const policies = [

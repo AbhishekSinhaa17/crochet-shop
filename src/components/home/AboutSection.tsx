@@ -53,9 +53,9 @@ export default function AboutSection() {
   }, []);
 
   const stats = [
-    { number: "200+", label: "Happy Customers", icon: Users, color: "from-rose-500 to-pink-600" },
+    { number: "100+", label: "Happy Customers", icon: Users, color: "from-rose-500 to-pink-600" },
     { number: "100+", label: "Unique Designs", icon: Gem, color: "from-violet-500 to-purple-600" },
-    { number: "5+", label: "Years Experience", icon: Award, color: "from-amber-500 to-orange-600" },
+    { number: "2+", label: "Years Experience", icon: Award, color: "from-amber-500 to-orange-600" },
     { number: "100%", label: "Handmade", icon: Heart, color: "from-emerald-500 to-teal-600" },
   ];
 

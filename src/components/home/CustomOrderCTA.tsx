@@ -80,7 +80,7 @@ export default function CustomOrderCTA() {
   }, []);
 
   const stats = [
-    { value: '500+', label: 'Custom Orders', icon: Package, color: 'from-violet-500 to-purple-600', bg: 'from-violet-500/20 to-purple-500/20' },
+    { value: '100+', label: 'Custom Orders', icon: Package, color: 'from-violet-500 to-purple-600', bg: 'from-violet-500/20 to-purple-500/20' },
     { value: '24h', label: 'Response Time', icon: Clock, color: 'from-cyan-500 to-blue-600', bg: 'from-cyan-500/20 to-blue-500/20' },
     { value: '100%', label: 'Satisfaction', icon: Heart, color: 'from-rose-500 to-pink-600', bg: 'from-rose-500/20 to-pink-500/20' },
     { value: '5.0', label: 'Star Rating', icon: Star, color: 'from-amber-500 to-orange-600', bg: 'from-amber-500/20 to-orange-500/20' },
@@ -879,7 +879,7 @@ export default function CustomOrderCTA() {
                             ))}
                           </div>
                           <p className="text-xs text-white/70">
-                            <span className="font-semibold text-white">500+</span> happy customers
+                            <span className="font-semibold text-white">100+</span> happy customers
                           </p>
                         </div>
                       </div>

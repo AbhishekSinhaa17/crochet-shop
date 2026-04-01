@@ -678,7 +678,7 @@ export default function TestimonialsSection() {
                     ))}
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    <span className="font-semibold text-foreground">2,500+</span> happy customers
+                    <span className="font-semibold text-foreground">100+</span> happy customers
                   </p>
                 </div>
               </div>
