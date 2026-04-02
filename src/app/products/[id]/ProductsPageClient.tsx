@@ -28,6 +28,7 @@ import {
   Heart,
   ShoppingBag,
 } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -615,7 +616,8 @@ function ProductListCard({ product, isAdmin = false }: { product: Product; isAdm
       return;
     }
 
-    addItem(product, 1);
+    const supabase = createClient();
+    addItem(product, 1, supabase);
     toast.success(`${product.name} added to cart!`);
   };
 

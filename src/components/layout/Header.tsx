@@ -49,6 +49,8 @@ export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
   const itemCount = useCartStore((s) => s.getItemCount());
+  const clearCart = useCartStore((s) => s.clearCart);
+  const setItems = useCartStore((s) => s.setItems);
   const supabase = createClient();
 
   const fetchProfile = async () => {
@@ -79,12 +81,44 @@ export default function Header() {
     };
     getUser();
 
+    // Fetch individual cart for the user
+    const fetchCart = async (userId: string) => {
+      try {
+        const { data, error } = await supabase
+          .from("cart_items")
+          .select("*, product:products(*)")
+          .eq("user_id", userId);
+        
+        if (error) throw error;
+        
+        if (data) {
+          const cartProducts = data.map((item: any) => ({
+            id: item.product.id,
+            name: item.product.name,
+            price: item.product.price,
+            compare_price: item.product.compare_price,
+            image: item.product.images?.[0] || "",
+            stock: item.product.stock,
+            quantity: item.quantity,
+          }));
+          setItems(cartProducts);
+        }
+      } catch (err) {
+        console.error("Cart Fetch Error:", err);
+      }
+    };
+
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       setUser(session?.user ?? null);
-      if (session?.user) await fetchProfile();
-      else setProfile(null);
+      if (session?.user) {
+        await fetchProfile();
+        await fetchCart(session.user.id);
+      } else {
+        setProfile(null);
+        clearCart();
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -147,7 +181,10 @@ export default function Header() {
     };
   }, [menuOpen, searchOpen]);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    // Clear cart before logging out to ensure individual sections
+    clearCart();
+    
     const form = document.createElement("form");
     form.method = "POST";
     form.action = "/auth/signout";

@@ -98,19 +98,22 @@ export default function CartPage() {
     
     setUpdatingIds(new Set([...updatingIds, id]));
     await new Promise(resolve => setTimeout(resolve, 300));
-    updateQuantity(id, newQuantity);
+    const supabase = createClient();
+    updateQuantity(id, newQuantity, supabase);
     setUpdatingIds(new Set([...updatingIds].filter(i => i !== id)));
   };
 
   const handleRemoveItem = async (id: string, name: string) => {
     setRemovingIds(new Set([...removingIds, id]));
     await new Promise(resolve => setTimeout(resolve, 500));
-    removeItem(id);
+    const supabase = createClient();
+    removeItem(id, supabase);
     toast.success(`${name} removed from cart`);
   };
 
   const handleClearCart = () => {
-    clearCart();
+    const supabase = createClient();
+    clearCart(supabase);
     setAppliedPromo(null);
     toast.success("Cart cleared");
   };

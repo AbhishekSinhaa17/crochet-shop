@@ -127,7 +127,7 @@ export default function WishlistPageClient({ products: initialProducts, wishlist
     // Simulate a small delay for better UX
     await new Promise(resolve => setTimeout(resolve, 500));
     
-    addItem(product, 1);
+    addItem(product, 1, supabase);
     toast.success(`${product.name} added to cart!`);
     
     setAddingToCartIds(new Set([...addingToCartIds].filter(id => id !== product.id)));
@@ -142,7 +142,7 @@ export default function WishlistPageClient({ products: initialProducts, wishlist
     }
 
     for (const product of availableProducts) {
-      addItem(product, 1);
+      addItem(product, 1, supabase);
     }
     
     toast.success(`Added ${availableProducts.length} items to cart!`);

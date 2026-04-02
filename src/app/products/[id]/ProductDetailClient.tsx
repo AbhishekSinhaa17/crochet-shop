@@ -82,7 +82,8 @@ export default function ProductDetailClient({
       toast.error("Out of stock!");
       return;
     }
-    addItem(product, quantity);
+    const supabase = createClient();
+    addItem(product, quantity, supabase);
     setAddedToCart(true);
     toast.success(`${product.name} added to cart!`);
     setTimeout(() => setAddedToCart(false), 2000);

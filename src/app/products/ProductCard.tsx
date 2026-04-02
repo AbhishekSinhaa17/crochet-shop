@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Product } from "@/types";
 import { useCartStore } from "@/store/cartStore";
+import { createClient } from "@/lib/supabase/client";
 import { formatPrice, getProductImage, getDiscountPercent } from "@/lib/utils";
 import { Heart, ShoppingBag, Star, Sparkles, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -37,7 +38,8 @@ export default function ProductCard({ product, className }: Props) {
     }
     
     setIsAddingToCart(true);
-    addItem(product, 1);
+    const supabase = createClient();
+    addItem(product, 1, supabase);
     toast.success(`${product.name} added to cart!`);
     
     setTimeout(() => setIsAddingToCart(false), 1000);

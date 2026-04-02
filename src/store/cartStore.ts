@@ -16,10 +16,11 @@ export interface CartProduct {
 
 interface CartState {
   items: CartProduct[];
-  addItem: (product: Product, quantity?: number) => void;
-  removeItem: (productId: string) => void;
-  updateQuantity: (productId: string, quantity: number) => void;
-  clearCart: () => void;
+  addItem: (product: Product, quantity?: number, supabase?: any) => void;
+  removeItem: (productId: string, supabase?: any) => void;
+  updateQuantity: (productId: string, quantity: number, supabase?: any) => void;
+  setItems: (items: CartProduct[]) => void;
+  clearCart: (supabase?: any) => void;
   getTotal: () => number;
   getItemCount: () => number;
 }
@@ -29,20 +30,18 @@ export const useCartStore = create<CartState>()(
     (set, get) => ({
       items: [],
 
-      addItem: (product: Product, quantity = 1) => {
+      addItem: async (product: Product, quantity = 1, supabase?: any) => {
         set((state) => {
           const existing = state.items.find((i) => i.id === product.id);
+          let newItems;
           if (existing) {
-            return {
-              items: state.items.map((i) =>
-                i.id === product.id
-                  ? { ...i, quantity: Math.min(i.quantity + quantity, i.stock) }
-                  : i
-              ),
-            };
-          }
-          return {
-            items: [
+            newItems = state.items.map((i) =>
+              i.id === product.id
+                ? { ...i, quantity: Math.min(i.quantity + quantity, i.stock) }
+                : i
+            );
+          } else {
+            newItems = [
               ...state.items,
               {
                 id: product.id,
@@ -53,30 +52,87 @@ export const useCartStore = create<CartState>()(
                 stock: product.stock,
                 quantity,
               },
-            ],
-          };
+            ];
+          }
+
+          // Sync with Supabase if provided
+          if (supabase) {
+            const syncCart = async () => {
+              const { data: { user } } = await supabase.auth.getUser();
+              if (user) {
+                const item = newItems.find(i => i.id === product.id);
+                if (item) {
+                  await supabase.from("cart_items").upsert({
+                    user_id: user.id,
+                    product_id: product.id,
+                    quantity: item.quantity
+                  }, { onConflict: 'user_id,product_id' });
+                }
+              }
+            };
+            syncCart();
+          }
+
+          return { items: newItems };
         });
       },
 
-      removeItem: (productId: string) => {
-        set((state) => ({
-          items: state.items.filter((i) => i.id !== productId),
-        }));
+      removeItem: async (productId: string, supabase?: any) => {
+        set((state) => {
+          const newItems = state.items.filter((i) => i.id !== productId);
+          
+          if (supabase) {
+            const syncRemove = async () => {
+              const { data: { user } } = await supabase.auth.getUser();
+              if (user) {
+                await supabase.from("cart_items").delete().eq("user_id", user.id).eq("product_id", productId);
+              }
+            };
+            syncRemove();
+          }
+
+          return { items: newItems };
+        });
       },
 
-      updateQuantity: (productId: string, quantity: number) => {
+      updateQuantity: async (productId: string, quantity: number, supabase?: any) => {
         if (quantity <= 0) {
-          get().removeItem(productId);
+          get().removeItem(productId, supabase);
           return;
         }
-        set((state) => ({
-          items: state.items.map((i) =>
+        set((state) => {
+          const newItems = state.items.map((i) =>
             i.id === productId ? { ...i, quantity: Math.min(quantity, i.stock) } : i
-          ),
-        }));
+          );
+
+          if (supabase) {
+            const syncUpdate = async () => {
+              const { data: { user } } = await supabase.auth.getUser();
+              if (user) {
+                await supabase.from("cart_items").update({ quantity }).eq("user_id", user.id).eq("product_id", productId);
+              }
+            };
+            syncUpdate();
+          }
+
+          return { items: newItems };
+        });
       },
 
-      clearCart: () => set({ items: [] }),
+      setItems: (items) => set({ items }),
+
+      clearCart: async (supabase?: any) => {
+        set({ items: [] });
+        if (supabase) {
+          const syncClear = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+              await supabase.from("cart_items").delete().eq("user_id", user.id);
+            }
+          };
+          syncClear();
+        }
+      },
 
       getTotal: () => {
         return get().items.reduce((sum, item) => sum + item.price * item.quantity, 0);

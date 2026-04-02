@@ -72,7 +72,8 @@ export default function ProductCard({ product, index = 0, isAdmin = false }: Pro
     // Simulate a small delay for better UX
     await new Promise(resolve => setTimeout(resolve, 600));
     
-    addItem(product);
+    const supabase = createClient();
+    addItem(product, 1, supabase);
     setIsAddingToCart(false);
     setAddedToCart(true);
     
