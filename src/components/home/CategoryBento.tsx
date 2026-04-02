@@ -211,7 +211,7 @@ export default function CategoryBento({ categories }: CategoryBentoProps) {
         {/* === BACKGROUND === */}
         <div className="absolute inset-0">
           {/* Base gradient */}
-          <div className="absolute inset-0 bg-gradient-to-b from-white via-violet-50/30 to-rose-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-violet-950/20" />
+          <div className="absolute inset-0 bg-linear-to-b from-white via-violet-50/30 to-rose-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-violet-950/20" />
           
           {/* Animated gradient orbs */}
           <div 
@@ -261,20 +261,20 @@ export default function CategoryBento({ categories }: CategoryBentoProps) {
         <div className="absolute left-0 top-0 bottom-0 w-32 lg:w-48 pointer-events-none">
           {/* Yarn balls */}
           <div className="absolute top-[20%] left-4 lg:left-8 animate-float-slow">
-            <div className="w-20 h-20 lg:w-28 lg:h-28 rounded-full bg-gradient-to-br from-violet-200/50 to-violet-300/30 dark:from-violet-800/30 dark:to-violet-900/20 shadow-lg">
+            <div className="w-20 h-20 lg:w-28 lg:h-28 rounded-full bg-linear-to-br from-violet-200/50 to-violet-300/30 dark:from-violet-800/30 dark:to-violet-900/20 shadow-lg">
               <div className="absolute inset-2 rounded-full border-2 border-dashed border-violet-400/30 animate-spin-slow" />
-              <div className="absolute inset-4 rounded-full bg-gradient-to-br from-violet-300/40 to-transparent" />
+              <div className="absolute inset-4 rounded-full bg-linear-to-br from-violet-300/40 to-transparent" />
             </div>
           </div>
 
           <div className="absolute top-[50%] left-6 lg:left-12 animate-float-medium" style={{ animationDelay: '1s' }}>
-            <div className="w-14 h-14 lg:w-20 lg:h-20 rounded-full bg-gradient-to-br from-rose-200/50 to-rose-300/30 dark:from-rose-800/30 dark:to-rose-900/20 shadow-lg">
+            <div className="w-14 h-14 lg:w-20 lg:h-20 rounded-full bg-linear-to-br from-rose-200/50 to-rose-300/30 dark:from-rose-800/30 dark:to-rose-900/20 shadow-lg">
               <div className="absolute inset-2 rounded-full border border-dashed border-rose-400/30 animate-spin-slow" style={{ animationDirection: 'reverse' }} />
             </div>
           </div>
 
           <div className="absolute bottom-[20%] left-4 lg:left-8 animate-float-fast" style={{ animationDelay: '2s' }}>
-            <div className="w-16 h-16 lg:w-24 lg:h-24 rounded-full bg-gradient-to-br from-amber-200/50 to-amber-300/30 dark:from-amber-800/30 dark:to-amber-900/20 shadow-lg">
+            <div className="w-16 h-16 lg:w-24 lg:h-24 rounded-full bg-linear-to-br from-amber-200/50 to-amber-300/30 dark:from-amber-800/30 dark:to-amber-900/20 shadow-lg">
               <div className="absolute inset-3 rounded-full border border-dashed border-amber-400/30 animate-spin-slow" />
             </div>
           </div>
@@ -315,19 +315,19 @@ export default function CategoryBento({ categories }: CategoryBentoProps) {
         <div className="absolute right-0 top-0 bottom-0 w-32 lg:w-48 pointer-events-none">
           {/* Yarn balls */}
           <div className="absolute top-[25%] right-4 lg:right-8 animate-float-medium">
-            <div className="w-16 h-16 lg:w-24 lg:h-24 rounded-full bg-gradient-to-br from-emerald-200/50 to-emerald-300/30 dark:from-emerald-800/30 dark:to-emerald-900/20 shadow-lg">
+            <div className="w-16 h-16 lg:w-24 lg:h-24 rounded-full bg-linear-to-br from-emerald-200/50 to-emerald-300/30 dark:from-emerald-800/30 dark:to-emerald-900/20 shadow-lg">
               <div className="absolute inset-2 rounded-full border border-dashed border-emerald-400/30 animate-spin-slow" style={{ animationDirection: 'reverse' }} />
             </div>
           </div>
 
           <div className="absolute top-[55%] right-6 lg:right-12 animate-float-slow" style={{ animationDelay: '2s' }}>
-            <div className="w-20 h-20 lg:w-28 lg:h-28 rounded-full bg-gradient-to-br from-pink-200/50 to-pink-300/30 dark:from-pink-800/30 dark:to-pink-900/20 shadow-lg">
+            <div className="w-20 h-20 lg:w-28 lg:h-28 rounded-full bg-linear-to-br from-pink-200/50 to-pink-300/30 dark:from-pink-800/30 dark:to-pink-900/20 shadow-lg">
               <div className="absolute inset-3 rounded-full border-2 border-dashed border-pink-400/30 animate-spin-slow" />
             </div>
           </div>
 
           <div className="absolute bottom-[15%] right-4 lg:right-8 animate-float-fast" style={{ animationDelay: '1s' }}>
-            <div className="w-12 h-12 lg:w-16 lg:h-16 rounded-full bg-gradient-to-br from-blue-200/50 to-blue-300/30 dark:from-blue-800/30 dark:to-blue-900/20 shadow-lg" />
+            <div className="w-12 h-12 lg:w-16 lg:h-16 rounded-full bg-linear-to-br from-blue-200/50 to-blue-300/30 dark:from-blue-800/30 dark:to-blue-900/20 shadow-lg" />
           </div>
 
           {/* Floating icons */}
@@ -393,7 +393,7 @@ export default function CategoryBento({ categories }: CategoryBentoProps) {
           >
             {/* Badge */}
             <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full glass-badge shadow-lg mb-6">
-              <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-500 shadow-md">
+              <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-linear-to-br from-violet-500 to-purple-500 shadow-md">
                 <Layers className="w-4 h-4 text-white" />
               </div>
               <span className="text-sm font-semibold text-gradient-primary">
@@ -468,9 +468,9 @@ export default function CategoryBento({ categories }: CategoryBentoProps) {
                         className="object-cover transition-all duration-700 group-hover:scale-110"
                       />
                     ) : (
-                      <div className={`w-full h-full flex items-center justify-center bg-gradient-to-br ${gradient.replace('from-', 'from-').split(' ').map(c => c.includes('from-') || c.includes('via-') || c.includes('to-') ? c.replace('500', '100') : c).join(' ')} dark:${gradient.replace('from-', 'from-').split(' ').map(c => c.includes('from-') || c.includes('via-') || c.includes('to-') ? c.replace('500', '900/30') : c).join(' ')}`}>
+                      <div className={`w-full h-full flex items-center justify-center bg-linear-to-br ${gradient.replace('from-', 'from-').split(' ').map(c => c.includes('from-') || c.includes('via-') || c.includes('to-') ? c.replace('500', '100') : c).join(' ')} dark:${gradient.replace('from-', 'from-').split(' ').map(c => c.includes('from-') || c.includes('via-') || c.includes('to-') ? c.replace('500', '900/30') : c).join(' ')}`}>
                         <div className="relative">
-                          <div className={`absolute inset-0 bg-gradient-to-br ${gradient} blur-2xl opacity-30 animate-pulse-glow`} />
+                          <div className={`absolute inset-0 bg-linear-to-br ${gradient} blur-2xl opacity-30 animate-pulse-glow`} />
                           <Sparkles className={`relative ${isLarge ? 'w-24 h-24' : 'w-16 h-16'} ${iconColor} opacity-40`} />
                         </div>
                       </div>
@@ -478,23 +478,23 @@ export default function CategoryBento({ categories }: CategoryBentoProps) {
                   </div>
 
                   {/* Gradient overlays */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent transition-all duration-500" />
-                  <div className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-0 group-hover:opacity-20 transition-all duration-500`} />
+                  <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/30 to-transparent transition-all duration-500" />
+                  <div className={`absolute inset-0 bg-linear-to-br ${gradient} opacity-0 group-hover:opacity-20 transition-all duration-500`} />
                   
                   {/* Animated border */}
-                  <div className={`absolute inset-0 rounded-3xl border-2 border-transparent bg-gradient-to-r ${gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-border-dance`} style={{ backgroundClip: 'border-box', WebkitMask: 'linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0)', WebkitMaskComposite: 'xor', maskComposite: 'exclude' }} />
+                  <div className={`absolute inset-0 rounded-3xl border-2 border-transparent bg-linear-to-r ${gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-border-dance`} style={{ backgroundClip: 'border-box', WebkitMask: 'linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0)', WebkitMaskComposite: 'xor', maskComposite: 'exclude' }} />
 
                   {/* Shine effect */}
                   <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                    <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                   </div>
 
                   {/* Top accent line */}
-                  <div className={`absolute top-0 left-1/2 -translate-x-1/2 h-1 rounded-full bg-gradient-to-r ${gradient} w-0 group-hover:w-2/3 transition-all duration-500`} />
+                  <div className={`absolute top-0 left-1/2 -translate-x-1/2 h-1 rounded-full bg-linear-to-r ${gradient} w-0 group-hover:w-2/3 transition-all duration-500`} />
 
                   {/* Corner decoration */}
                   <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-2 group-hover:translate-y-0">
-                    <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center shadow-lg`}>
+                    <div className={`w-10 h-10 rounded-xl bg-linear-to-br ${gradient} flex items-center justify-center shadow-lg`}>
                       <ArrowRight className="w-5 h-5 text-white -rotate-45" />
                     </div>
                   </div>
@@ -513,7 +513,7 @@ export default function CategoryBento({ categories }: CategoryBentoProps) {
                     
                     <div className="flex items-center gap-3 text-white/80 group-hover:text-white transition-all duration-300">
                       <span className="text-sm font-medium">Explore Now</span>
-                      <div className={`w-8 h-8 rounded-full bg-gradient-to-r ${gradient} flex items-center justify-center shadow-lg transition-all duration-300 group-hover:scale-110`}>
+                      <div className={`w-8 h-8 rounded-full bg-linear-to-r ${gradient} flex items-center justify-center shadow-lg transition-all duration-300 group-hover:scale-110`}>
                         <ArrowRight className="w-4 h-4 text-white transition-transform duration-300 group-hover:translate-x-0.5" />
                       </div>
                     </div>
@@ -541,16 +541,16 @@ export default function CategoryBento({ categories }: CategoryBentoProps) {
               className="group relative inline-flex items-center gap-4 px-8 py-4 rounded-2xl font-bold glass-card shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-1 overflow-hidden"
             >
               {/* Gradient background on hover */}
-              <div className="absolute inset-0 bg-gradient-to-r from-violet-500 via-purple-500 to-rose-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="absolute inset-0 bg-linear-to-r from-violet-500 via-purple-500 to-rose-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               
               {/* Shine effect */}
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+              <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
               
               <span className="relative text-foreground group-hover:text-white transition-colors duration-300">
                 View All Collections
               </span>
               
-              <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-500 group-hover:from-white/20 group-hover:to-white/10 flex items-center justify-center shadow-md transition-all duration-300 group-hover:scale-110">
+              <div className="relative w-10 h-10 rounded-xl bg-linear-to-br from-violet-500 to-purple-500 group-hover:from-white/20 group-hover:to-white/10 flex items-center justify-center shadow-md transition-all duration-300 group-hover:scale-110">
                 <ArrowRight className="w-5 h-5 text-white transition-transform duration-300 group-hover:translate-x-0.5" />
               </div>
             </Link>
@@ -558,10 +558,10 @@ export default function CategoryBento({ categories }: CategoryBentoProps) {
         </div>
 
         {/* === CORNER ACCENTS === */}
-        <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-violet-500/10 via-transparent to-transparent blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-tl from-rose-500/10 via-transparent to-transparent blur-3xl pointer-events-none" />
-        <div className="absolute top-1/3 right-0 w-64 h-64 bg-gradient-to-l from-amber-500/8 to-transparent blur-3xl pointer-events-none" />
-        <div className="absolute bottom-1/3 left-0 w-64 h-64 bg-gradient-to-r from-violet-500/8 to-transparent blur-3xl pointer-events-none" />
+        <div className="absolute top-0 left-0 w-96 h-96 bg-linear-to-br from-violet-500/10 via-transparent to-transparent blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-linear-to-tl from-rose-500/10 via-transparent to-transparent blur-3xl pointer-events-none" />
+        <div className="absolute top-1/3 right-0 w-64 h-64 bg-linear-to-l from-amber-500/8 to-transparent blur-3xl pointer-events-none" />
+        <div className="absolute bottom-1/3 left-0 w-64 h-64 bg-linear-to-r from-violet-500/8 to-transparent blur-3xl pointer-events-none" />
       </section>
     </>
   );

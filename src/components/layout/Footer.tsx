@@ -53,19 +53,19 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="relative overflow-hidden mt-20 transition-colors duration-500 bg-gradient-to-b from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-900 dark:to-slate-950 border-t border-slate-200/80 dark:border-slate-800/80">
+    <footer className="relative overflow-hidden mt-20 transition-colors duration-500 bg-linear-to-b from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-900 dark:to-slate-950 border-t border-slate-200/80 dark:border-slate-800/80">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         {/* Gradient Orbs */}
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-br from-violet-500/10 to-purple-500/10 dark:from-violet-500/20 dark:to-purple-500/20 rounded-full blur-3xl animate-[pulse_8s_ease-in-out_infinite]" />
-        <div className="absolute -top-40 -right-40 w-[500px] h-[500px] bg-gradient-to-br from-pink-500/8 to-rose-500/8 dark:from-pink-500/15 dark:to-rose-500/15 rounded-full blur-3xl animate-[pulse_10s_ease-in-out_infinite_2s]" />
-        <div className="absolute bottom-1/3 right-1/4 w-72 h-72 bg-gradient-to-br from-indigo-500/5 to-cyan-500/5 dark:from-indigo-500/10 dark:to-cyan-500/10 rounded-full blur-3xl animate-[pulse_12s_ease-in-out_infinite_4s]" />
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-linear-to-br from-violet-500/10 to-purple-500/10 dark:from-violet-500/20 dark:to-purple-500/20 rounded-full blur-3xl animate-[pulse_8s_ease-in-out_infinite]" />
+        <div className="absolute -top-40 -right-40 w-[500px] h-[500px] bg-linear-to-br from-pink-500/8 to-rose-500/8 dark:from-pink-500/15 dark:to-rose-500/15 rounded-full blur-3xl animate-[pulse_10s_ease-in-out_infinite_2s]" />
+        <div className="absolute bottom-1/3 right-1/4 w-72 h-72 bg-linear-to-br from-indigo-500/5 to-cyan-500/5 dark:from-indigo-500/10 dark:to-cyan-500/10 rounded-full blur-3xl animate-[pulse_12s_ease-in-out_infinite_4s]" />
 
         {/* Floating Particles */}
         {[...Array(5)].map((_, i) => (
           <div
             key={i}
-            className="absolute rounded-full bg-gradient-to-r from-violet-400 to-pink-400 dark:from-violet-500 dark:to-pink-500"
+            className="absolute rounded-full bg-linear-to-r from-violet-400 to-pink-400 dark:from-violet-500 dark:to-pink-500"
             style={{
               width: `${3 + (i % 3) * 3}px`,
               height: `${3 + (i % 3) * 3}px`,
@@ -83,7 +83,7 @@ export default function Footer() {
       </div>
 
       {/* Top Gradient Line */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-500/50 dark:via-violet-400/50 to-transparent" />
+      <div className="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-violet-500/50 dark:via-violet-400/50 to-transparent" />
 
       {/* Features Bar */}
       <div className="relative border-b border-slate-200/80 dark:border-slate-800/80 bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl">
@@ -98,8 +98,8 @@ export default function Footer() {
                 }}
               >
                 <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl blur-lg opacity-0 group-hover:opacity-40 transition-opacity duration-300" />
-                  <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-violet-100 to-purple-100 dark:from-violet-900/50 dark:to-purple-900/50 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:bg-gradient-to-br group-hover:from-violet-500 group-hover:to-purple-600 border border-violet-200/50 dark:border-violet-700/50 group-hover:border-transparent">
+                  <div className="absolute inset-0 bg-linear-to-br from-violet-500 to-purple-600 rounded-xl blur-lg opacity-0 group-hover:opacity-40 transition-opacity duration-300" />
+                  <div className="relative w-12 h-12 rounded-xl bg-linear-to-br from-violet-100 to-purple-100 dark:from-violet-900/50 dark:to-purple-900/50 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:bg-linear-to-br group-hover:from-violet-500 group-hover:to-purple-600 border border-violet-200/50 dark:border-violet-700/50 group-hover:border-transparent">
                     <feature.icon className="w-5 h-5 text-violet-600 dark:text-violet-400 transition-colors duration-300 group-hover:text-white" />
                   </div>
                 </div>
@@ -127,10 +127,10 @@ export default function Footer() {
           >
             <Link href="/" className="inline-flex items-center gap-3 mb-6 group">
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-violet-600 to-purple-600 rounded-2xl blur-lg opacity-40 group-hover:opacity-60 transition-opacity duration-300 animate-pulse" />
-                <div className="relative w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-600 via-purple-600 to-pink-500 flex items-center justify-center shadow-lg shadow-violet-500/30 dark:shadow-violet-500/40 transition-all duration-500 group-hover:scale-110 group-hover:rotate-[-8deg] overflow-hidden">
+                <div className="absolute inset-0 bg-linear-to-br from-violet-600 to-purple-600 rounded-2xl blur-lg opacity-40 group-hover:opacity-60 transition-opacity duration-300 animate-pulse" />
+                <div className="relative w-12 h-12 rounded-2xl bg-linear-to-br from-violet-600 via-purple-600 to-pink-500 flex items-center justify-center shadow-lg shadow-violet-500/30 dark:shadow-violet-500/40 transition-all duration-500 group-hover:scale-110 group-hover:rotate-[-8deg] overflow-hidden">
                   {/* Shimmer */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
+                  <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
                   <Scissors className="w-6 h-6 text-white relative z-10 transition-transform duration-300 group-hover:rotate-12" />
                 </div>
               </div>
@@ -139,7 +139,7 @@ export default function Footer() {
                   <span className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
                     Strokes
                   </span>
-                  <span className="text-2xl font-black bg-gradient-to-r from-pink-500 via-purple-500 to-violet-500 bg-clip-text text-transparent tracking-tight">
+                  <span className="text-2xl font-black bg-linear-to-r from-pink-500 via-purple-500 to-violet-500 bg-clip-text text-transparent tracking-tight">
                     of Craft
                   </span>
                 </div>
@@ -185,11 +185,11 @@ export default function Footer() {
                 >
                   {/* Hover gradient */}
                   <div
-                    className={`absolute inset-0 bg-gradient-to-br ${hoverColor} opacity-0 group-hover/social:opacity-100 transition-opacity duration-300`}
+                    className={`absolute inset-0 bg-linear-to-br ${hoverColor} opacity-0 group-hover/social:opacity-100 transition-opacity duration-300`}
                   />
                   {/* Glow effect */}
                   <div
-                    className={`absolute inset-0 bg-gradient-to-br ${hoverColor} blur-xl opacity-0 group-hover/social:opacity-50 transition-opacity duration-300 ${hoverShadow}`}
+                    className={`absolute inset-0 bg-linear-to-br ${hoverColor} blur-xl opacity-0 group-hover/social:opacity-50 transition-opacity duration-300 ${hoverShadow}`}
                   />
                   <Icon className="w-5 h-5 text-slate-500 dark:text-slate-400 relative z-10 transition-all duration-300 group-hover/social:text-white group-hover/social:scale-110" />
                 </a>
@@ -200,7 +200,7 @@ export default function Footer() {
           {/* Quick Links */}
           <div style={{ animation: "footerFadeUp 0.6s ease-out 0.1s both" }}>
             <h3 className="font-bold text-base mb-6 flex items-center gap-2 text-slate-800 dark:text-white">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/30">
+              <div className="w-8 h-8 rounded-lg bg-linear-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/30">
                 <Sparkles className="w-4 h-4 text-white" />
               </div>
               Quick Links
@@ -234,7 +234,7 @@ export default function Footer() {
           {/* Support */}
           <div style={{ animation: "footerFadeUp 0.6s ease-out 0.2s both" }}>
             <h3 className="font-bold text-base mb-6 flex items-center gap-2 text-slate-800 dark:text-white">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center shadow-lg shadow-pink-500/30">
+              <div className="w-8 h-8 rounded-lg bg-linear-to-br from-pink-500 to-rose-600 flex items-center justify-center shadow-lg shadow-pink-500/30">
                 <Heart className="w-4 h-4 text-white" />
               </div>
               Support
@@ -274,7 +274,7 @@ export default function Footer() {
           {/* Contact */}
           <div style={{ animation: "footerFadeUp 0.6s ease-out 0.3s both" }}>
             <h3 className="font-bold text-base mb-6 flex items-center gap-2 text-slate-800 dark:text-white">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/30">
+              <div className="w-8 h-8 rounded-lg bg-linear-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/30">
                 <Mail className="w-4 h-4 text-white" />
               </div>
               Contact Us
@@ -348,18 +348,18 @@ export default function Footer() {
           style={{ animation: "footerFadeUp 0.6s ease-out 0.4s both" }}
         >
           {/* Background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 via-purple-500/5 to-pink-500/5 dark:from-violet-500/10 dark:via-purple-500/10 dark:to-pink-500/10" />
+          <div className="absolute inset-0 bg-linear-to-br from-violet-500/5 via-purple-500/5 to-pink-500/5 dark:from-violet-500/10 dark:via-purple-500/10 dark:to-pink-500/10" />
           <div className="absolute inset-0 bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl" />
 
           {/* Border */}
           <div className="absolute inset-0 rounded-3xl border border-slate-200/80 dark:border-slate-700/80" />
 
           {/* Gradient border effect */}
-          <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-violet-500/20 via-purple-500/20 to-pink-500/20 dark:from-violet-500/30 dark:via-purple-500/30 dark:to-pink-500/30 opacity-0 hover:opacity-100 transition-opacity duration-500 -z-10 blur-xl" />
+          <div className="absolute inset-0 rounded-3xl bg-linear-to-r from-violet-500/20 via-purple-500/20 to-pink-500/20 dark:from-violet-500/30 dark:via-purple-500/30 dark:to-pink-500/30 opacity-0 hover:opacity-100 transition-opacity duration-500 -z-10 blur-xl" />
 
           {/* Decorative elements */}
-          <div className="absolute -top-20 -right-20 w-40 h-40 bg-gradient-to-br from-violet-500/20 to-purple-500/20 rounded-full blur-3xl" />
-          <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-gradient-to-br from-pink-500/20 to-rose-500/20 rounded-full blur-3xl" />
+          <div className="absolute -top-20 -right-20 w-40 h-40 bg-linear-to-br from-violet-500/20 to-purple-500/20 rounded-full blur-3xl" />
+          <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-linear-to-br from-pink-500/20 to-rose-500/20 rounded-full blur-3xl" />
 
           <div className="relative flex flex-col lg:flex-row items-center justify-between gap-6">
             <div className="text-center lg:text-left max-w-md">
@@ -381,7 +381,7 @@ export default function Footer() {
               className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto"
             >
               <div className="relative flex-1 lg:w-72">
-                <div className="absolute inset-0 bg-gradient-to-r from-violet-500 to-purple-500 rounded-xl blur opacity-0 focus-within:opacity-20 transition-opacity duration-300" />
+                <div className="absolute inset-0 bg-linear-to-r from-violet-500 to-purple-500 rounded-xl blur opacity-0 focus-within:opacity-20 transition-opacity duration-300" />
                 <div className="relative bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm focus-within:shadow-lg focus-within:border-violet-400 dark:focus-within:border-violet-500 transition-all duration-300">
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500" />
                   <input
@@ -401,13 +401,13 @@ export default function Footer() {
                 className="group/sub relative px-8 py-4 rounded-xl text-sm font-bold text-white overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-violet-500/30 dark:hover:shadow-violet-500/40 hover:scale-105 active:scale-95 disabled:opacity-80 disabled:cursor-not-allowed disabled:hover:scale-100"
               >
                 {/* Background */}
-                <div className="absolute inset-0 bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600" />
+                <div className="absolute inset-0 bg-linear-to-r from-violet-600 via-purple-600 to-pink-600" />
 
                 {/* Shimmer */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover/sub:translate-x-full transition-transform duration-700 ease-in-out" />
+                <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover/sub:translate-x-full transition-transform duration-700 ease-in-out" />
 
                 {/* Glow */}
-                <div className="absolute inset-0 bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 blur-xl opacity-0 group-hover/sub:opacity-50 transition-opacity duration-300" />
+                <div className="absolute inset-0 bg-linear-to-r from-violet-600 via-purple-600 to-pink-600 blur-xl opacity-0 group-hover/sub:opacity-50 transition-opacity duration-300" />
 
                 <span className="relative z-10 flex items-center gap-2">
                   {subscribed ? (
@@ -450,7 +450,7 @@ export default function Footer() {
                   className="text-sm text-slate-500 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors duration-200 relative group/link"
                 >
                   {link.label}
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-violet-500 to-purple-500 group-hover/link:w-full transition-all duration-300" />
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-linear-to-r from-violet-500 to-purple-500 group-hover/link:w-full transition-all duration-300" />
                 </Link>
               ))}
             </div>

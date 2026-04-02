@@ -90,11 +90,11 @@ export default function OrderDetailClient({ order }: Props) {
   const address = order.shipping_address;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-amber-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-amber-950/20">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-amber-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-amber-950/20">
       {/* Animated Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 -left-20 w-96 h-96 bg-gradient-to-r from-amber-200/30 to-orange-200/30 dark:from-amber-600/10 dark:to-orange-600/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-20 -right-20 w-96 h-96 bg-gradient-to-r from-purple-200/30 to-pink-200/30 dark:from-purple-600/10 dark:to-pink-600/10 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute top-20 -left-20 w-96 h-96 bg-linear-to-r from-amber-200/30 to-orange-200/30 dark:from-amber-600/10 dark:to-orange-600/10 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-20 -right-20 w-96 h-96 bg-linear-to-r from-purple-200/30 to-pink-200/30 dark:from-purple-600/10 dark:to-pink-600/10 rounded-full blur-3xl animate-pulse" />
       </div>
 
       <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -126,7 +126,7 @@ export default function OrderDetailClient({ order }: Props) {
 
           {/* Order Header Card */}
           <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl shadow-gray-100/50 dark:shadow-none border border-gray-100 dark:border-gray-800 overflow-hidden">
-            <div className={`h-2 bg-gradient-to-r ${status.gradient}`} />
+            <div className={`h-2 bg-linear-to-r ${status.gradient}`} />
             
             <div className="p-6 md:p-8">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -190,7 +190,7 @@ export default function OrderDetailClient({ order }: Props) {
                 {/* Progress Line */}
                 <div className="absolute top-6 left-6 right-6 h-1 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
                   <div 
-                    className={`h-full bg-gradient-to-r ${status.gradient} transition-all duration-1000`}
+                    className={`h-full bg-linear-to-r ${status.gradient} transition-all duration-1000`}
                     style={{ width: `${(currentStatusIndex / (statusSteps.length - 1)) * 100}%` }}
                   />
                 </div>
@@ -212,7 +212,7 @@ export default function OrderDetailClient({ order }: Props) {
                           className={cn(
                             "w-12 h-12 rounded-full flex items-center justify-center transition-all duration-500 z-10",
                             isCompleted 
-                              ? `bg-gradient-to-br ${status.gradient} text-white shadow-lg` 
+                              ? `bg-linear-to-br ${status.gradient} text-white shadow-lg` 
                               : "bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500",
                             isCurrent && "ring-4 ring-amber-100 dark:ring-amber-900/30 scale-110"
                           )}
@@ -411,7 +411,7 @@ export default function OrderDetailClient({ order }: Props) {
             )}
 
             {/* Need Help? */}
-            <div className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/10 dark:to-orange-900/10 rounded-2xl border border-amber-100 dark:border-amber-900/20 p-6">
+            <div className="bg-linear-to-br from-amber-50 to-orange-50 dark:from-amber-900/10 dark:to-orange-900/10 rounded-2xl border border-amber-100 dark:border-amber-900/20 p-6">
               <div className="flex items-start gap-4">
                 <div className="w-12 h-12 bg-white dark:bg-gray-900 rounded-xl flex items-center justify-center shadow-sm">
                   <HelpCircle className="w-6 h-6 text-amber-600 dark:text-amber-500" />
@@ -442,7 +442,7 @@ export default function OrderDetailClient({ order }: Props) {
         >
           <Link
             href="/products"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl font-semibold shadow-lg shadow-amber-500/30 dark:shadow-amber-900/20 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-linear-to-r from-amber-500 to-orange-500 text-white rounded-xl font-semibold shadow-lg shadow-amber-500/30 dark:shadow-amber-900/20 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
           >
             <Sparkles className="w-5 h-5" />
             Shop More

@@ -2,11 +2,11 @@ import { ShoppingBag, Package } from "lucide-react";
 
 export default function CartLoading() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-amber-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-amber-950/20">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-amber-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-amber-950/20">
       {/* Animated Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 -left-20 w-96 h-96 bg-gradient-to-r from-amber-200/30 to-orange-200/30 dark:from-amber-900/20 dark:to-orange-900/20 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-20 -right-20 w-96 h-96 bg-gradient-to-r from-emerald-200/30 to-teal-200/30 dark:from-emerald-900/20 dark:to-teal-900/20 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute top-20 -left-20 w-96 h-96 bg-linear-to-r from-amber-200/30 to-orange-200/30 dark:from-amber-900/20 dark:to-orange-900/20 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-20 -right-20 w-96 h-96 bg-linear-to-r from-emerald-200/30 to-teal-200/30 dark:from-emerald-900/20 dark:to-teal-900/20 rounded-full blur-3xl animate-pulse" />
       </div>
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -20,7 +20,7 @@ export default function CartLoading() {
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 bg-gradient-to-br from-amber-200 to-orange-200 dark:from-amber-900 dark:to-orange-900 rounded-2xl animate-pulse" />
+            <div className="w-14 h-14 bg-linear-to-br from-amber-200 to-orange-200 dark:from-amber-900 dark:to-orange-900 rounded-2xl animate-pulse" />
             <div className="space-y-2">
               <div className="h-8 w-48 bg-gray-200 dark:bg-gray-800 rounded-lg animate-pulse" />
               <div className="h-4 w-32 bg-gray-100 dark:bg-gray-800 rounded animate-pulse" />
@@ -77,7 +77,7 @@ export default function CartLoading() {
                     <div className="h-4 w-16 bg-gray-200 dark:bg-gray-800 rounded animate-pulse" />
                   </div>
                 ))}
-                <div className="h-14 bg-gradient-to-r from-amber-200 to-orange-200 dark:from-amber-900 dark:to-orange-900 rounded-2xl animate-pulse mt-4" />
+                <div className="h-14 bg-linear-to-r from-amber-200 to-orange-200 dark:from-amber-900 dark:to-orange-900 rounded-2xl animate-pulse mt-4" />
               </div>
             </div>
 

@@ -239,7 +239,7 @@ export default function NewArrivalsSection({ products }: NewArrivalsSectionProps
         {/* === BACKGROUND === */}
         <div className="absolute inset-0">
           {/* Base gradient */}
-          <div className="absolute inset-0 bg-gradient-to-b from-cyan-50/30 via-white to-blue-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-cyan-950/20" />
+          <div className="absolute inset-0 bg-linear-to-b from-cyan-50/30 via-white to-blue-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-cyan-950/20" />
           
           {/* Animated gradient orbs */}
           <div 
@@ -289,20 +289,20 @@ export default function NewArrivalsSection({ products }: NewArrivalsSectionProps
         <div className="absolute left-0 top-0 bottom-0 w-28 lg:w-44 pointer-events-none">
           {/* Yarn balls */}
           <div className="absolute top-[18%] left-4 lg:left-8 animate-float-gentle">
-            <div className="w-18 h-18 lg:w-26 lg:h-26 rounded-full bg-gradient-to-br from-cyan-200/50 to-cyan-300/30 dark:from-cyan-800/30 dark:to-cyan-900/20 shadow-lg">
+            <div className="w-18 h-18 lg:w-26 lg:h-26 rounded-full bg-linear-to-br from-cyan-200/50 to-cyan-300/30 dark:from-cyan-800/30 dark:to-cyan-900/20 shadow-lg">
               <div className="absolute inset-2 rounded-full border-2 border-dashed border-cyan-400/30 animate-spin-slow" />
-              <div className="absolute inset-4 rounded-full bg-gradient-to-br from-cyan-300/40 to-transparent" />
+              <div className="absolute inset-4 rounded-full bg-linear-to-br from-cyan-300/40 to-transparent" />
             </div>
           </div>
 
           <div className="absolute top-[48%] left-6 lg:left-12 animate-float-reverse" style={{ animationDelay: '1s' }}>
-            <div className="w-14 h-14 lg:w-20 lg:h-20 rounded-full bg-gradient-to-br from-blue-200/50 to-blue-300/30 dark:from-blue-800/30 dark:to-blue-900/20 shadow-lg">
+            <div className="w-14 h-14 lg:w-20 lg:h-20 rounded-full bg-linear-to-br from-blue-200/50 to-blue-300/30 dark:from-blue-800/30 dark:to-blue-900/20 shadow-lg">
               <div className="absolute inset-2 rounded-full border border-dashed border-blue-400/30 animate-spin-slow" style={{ animationDirection: 'reverse' }} />
             </div>
           </div>
 
           <div className="absolute bottom-[22%] left-4 lg:left-8 animate-float-gentle" style={{ animationDelay: '2s' }}>
-            <div className="w-16 h-16 lg:w-22 lg:h-22 rounded-full bg-gradient-to-br from-violet-200/50 to-violet-300/30 dark:from-violet-800/30 dark:to-violet-900/20 shadow-lg">
+            <div className="w-16 h-16 lg:w-22 lg:h-22 rounded-full bg-linear-to-br from-violet-200/50 to-violet-300/30 dark:from-violet-800/30 dark:to-violet-900/20 shadow-lg">
               <div className="absolute inset-3 rounded-full border border-dashed border-violet-400/30 animate-spin-slow" />
             </div>
           </div>
@@ -343,19 +343,19 @@ export default function NewArrivalsSection({ products }: NewArrivalsSectionProps
         <div className="absolute right-0 top-0 bottom-0 w-28 lg:w-44 pointer-events-none">
           {/* Yarn balls */}
           <div className="absolute top-[22%] right-4 lg:right-8 animate-float-reverse">
-            <div className="w-16 h-16 lg:w-24 lg:h-24 rounded-full bg-gradient-to-br from-orange-200/50 to-orange-300/30 dark:from-orange-800/30 dark:to-orange-900/20 shadow-lg">
+            <div className="w-16 h-16 lg:w-24 lg:h-24 rounded-full bg-linear-to-br from-orange-200/50 to-orange-300/30 dark:from-orange-800/30 dark:to-orange-900/20 shadow-lg">
               <div className="absolute inset-2 rounded-full border border-dashed border-orange-400/30 animate-spin-slow" style={{ animationDirection: 'reverse' }} />
             </div>
           </div>
 
           <div className="absolute top-[52%] right-6 lg:right-12 animate-float-gentle" style={{ animationDelay: '2s' }}>
-            <div className="w-20 h-20 lg:w-28 lg:h-28 rounded-full bg-gradient-to-br from-pink-200/50 to-pink-300/30 dark:from-pink-800/30 dark:to-pink-900/20 shadow-lg">
+            <div className="w-20 h-20 lg:w-28 lg:h-28 rounded-full bg-linear-to-br from-pink-200/50 to-pink-300/30 dark:from-pink-800/30 dark:to-pink-900/20 shadow-lg">
               <div className="absolute inset-3 rounded-full border-2 border-dashed border-pink-400/30 animate-spin-slow" />
             </div>
           </div>
 
           <div className="absolute bottom-[18%] right-4 lg:right-8 animate-float-reverse" style={{ animationDelay: '1s' }}>
-            <div className="w-12 h-12 lg:w-18 lg:h-18 rounded-full bg-gradient-to-br from-emerald-200/50 to-emerald-300/30 dark:from-emerald-800/30 dark:to-emerald-900/20 shadow-lg" />
+            <div className="w-12 h-12 lg:w-18 lg:h-18 rounded-full bg-linear-to-br from-emerald-200/50 to-emerald-300/30 dark:from-emerald-800/30 dark:to-emerald-900/20 shadow-lg" />
           </div>
 
           {/* Floating icons */}
@@ -426,7 +426,7 @@ export default function NewArrivalsSection({ products }: NewArrivalsSectionProps
                 <div className="relative">
                   <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full glass-badge shadow-lg shadow-glow-cyan">
                     <div className="relative">
-                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center shadow-md">
+                      <div className="w-8 h-8 rounded-lg bg-linear-to-br from-cyan-500 to-blue-500 flex items-center justify-center shadow-md">
                         <Zap className="w-4 h-4 text-white" />
                       </div>
                       {/* Pulse rings */}
@@ -496,7 +496,7 @@ export default function NewArrivalsSection({ products }: NewArrivalsSectionProps
                     key={item.text}
                     className="group flex items-center gap-2 px-4 py-2 rounded-full glass-card shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-default"
                   >
-                    <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${item.color} flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform duration-300`}>
+                    <div className={`w-7 h-7 rounded-lg bg-linear-to-br ${item.color} flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform duration-300`}>
                       <item.icon className="w-3.5 h-3.5 text-white" />
                     </div>
                     <span className="text-sm font-medium text-foreground">{item.text}</span>
@@ -515,10 +515,10 @@ export default function NewArrivalsSection({ products }: NewArrivalsSectionProps
         </div>
 
         {/* === CORNER ACCENTS === */}
-        <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-cyan-500/10 via-transparent to-transparent blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-tl from-blue-500/10 via-transparent to-transparent blur-3xl pointer-events-none" />
-        <div className="absolute top-1/3 right-0 w-64 h-64 bg-gradient-to-l from-violet-500/8 to-transparent blur-3xl pointer-events-none" />
-        <div className="absolute bottom-1/3 left-0 w-64 h-64 bg-gradient-to-r from-cyan-500/8 to-transparent blur-3xl pointer-events-none" />
+        <div className="absolute top-0 left-0 w-96 h-96 bg-linear-to-br from-cyan-500/10 via-transparent to-transparent blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-linear-to-tl from-blue-500/10 via-transparent to-transparent blur-3xl pointer-events-none" />
+        <div className="absolute top-1/3 right-0 w-64 h-64 bg-linear-to-l from-violet-500/8 to-transparent blur-3xl pointer-events-none" />
+        <div className="absolute bottom-1/3 left-0 w-64 h-64 bg-linear-to-r from-cyan-500/8 to-transparent blur-3xl pointer-events-none" />
       </section>
     </>
   );

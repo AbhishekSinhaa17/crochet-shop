@@ -64,22 +64,31 @@ export default function AdminChatPage() {
 
   useEffect(() => {
     const load = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) return;
-      setUserId(user.id);
+      try {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (!user) {
+          setLoading(false);
+          return;
+        }
+        setUserId(user.id);
 
-      const { data } = await supabase
-        .from("conversations")
-        .select("*, profile:profiles!customer_id(full_name)")
-        .order("last_message_at", { ascending: false });
+        const { data, error } = await supabase
+          .from("conversations")
+          .select("*, profile:profiles!customer_id(full_name)")
+          .order("last_message_at", { ascending: false });
 
-      if (data) {
-        setConversations(data);
-        if (data.length > 0) setSelectedConv(data[0].id);
+        if (error) throw error;
+        if (data) {
+          setConversations(data);
+          if (data.length > 0) setSelectedConv(data[0].id);
+        }
+      } catch (error: any) {
+        console.error("Error loading conversations:", error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     load();
   }, []);
@@ -112,11 +121,11 @@ export default function AdminChatPage() {
         style={{ animation: "fadeInDown 0.5s ease-out" }}
       >
         <div className="relative">
-          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/25">
+          <div className="w-11 h-11 rounded-xl bg-linear-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/25">
             <MessagesSquare className="w-5 h-5 text-white" />
           </div>
           {conversations.length > 0 && (
-            <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-gradient-to-r from-rose-500 to-pink-500 rounded-full border-2 border-white flex items-center justify-center">
+            <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-linear-to-r from-rose-500 to-pink-500 rounded-full border-2 border-white flex items-center justify-center">
               <span className="text-[9px] font-bold text-white">
                 {conversations.length}
               </span>
@@ -124,7 +133,7 @@ export default function AdminChatPage() {
           )}
         </div>
         <div>
-          <h1 className="text-3xl font-display font-bold bg-gradient-to-r from-gray-900 via-indigo-900 to-purple-900 bg-clip-text text-transparent">
+          <h1 className="text-3xl font-display font-bold bg-linear-to-r from-gray-900 via-indigo-900 to-purple-900 bg-clip-text text-transparent">
             Messages
           </h1>
           <p className="text-sm text-gray-500">
@@ -201,7 +210,7 @@ export default function AdminChatPage() {
                   onClick={() => setSelectedConv(conv.id)}
                   className={`group/item w-full text-left p-3 rounded-xl transition-all duration-300 relative ${
                     isSelected
-                      ? "bg-gradient-to-r from-indigo-50 to-purple-50/60 shadow-sm border border-indigo-100/60"
+                      ? "bg-linear-to-r from-indigo-50 to-purple-50/60 shadow-sm border border-indigo-100/60"
                       : "hover:bg-gray-50/80 border border-transparent"
                   }`}
                   style={{
@@ -210,13 +219,13 @@ export default function AdminChatPage() {
                 >
                   {/* Active indicator */}
                   {isSelected && (
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-indigo-500 to-purple-500 rounded-r-full" />
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-linear-to-b from-indigo-500 to-purple-500 rounded-r-full" />
                   )}
 
                   <div className="flex items-start gap-3">
                     {/* Avatar */}
                     <div
-                      className={`relative flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center shadow-sm ${isSelected ? "shadow-md scale-105" : "group-hover/item:scale-105"} transition-all duration-300`}
+                      className={`relative flex-shrink-0 w-10 h-10 rounded-xl bg-linear-to-br ${gradient} flex items-center justify-center shadow-sm ${isSelected ? "shadow-md scale-105" : "group-hover/item:scale-105"} transition-all duration-300`}
                     >
                       <span className="text-white font-bold text-xs">
                         {getInitials(name)}
@@ -294,11 +303,11 @@ export default function AdminChatPage() {
             <>
               {/* Chat Header Bar */}
               <div
-                className="px-6 py-4 border-b border-gray-100/80 bg-gradient-to-r from-white to-gray-50/50 flex items-center gap-3"
+                className="px-6 py-4 border-b border-gray-100/80 bg-linear-to-r from-white to-gray-50/50 flex items-center gap-3"
                 style={{ animation: "fadeInDown 0.3s ease-out" }}
               >
                 <div
-                  className={`w-9 h-9 rounded-xl bg-gradient-to-br ${
+                  className={`w-9 h-9 rounded-xl bg-linear-to-br ${
                     avatarGradients[
                       selectedName.charCodeAt(0) % avatarGradients.length
                     ]
@@ -334,7 +343,7 @@ export default function AdminChatPage() {
             </>
           ) : (
             /* Empty Chat State */
-            <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-gray-50/50 to-indigo-50/30">
+            <div className="flex-1 flex items-center justify-center bg-linear-to-br from-gray-50/50 to-indigo-50/30">
               <div
                 className="text-center"
                 style={{ animation: "fadeInUp 0.5s ease-out" }}
@@ -343,7 +352,7 @@ export default function AdminChatPage() {
                   {/* Pulsing rings */}
                   <div className="absolute inset-0 rounded-2xl bg-indigo-100/50 animate-ping [animation-duration:3s]" />
                   <div className="absolute inset-2 rounded-xl bg-indigo-100/60 animate-ping [animation-duration:3s] [animation-delay:0.5s]" />
-                  <div className="relative w-20 h-20 rounded-2xl bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center">
+                  <div className="relative w-20 h-20 rounded-2xl bg-linear-to-br from-indigo-100 to-purple-100 flex items-center justify-center">
                     <MessageCircle className="w-8 h-8 text-indigo-400" />
                   </div>
                 </div>

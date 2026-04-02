@@ -44,8 +44,8 @@ export default function PrivacyPolicyPage() {
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white overflow-hidden">
       {/* Animated Background */}
       <div className="fixed inset-0 pointer-events-none -z-10">
-        <div className="absolute top-1/4 right-1/4 w-[600px] h-[600px] bg-gradient-to-br from-emerald-500/10 via-teal-500/5 to-transparent rounded-full blur-3xl animate-blob" />
-        <div className="absolute bottom-1/4 left-1/4 w-[500px] h-[500px] bg-gradient-to-tr from-blue-500/10 via-cyan-500/5 to-transparent rounded-full blur-3xl animate-blob animation-delay-2000" />
+        <div className="absolute top-1/4 right-1/4 w-[600px] h-[600px] bg-linear-to-br from-emerald-500/10 via-teal-500/5 to-transparent rounded-full blur-3xl animate-blob" />
+        <div className="absolute bottom-1/4 left-1/4 w-[500px] h-[500px] bg-linear-to-tr from-blue-500/10 via-cyan-500/5 to-transparent rounded-full blur-3xl animate-blob animation-delay-2000" />
         
         <div className="absolute inset-0 opacity-[0.02] dark:opacity-[0.04]" style={{
           backgroundImage: `radial-gradient(circle at 1px 1px, currentColor 1px, transparent 1px)`,
@@ -79,7 +79,7 @@ export default function PrivacyPolicyPage() {
 
           <h1 className="text-5xl md:text-7xl font-black mb-6 tracking-tight animate-fade-in-up animation-delay-300">
             <span className="block">Privacy</span>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-teal-600 to-blue-600 animate-gradient-x">Policy</span>
+            <span className="text-transparent bg-clip-text bg-linear-to-r from-emerald-600 via-teal-600 to-blue-600 animate-gradient-x">Policy</span>
           </h1>
           
           <p className="text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed animate-fade-in-up animation-delay-400">
@@ -105,14 +105,14 @@ export default function PrivacyPolicyPage() {
                 className="animate-fade-in-up"
                 style={{ animationDelay: `${500 + index * 100}ms` }}
               >
-                <div className={`relative rounded-3xl transition-all duration-500 ${isExpanded ? 'bg-gradient-to-r ' + colorMap[section.color as keyof typeof colorMap] + ' p-[2px]' : ''}`}>
+                <div className={`relative rounded-3xl transition-all duration-500 ${isExpanded ? 'bg-linear-to-r ' + colorMap[section.color as keyof typeof colorMap] + ' p-[2px]' : ''}`}>
                   <div className="relative bg-white dark:bg-slate-900 rounded-[22px] overflow-hidden">
                     <button
                       onClick={() => setExpandedSection(isExpanded ? null : index)}
                       className="w-full p-6 lg:p-8 flex items-center gap-6 text-left group"
                     >
                       <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 transition-all duration-500 ${
-                        isExpanded ? 'bg-gradient-to-br ' + colorMap[section.color as keyof typeof colorMap] + ' text-white scale-110' : 'bg-slate-100 dark:bg-slate-800'
+                        isExpanded ? 'bg-linear-to-br ' + colorMap[section.color as keyof typeof colorMap] + ' text-white scale-110' : 'bg-slate-100 dark:bg-slate-800'
                       }`}>
                         <section.icon className="w-7 h-7" />
                       </div>

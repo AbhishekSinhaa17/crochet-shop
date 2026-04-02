@@ -58,9 +58,9 @@ export default function ReturnPolicyPage() {
       {/* Animated Background */}
       <div className="fixed inset-0 pointer-events-none -z-10">
         {/* Gradient Orbs */}
-        <div className="absolute top-0 right-0 w-[700px] h-[700px] bg-gradient-to-br from-rose-500/20 via-pink-500/10 to-transparent rounded-full blur-3xl animate-blob" />
-        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-gradient-to-tr from-violet-500/20 via-purple-500/10 to-transparent rounded-full blur-3xl animate-blob animation-delay-2000" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-r from-pink-500/10 via-rose-500/10 to-violet-500/10 rounded-full blur-3xl animate-blob animation-delay-4000" />
+        <div className="absolute top-0 right-0 w-[700px] h-[700px] bg-linear-to-br from-rose-500/20 via-pink-500/10 to-transparent rounded-full blur-3xl animate-blob" />
+        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-linear-to-tr from-violet-500/20 via-purple-500/10 to-transparent rounded-full blur-3xl animate-blob animation-delay-2000" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-linear-to-r from-pink-500/10 via-rose-500/10 to-violet-500/10 rounded-full blur-3xl animate-blob animation-delay-4000" />
         
         {/* Grid Pattern */}
         <div className="absolute inset-0 opacity-[0.02] dark:opacity-[0.05]" style={{
@@ -72,7 +72,7 @@ export default function ReturnPolicyPage() {
         {[...Array(15)].map((_, i) => (
           <div
             key={i}
-            className="absolute w-2 h-2 bg-gradient-to-br from-rose-500/30 to-pink-500/30 rounded-full animate-float"
+            className="absolute w-2 h-2 bg-linear-to-br from-rose-500/30 to-pink-500/30 rounded-full animate-float"
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
@@ -101,7 +101,7 @@ export default function ReturnPolicyPage() {
         {/* Hero Header */}
         <div className="text-center mb-20 relative">
           {/* Decorative glow */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-60 h-60 bg-gradient-to-br from-rose-500/20 to-pink-500/20 rounded-full blur-3xl animate-pulse-slow" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-60 h-60 bg-linear-to-br from-rose-500/20 to-pink-500/20 rounded-full blur-3xl animate-pulse-slow" />
           
           <div className="animate-fade-in-down animation-delay-100">
             <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl shadow-lg shadow-rose-500/10 border border-rose-200/50 dark:border-rose-800/50 mb-8 group hover:scale-105 transition-all duration-300">
@@ -113,7 +113,7 @@ export default function ReturnPolicyPage() {
           </div>
 
           <div className="relative inline-block mb-8 animate-fade-in-up animation-delay-200">
-            <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-rose-500 via-pink-500 to-rose-600 shadow-2xl shadow-rose-500/30 flex items-center justify-center text-white mx-auto transform hover:rotate-6 hover:scale-110 transition-all duration-500 group cursor-default">
+            <div className="w-24 h-24 rounded-3xl bg-linear-to-br from-rose-500 via-pink-500 to-rose-600 shadow-2xl shadow-rose-500/30 flex items-center justify-center text-white mx-auto transform hover:rotate-6 hover:scale-110 transition-all duration-500 group cursor-default">
               <RefreshCcw className="w-12 h-12 group-hover:rotate-180 transition-transform duration-700" />
               {/* Orbiting dots */}
               <div className="absolute inset-0 animate-spin-slow">
@@ -125,7 +125,7 @@ export default function ReturnPolicyPage() {
           <h1 className="text-5xl md:text-7xl font-black mb-6 tracking-tight animate-fade-in-up animation-delay-300">
             <span className="block">Returns &</span>
             <span className="relative inline-block">
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-500 via-pink-500 to-rose-600 animate-gradient-x">
+              <span className="text-transparent bg-clip-text bg-linear-to-r from-rose-500 via-pink-500 to-rose-600 animate-gradient-x">
                 Exchanges
               </span>
               <svg className="absolute -bottom-2 left-0 w-full" viewBox="0 0 300 12" fill="none">
@@ -160,7 +160,7 @@ export default function ReturnPolicyPage() {
               style={{ animationDelay: `${item.delay}ms` }}
             >
               {/* Card glow effect */}
-              <div className={`absolute -inset-0.5 bg-gradient-to-r ${
+              <div className={`absolute -inset-0.5 bg-linear-to-r ${
                 item.color === 'rose' ? 'from-rose-500 to-pink-500' :
                 item.color === 'violet' ? 'from-violet-500 to-purple-500' :
                 'from-amber-500 to-orange-500'
@@ -168,7 +168,7 @@ export default function ReturnPolicyPage() {
               
               <div className="relative p-8 rounded-3xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200/50 dark:border-slate-800/50 hover:border-transparent transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 h-full">
                 {/* Background gradient on hover */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${
+                <div className={`absolute inset-0 bg-linear-to-br ${
                   item.color === 'rose' ? 'from-rose-500/5 to-pink-500/5' :
                   item.color === 'violet' ? 'from-violet-500/5 to-purple-500/5' :
                   'from-amber-500/5 to-orange-500/5'
@@ -194,15 +194,15 @@ export default function ReturnPolicyPage() {
         <div className="mb-20 animate-fade-in-up animation-delay-800">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-black text-slate-800 dark:text-white mb-4">
-              How It <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-pink-500">Works</span>
+              How It <span className="text-transparent bg-clip-text bg-linear-to-r from-rose-500 to-pink-500">Works</span>
             </h2>
             <p className="text-slate-600 dark:text-slate-400 max-w-xl mx-auto">Simple 4-step process to return your item</p>
           </div>
 
           <div className="relative">
             {/* Connection line */}
-            <div className="hidden md:block absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-rose-200 via-pink-200 to-rose-200 dark:from-rose-900/50 dark:via-pink-900/50 dark:to-rose-900/50 -translate-y-1/2 rounded-full" />
-            <div className="hidden md:block absolute top-1/2 left-0 h-1 bg-gradient-to-r from-rose-500 to-pink-500 -translate-y-1/2 rounded-full transition-all duration-1000 animate-progress-line" style={{ width: '100%' }} />
+            <div className="hidden md:block absolute top-1/2 left-0 right-0 h-1 bg-linear-to-r from-rose-200 via-pink-200 to-rose-200 dark:from-rose-900/50 dark:via-pink-900/50 dark:to-rose-900/50 -translate-y-1/2 rounded-full" />
+            <div className="hidden md:block absolute top-1/2 left-0 h-1 bg-linear-to-r from-rose-500 to-pink-500 -translate-y-1/2 rounded-full transition-all duration-1000 animate-progress-line" style={{ width: '100%' }} />
 
             <div className="grid md:grid-cols-4 gap-6">
               {returnSteps.map((item, index) => (
@@ -220,7 +220,7 @@ export default function ReturnPolicyPage() {
                     {/* Step number */}
                     <div className={`absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 ${
                       activeStep === index 
-                        ? 'bg-gradient-to-br from-rose-500 to-pink-500 text-white scale-125 shadow-lg shadow-rose-500/40' 
+                        ? 'bg-linear-to-br from-rose-500 to-pink-500 text-white scale-125 shadow-lg shadow-rose-500/40' 
                         : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
                     }`}>
                       {item.step}
@@ -229,7 +229,7 @@ export default function ReturnPolicyPage() {
                     <div className="pt-4 text-center">
                       <div className={`w-14 h-14 rounded-2xl mx-auto mb-4 flex items-center justify-center transition-all duration-500 ${
                         activeStep === index 
-                          ? 'bg-gradient-to-br from-rose-500 to-pink-500 text-white rotate-6 scale-110' 
+                          ? 'bg-linear-to-br from-rose-500 to-pink-500 text-white rotate-6 scale-110' 
                           : 'bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400'
                       }`}>
                         <item.icon className="w-7 h-7" />
@@ -248,7 +248,7 @@ export default function ReturnPolicyPage() {
         <div className="mb-20">
           <div className="text-center mb-12 animate-fade-in-up">
             <h2 className="text-3xl md:text-4xl font-black text-slate-800 dark:text-white mb-4">
-              Policy <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-pink-500">Details</span>
+              Policy <span className="text-transparent bg-clip-text bg-linear-to-r from-rose-500 to-pink-500">Details</span>
             </h2>
             <p className="text-slate-600 dark:text-slate-400 max-w-xl mx-auto">Everything you need to know about our return policy</p>
           </div>
@@ -271,7 +271,7 @@ export default function ReturnPolicyPage() {
                 >
                   <div className={`relative rounded-3xl transition-all duration-500 ${
                     isExpanded 
-                      ? `bg-gradient-to-r ${colorClasses[policy.color as keyof typeof colorClasses]} p-[2px] shadow-2xl shadow-${policy.color}-500/20` 
+                      ? `bg-linear-to-r ${colorClasses[policy.color as keyof typeof colorClasses]} p-[2px] shadow-2xl shadow-${policy.color}-500/20` 
                       : ''
                   }`}>
                     <div className={`relative bg-white dark:bg-slate-900 rounded-[22px] overflow-hidden transition-all duration-500 ${
@@ -284,7 +284,7 @@ export default function ReturnPolicyPage() {
                       >
                         <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 transition-all duration-500 ${
                           isExpanded 
-                            ? `bg-gradient-to-br ${colorClasses[policy.color as keyof typeof colorClasses]} text-white shadow-lg rotate-3 scale-110` 
+                            ? `bg-linear-to-br ${colorClasses[policy.color as keyof typeof colorClasses]} text-white shadow-lg rotate-3 scale-110` 
                             : `bg-${policy.color}-100 dark:bg-${policy.color}-900/30 text-${policy.color}-600 dark:text-${policy.color}-400 group-hover:scale-105`
                         }`}
                         style={{
@@ -329,7 +329,7 @@ export default function ReturnPolicyPage() {
                       }`}>
                         <div className="px-6 lg:px-8 pb-8 pl-[5.5rem] lg:pl-[7rem]">
                           <div className="relative">
-                            <div className={`absolute left-0 top-0 bottom-0 w-1 rounded-full bg-gradient-to-b ${colorClasses[policy.color as keyof typeof colorClasses]}`} />
+                            <div className={`absolute left-0 top-0 bottom-0 w-1 rounded-full bg-linear-to-b ${colorClasses[policy.color as keyof typeof colorClasses]}`} />
                             <div className="pl-6">
                               <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
                                 {policy.content}
@@ -338,7 +338,7 @@ export default function ReturnPolicyPage() {
                                 <ul className="space-y-3">
                                   {policy.list.map((item, i) => (
                                     <li key={i} className="flex items-start gap-3 text-slate-600 dark:text-slate-400">
-                                      <span className={`w-6 h-6 rounded-full bg-gradient-to-br ${colorClasses[policy.color as keyof typeof colorClasses]} flex items-center justify-center shrink-0 mt-0.5`}>
+                                      <span className={`w-6 h-6 rounded-full bg-linear-to-br ${colorClasses[policy.color as keyof typeof colorClasses]} flex items-center justify-center shrink-0 mt-0.5`}>
                                         <X className="w-3 h-3 text-white" />
                                       </span>
                                       {item}
@@ -362,13 +362,13 @@ export default function ReturnPolicyPage() {
         <div className="animate-fade-in-up animation-delay-1200">
           <div className="relative group">
             {/* Animated border */}
-            <div className="absolute -inset-1 bg-gradient-to-r from-rose-500 via-pink-500 to-rose-500 rounded-[2.5rem] blur opacity-25 group-hover:opacity-50 transition-all duration-700 animate-gradient-x" />
+            <div className="absolute -inset-1 bg-linear-to-r from-rose-500 via-pink-500 to-rose-500 rounded-[2.5rem] blur opacity-25 group-hover:opacity-50 transition-all duration-700 animate-gradient-x" />
             
             <div className="relative bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl rounded-[2.5rem] overflow-hidden">
               {/* Decorative background */}
               <div className="absolute inset-0 overflow-hidden">
-                <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-br from-rose-500/10 via-pink-500/10 to-transparent rounded-full blur-3xl translate-x-1/3 -translate-y-1/3" />
-                <div className="absolute bottom-0 left-0 w-60 h-60 bg-gradient-to-tr from-pink-500/10 via-rose-500/10 to-transparent rounded-full blur-3xl -translate-x-1/3 translate-y-1/3" />
+                <div className="absolute top-0 right-0 w-80 h-80 bg-linear-to-br from-rose-500/10 via-pink-500/10 to-transparent rounded-full blur-3xl translate-x-1/3 -translate-y-1/3" />
+                <div className="absolute bottom-0 left-0 w-60 h-60 bg-linear-to-tr from-pink-500/10 via-rose-500/10 to-transparent rounded-full blur-3xl -translate-x-1/3 translate-y-1/3" />
               </div>
 
               <div className="relative p-12 lg:p-16 text-center">
@@ -383,13 +383,13 @@ export default function ReturnPolicyPage() {
                   <Sparkles className="w-4 h-4 text-rose-500" />
                 </div>
 
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-rose-500/10 to-pink-500/10 border border-rose-500/20 mb-8">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-linear-to-r from-rose-500/10 to-pink-500/10 border border-rose-500/20 mb-8">
                   <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                   <span className="text-sm font-semibold text-rose-600 dark:text-rose-400">Our team typically responds within 2 hours</span>
                 </div>
 
                 <h2 className="text-3xl lg:text-4xl font-black text-slate-800 dark:text-white mb-5">
-                  Still have <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-pink-500">questions?</span>
+                  Still have <span className="text-transparent bg-clip-text bg-linear-to-r from-rose-500 to-pink-500">questions?</span>
                 </h2>
                 
                 <p className="text-lg text-slate-600 dark:text-slate-400 mb-10 max-w-lg mx-auto leading-relaxed">
@@ -401,8 +401,8 @@ export default function ReturnPolicyPage() {
                     href="/chat"
                     className="group/btn relative inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-bold text-white overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-rose-500/30"
                   >
-                    <div className="absolute inset-0 bg-gradient-to-r from-rose-500 via-pink-500 to-rose-600 transition-all duration-500" />
-                    <div className="absolute inset-0 bg-gradient-to-r from-pink-600 via-rose-500 to-pink-500 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500" />
+                    <div className="absolute inset-0 bg-linear-to-r from-rose-500 via-pink-500 to-rose-600 transition-all duration-500" />
+                    <div className="absolute inset-0 bg-linear-to-r from-pink-600 via-rose-500 to-pink-500 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500" />
                     <span className="relative flex items-center gap-3">
                       <Mail className="w-5 h-5" />
                       Contact Support

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { submitCustomOrderAction } from "@/actions/customOrder";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -12,7 +13,7 @@ import {
   Palette,
   Ruler,
   Calendar,
-  DollarSign,
+  IndianRupee,
   FileText,
   X,
   Check,
@@ -45,8 +46,8 @@ interface FormStep {
 const formSteps: FormStep[] = [
   { id: 1, title: "Basic Info", description: "Title & description", icon: FileText },
   { id: 2, title: "Preferences", description: "Colors & size", icon: Palette },
-  { id: 3, title: "Budget", description: "Budget & timeline", icon: DollarSign },
-  { id: 4, title: "References", description: "Upload images", icon: ImagePlus },
+  { id: 3, title: "Budget", description: "Budget & timeline", icon: IndianRupee },
+  { id: 4, title: "References", description: "Upload images (Optional)", icon: ImagePlus },
 ];
 
 export default function CustomOrderPage() {
@@ -123,54 +124,30 @@ export default function CustomOrderPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setUploadProgress(0);
-
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      toast.error("Please sign in first");
-      router.push("/auth/login?redirect=/custom-order");
-      return;
-    }
+    setUploadProgress(10); // Show early progress
 
     try {
-      const imageUrls: string[] = [];
-      const totalImages = images.length;
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("description", description);
+      if (colors) formData.append("preferredColors", colors);
+      if (sizeDetails) formData.append("sizeDetails", sizeDetails);
+      if (budgetMin) formData.append("budgetMin", budgetMin);
+      if (budgetMax) formData.append("budgetMax", budgetMax);
+      if (deadline) formData.append("deadline", deadline);
       
-      for (let i = 0; i < images.length; i++) {
-        const file = images[i];
-        const ext = file.name.split(".").pop();
-        const path = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-        
-        const { error: uploadError } = await supabase.storage
-          .from("custom-order-images")
-          .upload(path, file);
-          
-        if (!uploadError) {
-          const { data: urlData } = supabase.storage
-            .from("custom-order-images")
-            .getPublicUrl(path);
-          imageUrls.push(urlData.publicUrl);
-        }
-        
-        setUploadProgress(Math.round(((i + 1) / totalImages) * 50));
-      }
-
-      setUploadProgress(75);
-
-      const { error } = await supabase.from("custom_orders").insert({
-        user_id: user.id,
-        title,
-        description,
-        reference_images: imageUrls,
-        preferred_colors: colors,
-        size_details: sizeDetails,
-        budget_min: budgetMin ? parseFloat(budgetMin) : null,
-        budget_max: budgetMax ? parseFloat(budgetMax) : null,
-        deadline: deadline || null,
+      images.forEach((file) => {
+        formData.append("images", file);
       });
-
-      if (error) throw error;
-
+      
+      setUploadProgress(30);
+      
+      const result = await submitCustomOrderAction(formData);
+      
+      if (result.error) {
+        throw new Error(result.error);
+      }
+      
       setUploadProgress(100);
       setIsSubmitted(true);
       toast.success("Custom order request submitted!");
@@ -180,6 +157,7 @@ export default function CustomOrderPage() {
       }, 3000);
     } catch (err: any) {
       toast.error(err.message || "Something went wrong");
+    } finally {
       setLoading(false);
     }
   };
@@ -202,12 +180,12 @@ export default function CustomOrderPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-purple-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-purple-950/30 transition-colors duration-500">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-purple-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-purple-950/30 transition-colors duration-500">
       {/* Animated Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 -left-20 w-96 h-96 bg-gradient-to-r from-purple-200/30 to-pink-200/30 dark:from-purple-900/20 dark:to-pink-900/20 rounded-full blur-3xl animate-blob" />
-        <div className="absolute top-40 -right-20 w-96 h-96 bg-gradient-to-r from-amber-200/30 to-orange-200/30 dark:from-amber-900/20 dark:to-orange-900/20 rounded-full blur-3xl animate-blob animation-delay-2000" />
-        <div className="absolute -bottom-20 left-1/3 w-96 h-96 bg-gradient-to-r from-blue-200/30 to-cyan-200/30 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-full blur-3xl animate-blob animation-delay-4000" />
+        <div className="absolute top-20 -left-20 w-96 h-96 bg-linear-to-r from-purple-200/30 to-pink-200/30 dark:from-purple-900/20 dark:to-pink-900/20 rounded-full blur-3xl animate-blob" />
+        <div className="absolute top-40 -right-20 w-96 h-96 bg-linear-to-r from-amber-200/30 to-orange-200/30 dark:from-amber-900/20 dark:to-orange-900/20 rounded-full blur-3xl animate-blob animation-delay-2000" />
+        <div className="absolute -bottom-20 left-1/3 w-96 h-96 bg-linear-to-r from-blue-200/30 to-cyan-200/30 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-full blur-3xl animate-blob animation-delay-4000" />
       </div>
 
       <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -233,8 +211,8 @@ export default function CustomOrderPage() {
         >
           {/* Animated Icon */}
           <div className="relative inline-block mb-6">
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-pink-400 dark:from-purple-500 dark:to-pink-500 rounded-3xl blur-xl opacity-30 animate-pulse" />
-            <div className="relative w-20 h-20 bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 rounded-3xl flex items-center justify-center shadow-2xl shadow-purple-500/30 dark:shadow-purple-500/20 animate-float">
+            <div className="absolute inset-0 bg-linear-to-r from-purple-400 to-pink-400 dark:from-purple-500 dark:to-pink-500 rounded-3xl blur-xl opacity-30 animate-pulse" />
+            <div className="relative w-20 h-20 bg-linear-to-br from-purple-500 via-pink-500 to-orange-500 rounded-3xl flex items-center justify-center shadow-2xl shadow-purple-500/30 dark:shadow-purple-500/20 animate-float">
               <Wand2 className="w-10 h-10 text-white" />
             </div>
             
@@ -248,7 +226,7 @@ export default function CustomOrderPage() {
           </div>
 
           <h1 className="text-4xl md:text-5xl font-display font-bold mb-4">
-            <span className="bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 dark:from-purple-400 dark:via-pink-400 dark:to-orange-400 bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-purple-600 via-pink-600 to-orange-500 dark:from-purple-400 dark:via-pink-400 dark:to-orange-400 bg-clip-text text-transparent">
               Custom Crochet Order
             </span>
           </h1>
@@ -287,9 +265,9 @@ export default function CustomOrderPage() {
                       className={cn(
                         "w-14 h-14 rounded-2xl flex items-center justify-center mb-2 transition-all duration-500",
                         isCompleted 
-                          ? "bg-gradient-to-br from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/30 dark:shadow-emerald-500/20"
+                          ? "bg-linear-to-br from-emerald-500 to-teal-500 text-white shadow-lg shadow-emerald-500/30 dark:shadow-emerald-500/20"
                           : isActive
-                          ? "bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/30 dark:shadow-purple-500/20 animate-pulse"
+                          ? "bg-linear-to-br from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/30 dark:shadow-purple-500/20 animate-pulse"
                           : "bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500"
                       )}
                     >
@@ -312,7 +290,7 @@ export default function CustomOrderPage() {
                     <div className="w-16 h-1 mx-4 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
                       <div 
                         className={cn(
-                          "h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-500",
+                          "h-full bg-linear-to-r from-purple-500 to-pink-500 transition-all duration-500",
                           isCompleted ? "w-full" : "w-0"
                         )}
                       />
@@ -335,7 +313,7 @@ export default function CustomOrderPage() {
             </div>
             <div className="h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
               <div 
-                className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-500"
+                className="h-full bg-linear-to-r from-purple-500 to-pink-500 transition-all duration-500"
                 style={{ width: `${completionPercentage()}%` }}
               />
             </div>
@@ -352,9 +330,9 @@ export default function CustomOrderPage() {
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Basic Info Card */}
               <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-xl shadow-gray-100/50 dark:shadow-gray-950/50 border border-gray-100 dark:border-gray-800 overflow-hidden">
-                <div className="p-6 border-b border-gray-100 dark:border-gray-800 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/50 dark:to-pink-950/50">
+                <div className="p-6 border-b border-gray-100 dark:border-gray-800 bg-linear-to-r from-purple-50 to-pink-50 dark:from-purple-950/50 dark:to-pink-950/50">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                    <div className="w-10 h-10 bg-linear-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
                       <FileText className="w-5 h-5 text-white" />
                     </div>
                     <div>
@@ -419,9 +397,9 @@ export default function CustomOrderPage() {
 
               {/* Preferences Card */}
               <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-xl shadow-gray-100/50 dark:shadow-gray-950/50 border border-gray-100 dark:border-gray-800 overflow-hidden">
-                <div className="p-6 border-b border-gray-100 dark:border-gray-800 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/50 dark:to-orange-950/50">
+                <div className="p-6 border-b border-gray-100 dark:border-gray-800 bg-linear-to-r from-amber-50 to-orange-50 dark:from-amber-950/50 dark:to-orange-950/50">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl flex items-center justify-center">
+                    <div className="w-10 h-10 bg-linear-to-br from-amber-500 to-orange-500 rounded-xl flex items-center justify-center">
                       <Palette className="w-5 h-5 text-white" />
                     </div>
                     <div>
@@ -498,10 +476,10 @@ export default function CustomOrderPage() {
 
               {/* Budget & Timeline Card */}
               <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-xl shadow-gray-100/50 dark:shadow-gray-950/50 border border-gray-100 dark:border-gray-800 overflow-hidden">
-                <div className="p-6 border-b border-gray-100 dark:border-gray-800 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/50 dark:to-teal-950/50">
+                <div className="p-6 border-b border-gray-100 dark:border-gray-800 bg-linear-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/50 dark:to-teal-950/50">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center">
-                      <DollarSign className="w-5 h-5 text-white" />
+                    <div className="w-10 h-10 bg-linear-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center">
+                      <IndianRupee className="w-5 h-5 text-white" />
                     </div>
                     <div>
                       <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Budget & Timeline</h2>
@@ -562,7 +540,7 @@ export default function CustomOrderPage() {
                         type="date"
                         value={deadline}
                         onChange={(e) => setDeadline(e.target.value)}
-                        className="w-full px-4 py-3.5 bg-gray-50 dark:bg-gray-800 border-2 border-transparent rounded-xl focus:bg-white dark:focus:bg-gray-900 focus:border-emerald-500 dark:focus:border-emerald-400 focus:outline-none transition-all duration-300 text-gray-900 dark:text-white [color-scheme:light] dark:[color-scheme:dark]"
+                        className="w-full px-4 py-3.5 bg-gray-50 dark:bg-gray-800 border-2 border-transparent rounded-xl focus:bg-white dark:focus:bg-gray-900 focus:border-emerald-500 dark:focus:border-emerald-400 focus:outline-none transition-all duration-300 text-gray-900 dark:text-white scheme-light dark:scheme-dark"
                         min={new Date().toISOString().split("T")[0]}
                         onFocus={() => setCurrentStep(3)}
                       />
@@ -588,13 +566,13 @@ export default function CustomOrderPage() {
 
               {/* Reference Images Card */}
               <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-xl shadow-gray-100/50 dark:shadow-gray-950/50 border border-gray-100 dark:border-gray-800 overflow-hidden">
-                <div className="p-6 border-b border-gray-100 dark:border-gray-800 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/50 dark:to-cyan-950/50">
+                <div className="p-6 border-b border-gray-100 dark:border-gray-800 bg-linear-to-r from-blue-50 to-cyan-50 dark:from-blue-950/50 dark:to-cyan-950/50">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center">
+                    <div className="w-10 h-10 bg-linear-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center">
                       <ImagePlus className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                      <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Reference Images</h2>
+                      <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Reference Images (Optional)</h2>
                       <p className="text-sm text-gray-500 dark:text-gray-400">Help us visualize your idea (Max 5)</p>
                     </div>
                   </div>
@@ -717,7 +695,7 @@ export default function CustomOrderPage() {
                     "w-full py-4 px-8 rounded-2xl font-bold text-lg transition-all duration-500 flex items-center justify-center gap-3",
                     loading
                       ? "bg-gray-200 dark:bg-gray-800 text-gray-500 dark:text-gray-400"
-                      : "bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 text-white shadow-xl shadow-purple-500/30 dark:shadow-purple-500/20 hover:shadow-2xl hover:shadow-purple-500/40 dark:hover:shadow-purple-500/30 hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                      : "bg-linear-to-r from-purple-500 via-pink-500 to-orange-500 text-white shadow-xl shadow-purple-500/30 dark:shadow-purple-500/20 hover:shadow-2xl hover:shadow-purple-500/40 dark:hover:shadow-purple-500/30 hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
                   )}
                 >
                   {loading ? (
@@ -739,16 +717,12 @@ export default function CustomOrderPage() {
                   <div className="mt-4">
                     <div className="h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
                       <div 
-                        className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-300"
+                        className="h-full bg-linear-to-r from-purple-500 to-pink-500 transition-all duration-300"
                         style={{ width: `${uploadProgress}%` }}
                       />
                     </div>
                     <p className="text-sm text-gray-500 dark:text-gray-400 text-center mt-2">
-                      {uploadProgress < 50 
-                        ? "Uploading images..." 
-                        : uploadProgress < 100 
-                        ? "Creating your order..." 
-                        : "Almost done!"}
+                      Creating your order...
                     </p>
                   </div>
                 )}
@@ -848,7 +822,7 @@ export default function CustomOrderPage() {
             </div>
 
             {/* Why Custom Order */}
-            <div className="bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 rounded-2xl p-6 text-white">
+            <div className="bg-linear-to-br from-purple-500 via-pink-500 to-orange-500 rounded-2xl p-6 text-white">
               <Gift className="w-10 h-10 mb-4 text-white/80" />
               <h3 className="font-bold text-lg mb-2">Why Custom Order?</h3>
               <ul className="space-y-2 text-sm text-white/90">
@@ -888,11 +862,11 @@ export default function CustomOrderPage() {
                 ].map((item, i) => (
                   <div key={i} className="flex gap-4">
                     <div className="flex flex-col items-center">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-orange-400 text-white flex items-center justify-center text-sm font-bold shadow-lg shadow-amber-500/20">
+                      <div className="w-8 h-8 rounded-full bg-linear-to-br from-amber-400 to-orange-400 text-white flex items-center justify-center text-sm font-bold shadow-lg shadow-amber-500/20">
                         {item.step}
                       </div>
                       {i < 4 && (
-                        <div className="w-0.5 h-full bg-gradient-to-b from-amber-200 dark:from-amber-800 to-transparent" />
+                        <div className="w-0.5 h-full bg-linear-to-b from-amber-200 dark:from-amber-800 to-transparent" />
                       )}
                     </div>
                     <div className="flex-1 pb-4">
@@ -986,7 +960,7 @@ function SuccessScreen() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 dark:from-gray-950 dark:via-gray-900 dark:to-purple-950/30 flex items-center justify-center px-4 transition-colors duration-500">
+    <div className="min-h-screen bg-linear-to-br from-purple-50 via-white to-pink-50 dark:from-gray-950 dark:via-gray-900 dark:to-purple-950/30 flex items-center justify-center px-4 transition-colors duration-500">
       {/* Animated Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         {showConfetti && (
@@ -1013,8 +987,8 @@ function SuccessScreen() {
       <div className="relative text-center max-w-lg mx-auto">
         {/* Success Icon */}
         <div className="relative inline-block mb-8">
-          <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-teal-400 rounded-full blur-xl opacity-30 animate-pulse" />
-          <div className="relative w-32 h-32 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center shadow-2xl shadow-emerald-500/30 dark:shadow-emerald-500/20">
+          <div className="absolute inset-0 bg-linear-to-r from-emerald-400 to-teal-400 rounded-full blur-xl opacity-30 animate-pulse" />
+          <div className="relative w-32 h-32 bg-linear-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center shadow-2xl shadow-emerald-500/30 dark:shadow-emerald-500/20">
             <Check className="w-16 h-16 text-white animate-bounce" />
           </div>
           <div className="absolute -top-2 -right-2 w-10 h-10 bg-white dark:bg-gray-800 rounded-full shadow-lg dark:shadow-gray-950/50 flex items-center justify-center">
@@ -1053,7 +1027,7 @@ function SuccessScreen() {
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
             href="/orders"
-            className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-semibold shadow-lg shadow-purple-500/30 dark:shadow-purple-500/20 hover:shadow-xl hover:-translate-y-0.5 transition-all"
+            className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-linear-to-r from-purple-500 to-pink-500 text-white rounded-xl font-semibold shadow-lg shadow-purple-500/30 dark:shadow-purple-500/20 hover:shadow-xl hover:-translate-y-0.5 transition-all"
           >
             View My Orders
             <ArrowRight className="w-5 h-5" />

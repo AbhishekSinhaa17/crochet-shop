@@ -247,12 +247,12 @@ export default function ProfilePage() {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-purple-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-purple-950/30 transition-colors duration-500">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-purple-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-purple-950/30 transition-colors duration-500">
       {/* Animated Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 -left-20 w-96 h-96 bg-gradient-to-r from-purple-200/30 to-pink-200/30 dark:from-purple-900/20 dark:to-pink-900/20 rounded-full blur-3xl animate-blob" />
-        <div className="absolute top-40 -right-20 w-96 h-96 bg-gradient-to-r from-amber-200/30 to-orange-200/30 dark:from-amber-900/20 dark:to-orange-900/20 rounded-full blur-3xl animate-blob animation-delay-2000" />
-        <div className="absolute -bottom-20 left-1/3 w-96 h-96 bg-gradient-to-r from-blue-200/30 to-cyan-200/30 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-full blur-3xl animate-blob animation-delay-4000" />
+        <div className="absolute top-20 -left-20 w-96 h-96 bg-linear-to-r from-purple-200/30 to-pink-200/30 dark:from-purple-900/20 dark:to-pink-900/20 rounded-full blur-3xl animate-blob" />
+        <div className="absolute top-40 -right-20 w-96 h-96 bg-linear-to-r from-amber-200/30 to-orange-200/30 dark:from-amber-900/20 dark:to-orange-900/20 rounded-full blur-3xl animate-blob animation-delay-2000" />
+        <div className="absolute -bottom-20 left-1/3 w-96 h-96 bg-linear-to-r from-blue-200/30 to-cyan-200/30 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-full blur-3xl animate-blob animation-delay-4000" />
       </div>
 
       <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -294,7 +294,7 @@ export default function ProfilePage() {
             {/* Profile Card */}
             <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-xl shadow-gray-100/50 dark:shadow-gray-950/50 border border-gray-100 dark:border-gray-800 overflow-hidden">
               {/* Cover Gradient */}
-              <div className="h-24 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 relative">
+              <div className="h-24 bg-linear-to-r from-purple-500 via-pink-500 to-orange-500 relative">
                 <div className="absolute inset-0 bg-[url('/pattern.svg')] opacity-10" />
               </div>
               
@@ -312,7 +312,7 @@ export default function ProfilePage() {
                           className="w-full h-full rounded-xl object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full rounded-xl bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/50 dark:to-pink-900/50 flex items-center justify-center">
+                        <div className="w-full h-full rounded-xl bg-linear-to-br from-purple-100 to-pink-100 dark:from-purple-900/50 dark:to-pink-900/50 flex items-center justify-center">
                           <User className="w-10 h-10 text-purple-500 dark:text-purple-400" />
                         </div>
                       )}
@@ -401,7 +401,7 @@ export default function ProfilePage() {
                   className="bg-white dark:bg-gray-900 rounded-2xl p-4 border border-gray-100 dark:border-gray-800 hover:shadow-lg dark:hover:shadow-gray-950/50 transition-all duration-300 group"
                 >
                   <div className={cn(
-                    "w-10 h-10 rounded-xl bg-gradient-to-br flex items-center justify-center mb-3 group-hover:scale-110 transition-transform",
+                    "w-10 h-10 rounded-xl bg-linear-to-br flex items-center justify-center mb-3 group-hover:scale-110 transition-transform",
                     stat.color
                   )}>
                     <stat.icon className="w-5 h-5 text-white" />
@@ -489,9 +489,9 @@ export default function ProfilePage() {
             {/* Profile Tab */}
             {activeTab === "profile" && (
               <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-xl shadow-gray-100/50 dark:shadow-gray-950/50 border border-gray-100 dark:border-gray-800 overflow-hidden">
-                <div className="p-6 border-b border-gray-100 dark:border-gray-800 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/50 dark:to-pink-950/50">
+                <div className="p-6 border-b border-gray-100 dark:border-gray-800 bg-linear-to-r from-purple-50 to-pink-50 dark:from-purple-950/50 dark:to-pink-950/50">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                    <div className="w-10 h-10 bg-linear-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
                       <User className="w-5 h-5 text-white" />
                     </div>
                     <div>
@@ -566,7 +566,7 @@ export default function ProfilePage() {
                       "w-full sm:w-auto px-8 py-3 rounded-xl font-semibold text-white flex items-center justify-center gap-2 transition-all duration-300",
                       showSaveSuccess
                         ? "bg-emerald-500"
-                        : "bg-gradient-to-r from-purple-500 to-pink-500 hover:shadow-lg hover:shadow-purple-500/30 hover:-translate-y-0.5"
+                        : "bg-linear-to-r from-purple-500 to-pink-500 hover:shadow-lg hover:shadow-purple-500/30 hover:-translate-y-0.5"
                     )}
                   >
                     {saving ? (
@@ -585,9 +585,9 @@ export default function ProfilePage() {
             {/* Address Tab */}
             {activeTab === "address" && (
               <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-xl shadow-gray-100/50 dark:shadow-gray-950/50 border border-gray-100 dark:border-gray-800 overflow-hidden">
-                <div className="p-6 border-b border-gray-100 dark:border-gray-800 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/50 dark:to-teal-950/50">
+                <div className="p-6 border-b border-gray-100 dark:border-gray-800 bg-linear-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/50 dark:to-teal-950/50">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center">
+                    <div className="w-10 h-10 bg-linear-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center">
                       <MapPin className="w-5 h-5 text-white" />
                     </div>
                     <div>
@@ -701,7 +701,7 @@ export default function ProfilePage() {
                       "w-full sm:w-auto px-8 py-3 rounded-xl font-semibold text-white flex items-center justify-center gap-2 transition-all duration-300",
                       showSaveSuccess
                         ? "bg-emerald-500"
-                        : "bg-gradient-to-r from-emerald-500 to-teal-500 hover:shadow-lg hover:shadow-emerald-500/30 hover:-translate-y-0.5"
+                        : "bg-linear-to-r from-emerald-500 to-teal-500 hover:shadow-lg hover:shadow-emerald-500/30 hover:-translate-y-0.5"
                     )}
                   >
                     {saving ? (
@@ -722,9 +722,9 @@ export default function ProfilePage() {
               <div className="space-y-6">
                 {/* Password Section */}
                 <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-xl shadow-gray-100/50 dark:shadow-gray-950/50 border border-gray-100 dark:border-gray-800 overflow-hidden">
-                  <div className="p-6 border-b border-gray-100 dark:border-gray-800 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/50 dark:to-orange-950/50">
+                  <div className="p-6 border-b border-gray-100 dark:border-gray-800 bg-linear-to-r from-amber-50 to-orange-50 dark:from-amber-950/50 dark:to-orange-950/50">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl flex items-center justify-center">
+                      <div className="w-10 h-10 bg-linear-to-br from-amber-500 to-orange-500 rounded-xl flex items-center justify-center">
                         <Lock className="w-5 h-5 text-white" />
                       </div>
                       <div>
@@ -827,7 +827,7 @@ export default function ProfilePage() {
                           <button
                             onClick={handlePasswordChange}
                             disabled={changingPassword || newPassword.length < 6 || newPassword !== confirmPassword}
-                            className="flex-1 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl font-semibold flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-amber-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                            className="flex-1 py-3 bg-linear-to-r from-amber-500 to-orange-500 text-white rounded-xl font-semibold flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-amber-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                           >
                             {changingPassword ? (
                               <Loader2 className="w-5 h-5 animate-spin" />
@@ -940,7 +940,7 @@ export default function ProfilePage() {
 // Loading Skeleton Component
 function ProfileSkeleton() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-purple-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-purple-950/30">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-purple-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-purple-950/30">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 mb-8">
@@ -960,7 +960,7 @@ function ProfileSkeleton() {
           <div className="lg:col-span-1 space-y-6">
             {/* Profile Card */}
             <div className="bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 overflow-hidden">
-              <div className="h-24 bg-gradient-to-r from-purple-200 to-pink-200 dark:from-purple-900 dark:to-pink-900 animate-pulse" />
+              <div className="h-24 bg-linear-to-r from-purple-200 to-pink-200 dark:from-purple-900 dark:to-pink-900 animate-pulse" />
               <div className="px-6 pb-6">
                 <div className="-mt-12 mb-4">
                   <div className="w-24 h-24 rounded-2xl bg-gray-200 dark:bg-gray-700 animate-pulse" />

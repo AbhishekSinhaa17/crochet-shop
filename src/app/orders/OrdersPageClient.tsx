@@ -139,12 +139,12 @@ export default function OrdersPageClient({ orders, stats }: Props) {
   const hasActiveFilters = searchQuery || statusFilter || sortOrder !== "newest";
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-amber-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-amber-950/20">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-amber-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-amber-950/20">
       {/* Animated Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 -left-20 w-96 h-96 bg-gradient-to-r from-amber-200/30 to-orange-200/30 dark:from-amber-600/10 dark:to-orange-600/10 rounded-full blur-3xl animate-blob" />
-        <div className="absolute top-40 -right-20 w-96 h-96 bg-gradient-to-r from-purple-200/30 to-pink-200/30 dark:from-purple-600/10 dark:to-pink-600/10 rounded-full blur-3xl animate-blob animation-delay-2000" />
-        <div className="absolute -bottom-20 left-1/3 w-96 h-96 bg-gradient-to-r from-emerald-200/30 to-teal-200/30 dark:from-emerald-600/10 dark:to-teal-600/10 rounded-full blur-3xl animate-blob animation-delay-4000" />
+        <div className="absolute top-20 -left-20 w-96 h-96 bg-linear-to-r from-amber-200/30 to-orange-200/30 dark:from-amber-600/10 dark:to-orange-600/10 rounded-full blur-3xl animate-blob" />
+        <div className="absolute top-40 -right-20 w-96 h-96 bg-linear-to-r from-purple-200/30 to-pink-200/30 dark:from-purple-600/10 dark:to-pink-600/10 rounded-full blur-3xl animate-blob animation-delay-2000" />
+        <div className="absolute -bottom-20 left-1/3 w-96 h-96 bg-linear-to-r from-emerald-200/30 to-teal-200/30 dark:from-emerald-600/10 dark:to-teal-600/10 rounded-full blur-3xl animate-blob animation-delay-4000" />
       </div>
 
       <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -176,7 +176,7 @@ export default function OrdersPageClient({ orders, stats }: Props) {
             
             <Link
               href="/products"
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl font-semibold shadow-lg shadow-amber-500/30 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-linear-to-r from-amber-500 to-orange-500 text-white rounded-xl font-semibold shadow-lg shadow-amber-500/30 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
             >
               <ShoppingBag className="w-5 h-5" />
               Continue Shopping
@@ -223,13 +223,13 @@ export default function OrdersPageClient({ orders, stats }: Props) {
           ].map((stat, idx) => (
             <div
               key={stat.label}
-              className={`group relative overflow-hidden bg-gradient-to-br ${stat.bgGradient} rounded-2xl p-5 border border-white/50 dark:border-gray-800 hover:shadow-xl transition-all duration-500`}
+              className={`group relative overflow-hidden bg-linear-to-br ${stat.bgGradient} rounded-2xl p-5 border border-white/50 dark:border-gray-800 hover:shadow-xl transition-all duration-500`}
               style={{ animationDelay: `${idx * 100}ms` }}
             >
               {/* Background Decoration */}
-              <div className={`absolute -right-4 -bottom-4 w-24 h-24 bg-gradient-to-br ${stat.gradient} rounded-full opacity-10 group-hover:opacity-20 transition-opacity`} />
+              <div className={`absolute -right-4 -bottom-4 w-24 h-24 bg-linear-to-br ${stat.gradient} rounded-full opacity-10 group-hover:opacity-20 transition-opacity`} />
               
-              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${stat.gradient} flex items-center justify-center mb-3 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+              <div className={`w-12 h-12 rounded-xl bg-linear-to-br ${stat.gradient} flex items-center justify-center mb-3 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                 <stat.icon className="w-6 h-6 text-white" />
               </div>
               
@@ -491,7 +491,7 @@ function OrderCard({
       style={{ transitionDelay: `${delay}ms` }}
     >
       {/* Status Bar */}
-      <div className={`h-1 bg-gradient-to-r ${status.gradient}`} />
+      <div className={`h-1 bg-linear-to-r ${status.gradient}`} />
       
       <div className="p-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
@@ -563,7 +563,7 @@ function OrderCard({
                 </div>
               ))}
               {itemCount > 4 && (
-                <div className="w-12 h-12 rounded-xl border-2 border-white dark:border-gray-900 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 flex items-center justify-center text-sm font-bold text-gray-600 dark:text-gray-300 shadow-sm">
+                <div className="w-12 h-12 rounded-xl border-2 border-white dark:border-gray-900 bg-linear-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 flex items-center justify-center text-sm font-bold text-gray-600 dark:text-gray-300 shadow-sm">
                   +{itemCount - 4}
                 </div>
               )}
@@ -596,14 +596,14 @@ function EmptyState({ isLoaded }: { isLoaded: boolean }) {
       <div className="relative inline-block mb-8">
         {/* Animated Background Circles */}
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-48 h-48 bg-gradient-to-r from-amber-100 to-orange-100 dark:from-amber-900/40 dark:to-orange-900/40 rounded-full animate-ping opacity-20" />
+          <div className="w-48 h-48 bg-linear-to-r from-amber-100 to-orange-100 dark:from-amber-900/40 dark:to-orange-900/40 rounded-full animate-ping opacity-20" />
         </div>
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-40 h-40 bg-gradient-to-r from-amber-200 to-orange-200 dark:from-amber-500/20 dark:to-orange-500/20 rounded-full animate-pulse" />
+          <div className="w-40 h-40 bg-linear-to-r from-amber-200 to-orange-200 dark:from-amber-500/20 dark:to-orange-500/20 rounded-full animate-pulse" />
         </div>
         
         {/* Icon Container */}
-        <div className="relative w-32 h-32 bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/40 dark:to-orange-900/40 rounded-full flex items-center justify-center">
+        <div className="relative w-32 h-32 bg-linear-to-br from-amber-100 to-orange-100 dark:from-amber-900/40 dark:to-orange-900/40 rounded-full flex items-center justify-center">
           <Package className="w-16 h-16 text-amber-500 dark:text-amber-400 animate-bounce" />
         </div>
         
@@ -626,7 +626,7 @@ function EmptyState({ isLoaded }: { isLoaded: boolean }) {
       <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
         <Link
           href="/products"
-          className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 text-white font-semibold rounded-xl shadow-lg shadow-amber-500/30 dark:shadow-amber-900/20 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 group"
+          className="inline-flex items-center gap-2 px-8 py-4 bg-linear-to-r from-amber-500 via-orange-500 to-amber-500 text-white font-semibold rounded-xl shadow-lg shadow-amber-500/30 dark:shadow-amber-900/20 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 group"
           style={{ backgroundSize: "200% auto" }}
         >
           <ShoppingBag className="w-5 h-5" />
@@ -653,7 +653,7 @@ function EmptyState({ isLoaded }: { isLoaded: boolean }) {
             className="p-6 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 hover:shadow-lg dark:hover:shadow-gray-900/50 transition-all duration-300"
             style={{ animationDelay: `${idx * 100}ms` }}
           >
-            <div className="w-12 h-12 bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/40 dark:to-orange-900/40 rounded-xl flex items-center justify-center mb-4 mx-auto">
+            <div className="w-12 h-12 bg-linear-to-br from-amber-100 to-orange-100 dark:from-amber-900/40 dark:to-orange-900/40 rounded-xl flex items-center justify-center mb-4 mx-auto">
               <feature.icon className="w-6 h-6 text-amber-600 dark:text-amber-400" />
             </div>
             <h3 className="font-semibold text-gray-900 dark:text-white">{feature.title}</h3>

@@ -229,7 +229,7 @@ export default function Header() {
         )}
       >
         {/* Animated Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+        <div className="absolute inset-0 bg-linear-to-br from-slate-900 via-purple-900 to-slate-900">
           {/* Animated Gradient Orbs */}
           <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/30 rounded-full blur-3xl animate-pulse" />
           <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-pink-500/30 rounded-full blur-3xl animate-pulse delay-1000" />
@@ -268,7 +268,7 @@ export default function Header() {
             <form onSubmit={handleSearch} className="relative">
               <div className="relative group">
                 {/* Glow Effect */}
-                <div className="absolute -inset-1 bg-gradient-to-r from-pink-500 via-purple-500 to-violet-500 rounded-2xl blur-lg opacity-50 group-hover:opacity-75 transition-opacity duration-500" />
+                <div className="absolute -inset-1 bg-linear-to-r from-pink-500 via-purple-500 to-violet-500 rounded-2xl blur-lg opacity-50 group-hover:opacity-75 transition-opacity duration-500" />
 
                 <div className="relative bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 overflow-hidden">
                   <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-6 h-6 text-white/50" />
@@ -367,23 +367,23 @@ export default function Header() {
               className="relative flex items-center gap-3 group z-10"
             >
               {/* Logo Glow */}
-              <div className="absolute -inset-4 bg-gradient-to-r from-pink-500/20 via-purple-500/20 to-violet-500/20 rounded-3xl blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+              <div className="absolute -inset-4 bg-linear-to-r from-pink-500/20 via-purple-500/20 to-violet-500/20 rounded-3xl blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
 
               {/* Logo Icon */}
               <div className="relative">
                 {/* Spinning Border */}
-                <div className="absolute -inset-1 bg-gradient-to-r from-pink-500 via-purple-500 to-violet-500 rounded-2xl opacity-75 group-hover:opacity-100 blur-sm transition-opacity duration-500 animate-spin-slow" />
+                <div className="absolute -inset-1 bg-linear-to-r from-pink-500 via-purple-500 to-violet-500 rounded-2xl opacity-75 group-hover:opacity-100 blur-sm transition-opacity duration-500 animate-spin-slow" />
 
                 {/* Icon Container */}
-                <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-[#C2185B] to-[#9C27B0] flex items-center justify-center shadow-xl shadow-purple-500/25 group-hover:shadow-purple-500/50 transition-all duration-500 group-hover:scale-105 overflow-hidden">
+                <div className="relative w-12 h-12 rounded-xl bg-linear-to-br from-[#C2185B] to-[#9C27B0] flex items-center justify-center shadow-xl shadow-purple-500/25 group-hover:shadow-purple-500/50 transition-all duration-500 group-hover:scale-105 overflow-hidden">
                   {/* Shine Effect */}
-                  <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/30 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                  <div className="absolute inset-0 bg-linear-to-tr from-white/0 via-white/30 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
 
                   <Scissors className="w-6 h-6 text-white relative z-10" />
                 </div>
 
                 {/* Floating Sparkle */}
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg animate-bounce">
+                <div className="absolute -top-1 -right-1 w-4 h-4 bg-linear-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg animate-bounce">
                   <Sparkles className="w-2.5 h-2.5 text-white" />
                 </div>
               </div>
@@ -394,7 +394,7 @@ export default function Header() {
                   <span className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
                     Strokes
                   </span>
-                  <span className="text-3xl font-black bg-gradient-to-r from-pink-500 via-purple-500 to-violet-500 bg-clip-text text-transparent tracking-tight">
+                  <span className="text-3xl font-black bg-linear-to-r from-pink-500 via-purple-500 to-violet-500 bg-clip-text text-transparent tracking-tight">
                     of Craft
                   </span>
                 </div>
@@ -452,7 +452,7 @@ export default function Header() {
 
                       {/* Highlight Badge */}
                       {link.highlight && (
-                        <span className="px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 text-white text-[10px] font-bold uppercase tracking-wide shadow-lg shadow-orange-500/30">
+                        <span className="px-2 py-0.5 rounded-full bg-linear-to-r from-amber-400 to-orange-500 text-white text-[10px] font-bold uppercase tracking-wide shadow-lg shadow-orange-500/30">
                           New
                         </span>
                       )}
@@ -504,8 +504,8 @@ export default function Header() {
                   {/* Cart Badge */}
                   {mounted && itemCount > 0 && (
                     <span className="absolute -top-1 -right-1 flex items-center justify-center">
-                      <span className="absolute w-5 h-5 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full animate-ping opacity-75" />
-                      <span className="relative w-5 h-5 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-lg">
+                      <span className="absolute w-5 h-5 bg-linear-to-r from-pink-500 to-purple-600 rounded-full animate-ping opacity-75" />
+                      <span className="relative w-5 h-5 bg-linear-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-lg">
                         {itemCount}
                       </span>
                     </span>
@@ -514,7 +514,7 @@ export default function Header() {
               )}
 
               {/* Divider */}
-              <div className="hidden md:block w-px h-8 bg-gradient-to-b from-transparent via-slate-300 dark:via-slate-600 to-transparent mx-1" />
+              <div className="hidden md:block w-px h-8 bg-linear-to-b from-transparent via-slate-300 dark:via-slate-600 to-transparent mx-1" />
 
               {/* ========== USER MENU ========== */}
               {mounted && user ? (
@@ -530,7 +530,7 @@ export default function Header() {
                   >
                     {/* Avatar */}
                     <div className="relative">
-                      <div className="relative w-9 h-9 rounded-lg bg-gradient-to-br from-pink-500 via-purple-600 to-violet-600 flex items-center justify-center text-white font-bold text-sm shadow-lg overflow-hidden">
+                      <div className="relative w-9 h-9 rounded-lg bg-linear-to-br from-pink-500 via-purple-600 to-violet-600 flex items-center justify-center text-white font-bold text-sm shadow-lg overflow-hidden">
                         {userInitial || <User className="w-4 h-4" />}
                       </div>
                     </div>
@@ -551,7 +551,7 @@ export default function Header() {
                           {/* Top Section */}
                           <div className="p-5 border-b border-white/5">
                             <div className="flex items-center gap-4">
-                              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-xl">
+                              <div className="w-14 h-14 rounded-full bg-linear-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-xl">
                                 {userInitial || "A"}
                               </div>
                               <div className="flex-1 min-w-0">
@@ -619,10 +619,10 @@ export default function Header() {
                   className="relative flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold text-white overflow-hidden group transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40"
                 >
                   {/* Animated Gradient Background */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-600 to-violet-600 bg-[length:200%_100%] animate-gradient-x" />
+                  <div className="absolute inset-0 bg-linear-to-r from-pink-500 via-purple-600 to-violet-600 bg-[length:200%_100%] animate-gradient-x" />
 
                   {/* Shine Effect */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                  <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/25 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
 
                   <Sparkles className="w-4 h-4 relative z-10" />
                   <span className="relative z-10">Sign In</span>
@@ -686,7 +686,7 @@ export default function Header() {
             )}
           >
             {/* Gradient Top Border */}
-            <div className="h-1 bg-gradient-to-r from-pink-500 via-purple-500 to-violet-500" />
+            <div className="h-1 bg-linear-to-r from-pink-500 via-purple-500 to-violet-500" />
 
             {/* Nav Links */}
             <nav className="p-4">
@@ -700,7 +700,7 @@ export default function Header() {
                     className={cn(
                       "flex items-center gap-4 p-4 rounded-2xl mb-2 transition-all duration-300",
                       isActive
-                        ? "bg-gradient-to-r from-purple-500/10 to-pink-500/10 text-purple-600 dark:text-purple-400"
+                        ? "bg-linear-to-r from-purple-500/10 to-pink-500/10 text-purple-600 dark:text-purple-400"
                         : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800",
                     )}
                     style={{ animationDelay: `${i * 50}ms` }}
@@ -709,7 +709,7 @@ export default function Header() {
                       className={cn(
                         "w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300",
                         isActive
-                          ? "bg-gradient-to-br from-purple-500 to-pink-600 text-white shadow-lg shadow-purple-500/30"
+                          ? "bg-linear-to-br from-purple-500 to-pink-600 text-white shadow-lg shadow-purple-500/30"
                           : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400",
                       )}
                     >
@@ -746,9 +746,9 @@ export default function Header() {
             </nav>
 
             {/* Promo Banner */}
-            <div className="mx-4 mb-4 p-4 rounded-2xl bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-violet-500/10 border border-purple-500/20">
+            <div className="mx-4 mb-4 p-4 rounded-2xl bg-linear-to-r from-purple-500/10 via-pink-500/10 to-violet-500/10 border border-purple-500/20">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center text-white shadow-lg">
+                <div className="w-12 h-12 rounded-xl bg-linear-to-br from-purple-500 to-pink-600 flex items-center justify-center text-white shadow-lg">
                   <Gift className="w-5 h-5" />
                 </div>
                 <div>

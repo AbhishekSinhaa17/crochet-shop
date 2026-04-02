@@ -494,7 +494,7 @@ export default function ProductsPageClient({
                 >
                   {filteredProducts.map((product, idx) => (
                     <div
-                      key={product.id}
+                      key={`${product.id}-${idx}`}
                       className={cn(
                         "transform transition-all duration-500",
                         isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"

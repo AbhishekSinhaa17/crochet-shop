@@ -4,7 +4,7 @@ import {
   Package,
   ShoppingCart,
   Users,
-  DollarSign,
+  IndianRupee,
   TrendingUp,
   Clock,
   ArrowUpRight,
@@ -45,7 +45,7 @@ export default async function AdminDashboard() {
       label: "Total Revenue",
       value: totalRevenue,
       formatted: formatPrice(totalRevenue),
-      icon: DollarSign,
+      icon: IndianRupee,
       iconBg:
         "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400",
       gradient: "from-emerald-500 to-teal-500",
@@ -182,14 +182,14 @@ export default async function AdminDashboard() {
           >
             {/* Top gradient bar */}
             <div
-              className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${stat.gradient} 
+              className={`absolute inset-x-0 top-0 h-1 bg-linear-to-r ${stat.gradient} 
                 opacity-70 group-hover:opacity-100 transition-opacity duration-500`}
             />
 
             {/* Decorative circle */}
             <div
               className={`absolute -right-4 -top-4 h-20 w-20 rounded-full 
-                bg-gradient-to-br ${stat.gradient} 
+                bg-linear-to-br ${stat.gradient} 
                 opacity-[0.06] dark:opacity-[0.1]
                 group-hover:opacity-[0.12] dark:group-hover:opacity-[0.2] 
                 group-hover:scale-125 transition-all duration-700`}
@@ -251,7 +251,7 @@ export default async function AdminDashboard() {
           <div className="flex items-center gap-3">
             <div
               className="flex h-10 w-10 items-center justify-center rounded-xl 
-                bg-gradient-to-br from-violet-500 to-purple-600 
+                bg-linear-to-br from-violet-500 to-purple-600 
                 shadow-lg shadow-violet-500/20 dark:shadow-violet-500/10"
             >
               <Activity className="h-5 w-5 text-white" />
@@ -330,7 +330,7 @@ export default async function AdminDashboard() {
                         <div className="flex items-center gap-3">
                           <div
                             className="flex h-8 w-8 items-center justify-center rounded-lg 
-                              bg-gradient-to-br from-violet-500 to-purple-600 
+                              bg-linear-to-br from-violet-500 to-purple-600 
                               text-[10px] font-bold text-white shadow-sm 
                               group-hover:scale-110 transition-transform duration-300"
                           >

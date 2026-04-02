@@ -118,12 +118,12 @@ export default function ProductDetailClient({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-amber-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-amber-950/20 transition-colors duration-500">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-amber-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-amber-950/20 transition-colors duration-500">
       {/* Animated Background Orbs */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-r from-amber-200/20 to-orange-200/20 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-gradient-to-r from-rose-200/20 to-pink-200/20 rounded-full blur-3xl animate-pulse delay-1000" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-amber-100/10 to-rose-100/10 rounded-full blur-3xl" />
+        <div className="absolute top-20 left-10 w-72 h-72 bg-linear-to-r from-amber-200/20 to-orange-200/20 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-linear-to-r from-rose-200/20 to-pink-200/20 rounded-full blur-3xl animate-pulse delay-1000" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-linear-to-r from-amber-100/10 to-rose-100/10 rounded-full blur-3xl" />
       </div>
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -167,11 +167,11 @@ export default function ProductDetailClient({
               onMouseLeave={() => setIsImageZoomed(false)}
             >
               {/* Decorative Frame */}
-              <div className="absolute -inset-2 bg-gradient-to-r from-amber-400 via-rose-400 to-amber-400 rounded-3xl opacity-20 blur-lg group-hover:opacity-40 transition-opacity duration-500" />
+              <div className="absolute -inset-2 bg-linear-to-r from-amber-400 via-rose-400 to-amber-400 rounded-3xl opacity-20 blur-lg group-hover:opacity-40 transition-opacity duration-500" />
               
               <div className="relative aspect-square rounded-2xl overflow-hidden bg-white dark:bg-gray-800 shadow-2xl shadow-amber-100/50 dark:shadow-black/50">
                 {/* Shimmer Effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out z-10" />
+                <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out z-10" />
                 
                 <Image
                   src={imgErrors.has(selectedImage) ? "https://images.unsplash.com/photo-1615529151169-7b1ff50dc7f2?w=600" : images[selectedImage]}
@@ -187,13 +187,13 @@ export default function ProductDetailClient({
                 {/* Badges */}
                 <div className="absolute top-4 left-4 flex flex-col gap-2 z-20">
                   {hasDiscount && (
-                    <span className="inline-flex items-center gap-1.5 bg-gradient-to-r from-red-500 to-rose-500 text-white text-sm font-bold px-4 py-2 rounded-full shadow-lg shadow-red-500/30 animate-pulse">
+                    <span className="inline-flex items-center gap-1.5 bg-linear-to-r from-red-500 to-rose-500 text-white text-sm font-bold px-4 py-2 rounded-full shadow-lg shadow-red-500/30 animate-pulse">
                       <Zap className="w-4 h-4" />
                       {getDiscountPercent(product.price, product.compare_price!)}% OFF
                     </span>
                   )}
                   {product.is_featured && (
-                    <span className="inline-flex items-center gap-1.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-sm font-bold px-4 py-2 rounded-full shadow-lg shadow-amber-500/30">
+                    <span className="inline-flex items-center gap-1.5 bg-linear-to-r from-amber-500 to-orange-500 text-white text-sm font-bold px-4 py-2 rounded-full shadow-lg shadow-amber-500/30">
                       <Sparkles className="w-4 h-4" />
                       Featured
                     </span>
@@ -236,7 +236,7 @@ export default function ProductDetailClient({
                   >
                     <Image src={img} alt="" fill className="object-cover" />
                     {selectedImage === i && (
-                      <div className="absolute inset-0 bg-gradient-to-t from-amber-500/20 to-transparent" />
+                      <div className="absolute inset-0 bg-linear-to-t from-amber-500/20 to-transparent" />
                     )}
                   </button>
                 ))}
@@ -254,7 +254,7 @@ export default function ProductDetailClient({
             {product.category && (
               <Link
                 href={`/products?category=${product.category.slug}`}
-                className="inline-flex items-center gap-2 px-4 py-1.5 bg-gradient-to-r from-amber-100 to-orange-100 dark:from-amber-900/40 dark:to-orange-900/40 text-amber-700 dark:text-amber-400 rounded-full text-sm font-medium hover:from-amber-200 hover:to-orange-200 transition-all duration-300 group"
+                className="inline-flex items-center gap-2 px-4 py-1.5 bg-linear-to-r from-amber-100 to-orange-100 dark:from-amber-900/40 dark:to-orange-900/40 text-amber-700 dark:text-amber-400 rounded-full text-sm font-medium hover:from-amber-200 hover:to-orange-200 transition-all duration-300 group"
               >
                 <span className="w-2 h-2 bg-amber-500 rounded-full group-hover:scale-125 transition-transform" />
                 {product.category.name}
@@ -296,7 +296,7 @@ export default function ProductDetailClient({
             {/* Price Section */}
             <div className="flex items-end gap-4 py-4">
               <div className="relative">
-                <span className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 dark:from-white dark:via-gray-100 dark:to-white bg-clip-text text-transparent">
+                <span className="text-4xl md:text-5xl font-bold bg-linear-to-r from-gray-900 via-gray-800 to-gray-900 dark:from-white dark:via-gray-100 dark:to-white bg-clip-text text-transparent">
                   {formatPrice(product.price)}
                 </span>
                 {hasDiscount && (
@@ -339,7 +339,7 @@ export default function ProductDetailClient({
 
             {/* Quantity & Add to Cart */}
             {!isAdmin && (
-              <div className="space-y-4 p-6 bg-gradient-to-br from-white to-amber-50/50 dark:from-gray-900/50 dark:to-amber-900/20 rounded-2xl border border-amber-100/50 dark:border-amber-800/30 shadow-lg shadow-amber-100/20 dark:shadow-black/20">
+              <div className="space-y-4 p-6 bg-linear-to-br from-white to-amber-50/50 dark:from-gray-900/50 dark:to-amber-900/20 rounded-2xl border border-amber-100/50 dark:border-amber-800/30 shadow-lg shadow-amber-100/20 dark:shadow-black/20">
                 <div className="flex items-center gap-4">
                   <span className="text-gray-700 dark:text-gray-300 font-medium">Quantity:</span>
                   <div className="flex items-center bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-700 rounded-full overflow-hidden shadow-inner">
@@ -366,7 +366,7 @@ export default function ProductDetailClient({
                     className={`flex-1 py-4 px-8 rounded-xl font-bold text-lg transition-all duration-500 flex items-center justify-center gap-3 ${
                       addedToCart
                         ? "bg-emerald-500 text-white"
-                        : "bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 bg-size-200 bg-pos-0 hover:bg-pos-100 text-white shadow-lg shadow-amber-500/30 hover:shadow-xl hover:shadow-amber-500/40 hover:-translate-y-0.5"
+                        : "bg-linear-to-r from-amber-500 via-orange-500 to-amber-500 bg-size-200 bg-pos-0 hover:bg-pos-100 text-white shadow-lg shadow-amber-500/30 hover:shadow-xl hover:shadow-amber-500/40 hover:-translate-y-0.5"
                     } disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0`}
                     style={{ backgroundSize: "200% auto" }}
                   >
@@ -408,9 +408,9 @@ export default function ProductDetailClient({
                   className="group relative p-4 bg-white dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-800 hover:border-transparent hover:shadow-xl dark:shadow-black/50 transition-all duration-500 cursor-pointer overflow-hidden"
                   style={{ animationDelay: `${idx * 100}ms` }}
                 >
-                  <div className={`absolute inset-0 bg-gradient-to-br ${color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+                  <div className={`absolute inset-0 bg-linear-to-br ${color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
                   <div className="relative z-10 text-center group-hover:text-white transition-colors duration-500">
-                    <div className={`w-12 h-12 mx-auto mb-2 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center group-hover:bg-white/20 transition-all duration-500`}>
+                    <div className={`w-12 h-12 mx-auto mb-2 rounded-xl bg-linear-to-br ${color} flex items-center justify-center group-hover:bg-white/20 transition-all duration-500`}>
                       <Icon className="w-6 h-6 text-white" />
                     </div>
                     <p className="font-semibold text-sm">{label}</p>
@@ -426,7 +426,7 @@ export default function ProductDetailClient({
                 {product.tags.map((tag, idx) => (
                   <span 
                     key={tag} 
-                    className="px-4 py-1.5 bg-gradient-to-r from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-900 text-gray-600 dark:text-gray-400 rounded-full text-sm font-medium hover:from-amber-100 hover:to-orange-50 hover:text-amber-700 dark:hover:text-amber-400 transition-all duration-300 cursor-pointer"
+                    className="px-4 py-1.5 bg-linear-to-r from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-900 text-gray-600 dark:text-gray-400 rounded-full text-sm font-medium hover:from-amber-100 hover:to-orange-50 hover:text-amber-700 dark:hover:text-amber-400 transition-all duration-300 cursor-pointer"
                     style={{ animationDelay: `${idx * 50}ms` }}
                   >
                     #{tag}
@@ -463,7 +463,7 @@ export default function ProductDetailClient({
                 className={`px-6 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center gap-2 ${
                   showReviewForm
                     ? "bg-gray-100 text-gray-600"
-                    : "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/30 hover:shadow-xl hover:-translate-y-0.5"
+                    : "bg-linear-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/30 hover:shadow-xl hover:-translate-y-0.5"
                 }`}
               >
                 {showReviewForm ? (
@@ -483,7 +483,7 @@ export default function ProductDetailClient({
 
           {/* Review Stats */}
           <div className="grid md:grid-cols-4 gap-6 mb-10">
-            <div className="md:col-span-1 p-6 bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl text-white">
+            <div className="md:col-span-1 p-6 bg-linear-to-br from-amber-500 to-orange-500 rounded-2xl text-white">
               <div className="text-5xl font-bold mb-2">{product.avg_rating.toFixed(1)}</div>
               <div className="flex gap-1 mb-2">
                 {[...Array(5)].map((_, i) => (
@@ -508,7 +508,7 @@ export default function ProductDetailClient({
                     <span className="w-8 text-sm font-medium text-gray-600 dark:text-gray-400">{rating}★</span>
                     <div className="flex-1 h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
                       <div 
-                        className="h-full bg-gradient-to-r from-amber-400 to-orange-400 rounded-full transition-all duration-1000"
+                        className="h-full bg-linear-to-r from-amber-400 to-orange-400 rounded-full transition-all duration-1000"
                         style={{ width: `${percentage}%` }}
                       />
                     </div>
@@ -528,7 +528,7 @@ export default function ProductDetailClient({
 
           {/* Reviews List */}
           {currentReviews.length === 0 ? (
-            <div className="text-center py-16 bg-gradient-to-br from-white to-amber-50/50 dark:from-gray-900/50 dark:to-amber-900/20 rounded-2xl border border-amber-100/50 dark:border-amber-800/30">
+            <div className="text-center py-16 bg-linear-to-br from-white to-amber-50/50 dark:from-gray-900/50 dark:to-amber-900/20 rounded-2xl border border-amber-100/50 dark:border-amber-800/30">
               <Package className="w-16 h-16 text-amber-300 dark:text-amber-900/50 mx-auto mb-4" />
               <p className="text-gray-500 dark:text-gray-400 text-lg mb-4">No reviews yet.</p>
               {!isAdmin && (
@@ -551,7 +551,7 @@ export default function ProductDetailClient({
                   {/* Review Header */}
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white font-bold text-lg">
+                      <div className="w-12 h-12 rounded-full bg-linear-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white font-bold text-lg">
                         {((review as any).profile?.full_name || "A").charAt(0).toUpperCase()}
                       </div>
                       <div>

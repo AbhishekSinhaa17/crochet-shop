@@ -122,7 +122,7 @@ export default function TrustMarquee() {
         {/* === BACKGROUND === */}
         <div className="absolute inset-0">
           {/* Base gradient */}
-          <div className="absolute inset-0 bg-gradient-to-b from-violet-50/50 via-white to-rose-50/50 dark:from-slate-900 dark:via-slate-950 dark:to-violet-950/30" />
+          <div className="absolute inset-0 bg-linear-to-b from-violet-50/50 via-white to-rose-50/50 dark:from-slate-900 dark:via-slate-950 dark:to-violet-950/30" />
           
           {/* Animated gradient orbs */}
           <div 
@@ -176,35 +176,35 @@ export default function TrustMarquee() {
 
         {/* === TOP DECORATIVE LINE === */}
         <div className="absolute top-0 left-0 right-0 h-px">
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-violet-500/30 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-rose-500/20 to-transparent animate-pulse-subtle" />
+          <div className="absolute inset-0 bg-linear-to-r from-transparent via-violet-500/30 to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-r from-transparent via-rose-500/20 to-transparent animate-pulse-subtle" />
         </div>
 
         {/* === BOTTOM DECORATIVE LINE === */}
         <div className="absolute bottom-0 left-0 right-0 h-px">
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-violet-500/30 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-rose-500/20 to-transparent animate-pulse-subtle" style={{ animationDelay: '1.5s' }} />
+          <div className="absolute inset-0 bg-linear-to-r from-transparent via-violet-500/30 to-transparent" />
+          <div className="absolute inset-0 bg-linear-to-r from-transparent via-rose-500/20 to-transparent animate-pulse-subtle" style={{ animationDelay: '1.5s' }} />
         </div>
 
         {/* === SECTION HEADER === */}
         <div className="relative z-10 text-center mb-10">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-violet-500/10 to-rose-500/10 border border-violet-500/20 mb-4">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-linear-to-r from-violet-500/10 to-rose-500/10 border border-violet-500/20 mb-4">
             <Sparkles className="w-4 h-4 text-violet-500" />
-            <span className="text-sm font-semibold bg-gradient-to-r from-violet-600 to-rose-500 bg-clip-text text-transparent">
+            <span className="text-sm font-semibold bg-linear-to-r from-violet-600 to-rose-500 bg-clip-text text-transparent">
               Why Choose Us
             </span>
             <Sparkles className="w-4 h-4 text-rose-500" />
           </div>
           <h2 className="text-2xl md:text-3xl font-bold text-foreground">
-            Crafted with <span className="bg-gradient-to-r from-violet-600 via-purple-600 to-rose-500 bg-clip-text text-transparent">Excellence</span>
+            Crafted with <span className="bg-linear-to-r from-violet-600 via-purple-600 to-rose-500 bg-clip-text text-transparent">Excellence</span>
           </h2>
         </div>
 
         {/* === FIRST MARQUEE ROW === */}
         <div className="relative z-10 mb-6">
           {/* Fade edges */}
-          <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-white dark:from-slate-950 to-transparent z-10 pointer-events-none" />
-          <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-white dark:from-slate-950 to-transparent z-10 pointer-events-none" />
+          <div className="absolute left-0 top-0 bottom-0 w-32 bg-linear-to-r from-white dark:from-slate-950 to-transparent z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-32 bg-linear-to-l from-white dark:from-slate-950 to-transparent z-10 pointer-events-none" />
           
           <div className="flex animate-marquee whitespace-nowrap">
             {[...Array(2)].map((_, setIdx) => (
@@ -215,10 +215,10 @@ export default function TrustMarquee() {
                     className="group flex items-center gap-4 px-6 py-4 rounded-2xl glass-item cursor-default transition-all duration-300 hover:scale-105 hover:shadow-lg"
                   >
                     {/* Icon container */}
-                    <div className={`relative flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br ${item.bg}`}>
-                      <div className={`absolute inset-0 rounded-xl bg-gradient-to-br ${item.bg} opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-sm`} />
-                      <item.icon className={`relative w-6 h-6 bg-gradient-to-br ${item.color} bg-clip-text transition-transform duration-300 group-hover:scale-110`} style={{ color: `rgb(var(--${item.color.split('-')[1]}-500))` }} />
-                      <item.icon className={`absolute w-6 h-6 bg-gradient-to-r ${item.color} opacity-80 transition-all duration-300 group-hover:opacity-100`} />
+                    <div className={`relative flex items-center justify-center w-12 h-12 rounded-xl bg-linear-to-br ${item.bg}`}>
+                      <div className={`absolute inset-0 rounded-xl bg-linear-to-br ${item.bg} opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-sm`} />
+                      <item.icon className={`relative w-6 h-6 bg-linear-to-br ${item.color} bg-clip-text transition-transform duration-300 group-hover:scale-110`} style={{ color: `rgb(var(--${item.color.split('-')[1]}-500))` }} />
+                      <item.icon className={`absolute w-6 h-6 bg-linear-to-r ${item.color} opacity-80 transition-all duration-300 group-hover:opacity-100`} />
                     </div>
                     
                     {/* Text */}
@@ -228,7 +228,7 @@ export default function TrustMarquee() {
                     
                     {/* Separator dot */}
                     <div className="flex items-center gap-1">
-                      <div className={`w-1.5 h-1.5 rounded-full bg-gradient-to-r ${item.color} opacity-40 group-hover:opacity-100 transition-opacity duration-300`} />
+                      <div className={`w-1.5 h-1.5 rounded-full bg-linear-to-r ${item.color} opacity-40 group-hover:opacity-100 transition-opacity duration-300`} />
                     </div>
                   </div>
                 ))}
@@ -240,8 +240,8 @@ export default function TrustMarquee() {
         {/* === SECOND MARQUEE ROW (REVERSE) === */}
         <div className="relative z-10">
           {/* Fade edges */}
-          <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-white dark:from-slate-950 to-transparent z-10 pointer-events-none" />
-          <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-white dark:from-slate-950 to-transparent z-10 pointer-events-none" />
+          <div className="absolute left-0 top-0 bottom-0 w-32 bg-linear-to-r from-white dark:from-slate-950 to-transparent z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-32 bg-linear-to-l from-white dark:from-slate-950 to-transparent z-10 pointer-events-none" />
           
           <div className="flex animate-marquee-reverse whitespace-nowrap">
             {[...Array(2)].map((_, setIdx) => (
@@ -252,9 +252,9 @@ export default function TrustMarquee() {
                     className="group flex items-center gap-4 px-6 py-4 rounded-2xl glass-item cursor-default transition-all duration-300 hover:scale-105 hover:shadow-lg"
                   >
                     {/* Icon container */}
-                    <div className={`relative flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br ${item.bg}`}>
-                      <div className={`absolute inset-0 rounded-xl bg-gradient-to-br ${item.bg} opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-sm`} />
-                      <item.icon className={`absolute w-6 h-6 bg-gradient-to-r ${item.color} opacity-80 transition-all duration-300 group-hover:opacity-100`} />
+                    <div className={`relative flex items-center justify-center w-12 h-12 rounded-xl bg-linear-to-br ${item.bg}`}>
+                      <div className={`absolute inset-0 rounded-xl bg-linear-to-br ${item.bg} opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-sm`} />
+                      <item.icon className={`absolute w-6 h-6 bg-linear-to-r ${item.color} opacity-80 transition-all duration-300 group-hover:opacity-100`} />
                     </div>
                     
                     {/* Text */}
@@ -264,7 +264,7 @@ export default function TrustMarquee() {
                     
                     {/* Separator dot */}
                     <div className="flex items-center gap-1">
-                      <div className={`w-1.5 h-1.5 rounded-full bg-gradient-to-r ${item.color} opacity-40 group-hover:opacity-100 transition-opacity duration-300`} />
+                      <div className={`w-1.5 h-1.5 rounded-full bg-linear-to-r ${item.color} opacity-40 group-hover:opacity-100 transition-opacity duration-300`} />
                     </div>
                   </div>
                 ))}
@@ -287,11 +287,11 @@ export default function TrustMarquee() {
                   key={i}
                   className="group flex items-center gap-4 cursor-default"
                 >
-                  <div className={`flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br ${stat.color} shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:shadow-xl`}>
+                  <div className={`flex items-center justify-center w-14 h-14 rounded-2xl bg-linear-to-br ${stat.color} shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:shadow-xl`}>
                     <stat.icon className="w-7 h-7 text-white" />
                   </div>
                   <div>
-                    <div className={`text-2xl lg:text-3xl font-black bg-gradient-to-r ${stat.color} bg-clip-text text-transparent`}>
+                    <div className={`text-2xl lg:text-3xl font-black bg-linear-to-r ${stat.color} bg-clip-text text-transparent`}>
                       {stat.value}
                     </div>
                     <div className="text-sm text-muted-foreground font-medium">
@@ -307,11 +307,11 @@ export default function TrustMarquee() {
         {/* === DECORATIVE YARN BALLS === */}
         <div className="absolute left-8 top-1/2 -translate-y-1/2 pointer-events-none hidden lg:block">
           <div className="relative">
-            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-violet-200/40 to-violet-300/30 dark:from-violet-800/20 dark:to-violet-900/15 animate-float-particle" style={{ animationDuration: '6s' }}>
+            <div className="w-24 h-24 rounded-full bg-linear-to-br from-violet-200/40 to-violet-300/30 dark:from-violet-800/20 dark:to-violet-900/15 animate-float-particle" style={{ animationDuration: '6s' }}>
               <div className="absolute inset-2 rounded-full border-2 border-dashed border-violet-400/20 animate-spin" style={{ animationDuration: '20s' }} />
-              <div className="absolute inset-4 rounded-full bg-gradient-to-br from-violet-300/30 to-transparent" />
+              <div className="absolute inset-4 rounded-full bg-linear-to-br from-violet-300/30 to-transparent" />
             </div>
-            <div className="absolute -bottom-8 -right-6 w-14 h-14 rounded-full bg-gradient-to-br from-rose-200/40 to-rose-300/30 dark:from-rose-800/20 dark:to-rose-900/15 animate-float-particle" style={{ animationDuration: '5s', animationDelay: '1s' }}>
+            <div className="absolute -bottom-8 -right-6 w-14 h-14 rounded-full bg-linear-to-br from-rose-200/40 to-rose-300/30 dark:from-rose-800/20 dark:to-rose-900/15 animate-float-particle" style={{ animationDuration: '5s', animationDelay: '1s' }}>
               <div className="absolute inset-1 rounded-full border border-dashed border-rose-400/20 animate-spin" style={{ animationDuration: '15s', animationDirection: 'reverse' }} />
             </div>
           </div>
@@ -319,18 +319,18 @@ export default function TrustMarquee() {
 
         <div className="absolute right-8 top-1/2 -translate-y-1/2 pointer-events-none hidden lg:block">
           <div className="relative">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-amber-200/40 to-amber-300/30 dark:from-amber-800/20 dark:to-amber-900/15 animate-float-particle" style={{ animationDuration: '7s', animationDelay: '0.5s' }}>
+            <div className="w-20 h-20 rounded-full bg-linear-to-br from-amber-200/40 to-amber-300/30 dark:from-amber-800/20 dark:to-amber-900/15 animate-float-particle" style={{ animationDuration: '7s', animationDelay: '0.5s' }}>
               <div className="absolute inset-2 rounded-full border-2 border-dashed border-amber-400/20 animate-spin" style={{ animationDuration: '25s' }} />
             </div>
-            <div className="absolute -top-6 -left-4 w-12 h-12 rounded-full bg-gradient-to-br from-emerald-200/40 to-emerald-300/30 dark:from-emerald-800/20 dark:to-emerald-900/15 animate-float-particle" style={{ animationDuration: '4s', animationDelay: '2s' }}>
+            <div className="absolute -top-6 -left-4 w-12 h-12 rounded-full bg-linear-to-br from-emerald-200/40 to-emerald-300/30 dark:from-emerald-800/20 dark:to-emerald-900/15 animate-float-particle" style={{ animationDuration: '4s', animationDelay: '2s' }}>
               <div className="absolute inset-1 rounded-full border border-dashed border-emerald-400/20 animate-spin" style={{ animationDuration: '18s', animationDirection: 'reverse' }} />
             </div>
           </div>
         </div>
 
         {/* === CORNER ACCENTS === */}
-        <div className="absolute top-0 left-0 w-64 h-64 bg-gradient-to-br from-violet-500/5 via-transparent to-transparent blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 right-0 w-64 h-64 bg-gradient-to-tl from-rose-500/5 via-transparent to-transparent blur-3xl pointer-events-none" />
+        <div className="absolute top-0 left-0 w-64 h-64 bg-linear-to-br from-violet-500/5 via-transparent to-transparent blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 right-0 w-64 h-64 bg-linear-to-tl from-rose-500/5 via-transparent to-transparent blur-3xl pointer-events-none" />
       </section>
     </>
   );

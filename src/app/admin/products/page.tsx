@@ -106,7 +106,7 @@ export default async function AdminProductsPage() {
           href="/admin/products/new"
           className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm 
             font-semibold text-white transition-all duration-300
-            bg-gradient-to-r from-violet-600 to-purple-600 
+            bg-linear-to-r from-violet-600 to-purple-600 
             hover:from-violet-700 hover:to-purple-700
             shadow-lg shadow-violet-500/25 dark:shadow-violet-500/15
             hover:shadow-xl hover:shadow-violet-500/30
@@ -164,12 +164,12 @@ export default async function AdminProductsPage() {
             style={{ animationDelay: `${80 + i * 80}ms` }}
           >
             <div
-              className={`absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r ${stat.color} 
+              className={`absolute inset-x-0 top-0 h-0.5 bg-linear-to-r ${stat.color} 
                 opacity-60 group-hover:opacity-100 transition-opacity duration-500`}
             />
             <div
               className={`absolute -right-3 -top-3 h-16 w-16 rounded-full 
-                bg-gradient-to-br ${stat.color} opacity-[0.05] dark:opacity-[0.08]
+                bg-linear-to-br ${stat.color} opacity-[0.05] dark:opacity-[0.08]
                 group-hover:opacity-[0.1] dark:group-hover:opacity-[0.15]
                 group-hover:scale-125 transition-all duration-700`}
             />
@@ -210,7 +210,7 @@ export default async function AdminProductsPage() {
           <div className="flex items-center gap-3">
             <div
               className="flex h-10 w-10 items-center justify-center rounded-xl 
-                bg-gradient-to-br from-pink-500 to-rose-600 
+                bg-linear-to-br from-pink-500 to-rose-600 
                 shadow-lg shadow-pink-500/20 dark:shadow-pink-500/10"
             >
               <Layers className="h-5 w-5 text-white" />
@@ -442,7 +442,7 @@ export default async function AdminProductsPage() {
                         href="/admin/products/new"
                         className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm 
                           font-semibold text-white transition-all duration-300
-                          bg-gradient-to-r from-violet-600 to-purple-600 
+                          bg-linear-to-r from-violet-600 to-purple-600 
                           hover:from-violet-700 hover:to-purple-700
                           shadow-lg shadow-violet-500/25 
                           hover:shadow-xl hover:-translate-y-0.5"

@@ -104,6 +104,7 @@ export default function NewProductClient({ categories }: { categories: Category[
     } catch (err: any) {
       console.error("Submit Error:", err);
       toast.error(err.message || "Failed to create product", { id: toastId });
+      setLoading(false); // Explicitly reset loading on error if needed
     } finally {
       setLoading(false);
     }
@@ -212,7 +213,7 @@ export default function NewProductClient({ categories }: { categories: Category[
           >
             <div
               className="flex h-9 w-9 items-center justify-center rounded-xl
-                bg-gradient-to-br from-violet-500 to-purple-600 
+                bg-linear-to-br from-violet-500 to-purple-600 
                 shadow-lg shadow-violet-500/20 dark:shadow-violet-500/10"
             >
               <Package className="h-4 w-4 text-white" />
@@ -488,7 +489,7 @@ export default function NewProductClient({ categories }: { categories: Category[
                 />
                 <div
                   className="w-10 h-6 rounded-full transition-colors duration-300
-                    bg-gray-200 peer-checked:bg-gradient-to-r 
+                    bg-gray-200 peer-checked:bg-linear-to-r 
                     peer-checked:from-violet-500 peer-checked:to-purple-500
                     dark:bg-gray-700"
                 />
@@ -533,7 +534,7 @@ export default function NewProductClient({ categories }: { categories: Category[
           >
             <div
               className="flex h-9 w-9 items-center justify-center rounded-xl
-                bg-gradient-to-br from-pink-500 to-rose-600 
+                bg-linear-to-br from-pink-500 to-rose-600 
                 shadow-lg shadow-pink-500/20 dark:shadow-pink-500/10"
             >
               <ImageIcon className="h-4 w-4 text-white" />
@@ -710,7 +711,7 @@ export default function NewProductClient({ categories }: { categories: Category[
             className="group relative inline-flex items-center gap-2.5 px-8 py-3.5 
               rounded-xl text-sm font-semibold text-white
               transition-all duration-300
-              bg-gradient-to-r from-violet-600 to-purple-600 
+              bg-linear-to-r from-violet-600 to-purple-600 
               hover:from-violet-700 hover:to-purple-700
               shadow-lg shadow-violet-500/25 dark:shadow-violet-500/15
               hover:shadow-xl hover:shadow-violet-500/30
@@ -725,7 +726,7 @@ export default function NewProductClient({ categories }: { categories: Category[
                 transition-opacity duration-500"
             >
               <div
-                className="absolute inset-0 bg-gradient-to-r from-transparent 
+                className="absolute inset-0 bg-linear-to-r from-transparent 
                   via-white/10 to-transparent animate-shimmer"
                 style={{ backgroundSize: "200% 100%" }}
               />

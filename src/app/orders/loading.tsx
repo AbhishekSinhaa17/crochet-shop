@@ -2,11 +2,11 @@ import { Package, ShoppingBag } from "lucide-react";
 
 export default function OrdersLoading() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-amber-50/30">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-amber-50/30">
       {/* Animated Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 -left-20 w-96 h-96 bg-gradient-to-r from-amber-200/30 to-orange-200/30 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute top-40 -right-20 w-96 h-96 bg-gradient-to-r from-purple-200/30 to-pink-200/30 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute top-20 -left-20 w-96 h-96 bg-linear-to-r from-amber-200/30 to-orange-200/30 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute top-40 -right-20 w-96 h-96 bg-linear-to-r from-purple-200/30 to-pink-200/30 rounded-full blur-3xl animate-pulse" />
       </div>
 
       <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -24,7 +24,7 @@ export default function OrdersLoading() {
               <div className="h-10 w-48 bg-gray-200 rounded-lg animate-pulse" />
               <div className="h-5 w-64 bg-gray-100 rounded mt-3 animate-pulse" />
             </div>
-            <div className="h-12 w-44 bg-gradient-to-r from-amber-200 to-orange-200 rounded-xl animate-pulse" />
+            <div className="h-12 w-44 bg-linear-to-r from-amber-200 to-orange-200 rounded-xl animate-pulse" />
           </div>
         </div>
 
@@ -68,7 +68,7 @@ export default function OrdersLoading() {
               style={{ animationDelay: `${idx * 100}ms` }}
             >
               {/* Status Bar */}
-              <div className="h-1 bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse" />
+              <div className="h-1 bg-linear-to-r from-gray-200 to-gray-300 animate-pulse" />
               
               <div className="p-6">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">

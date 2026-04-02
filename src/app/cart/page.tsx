@@ -255,7 +255,7 @@ export default function CartPage() {
               </div>
               <div className="h-2 bg-amber-100 dark:bg-amber-900/50 rounded-full overflow-hidden">
                 <div 
-                  className="h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full transition-all duration-500"
+                  className="h-full bg-linear-to-r from-amber-500 to-orange-500 rounded-full transition-all duration-500"
                   style={{ width: `${freeShippingProgress}%` }}
                 />
               </div>
@@ -288,7 +288,7 @@ export default function CartPage() {
           >
             {items.map((item, idx) => (
               <CartItemCard
-                key={item.id}
+                key={`${item.id}-${idx}`}
                 item={item}
                 isRemoving={removingIds.has(item.id)}
                 isUpdating={updatingIds.has(item.id)}
@@ -540,7 +540,7 @@ export default function CartPage() {
               ))
             ) : (
               recommendedProducts.map((product, idx) => (
-                <ProductCard key={product.id} product={product} index={idx} />
+                <ProductCard key={`rec-${product.id}-${idx}`} product={product} index={idx} />
               ))
             )}
           </div>
@@ -783,7 +783,7 @@ function EmptyCart({
                 {/* Outer Ring */}
                 <div className="absolute inset-0 rounded-full border-2 border-dashed border-amber-200 dark:border-amber-800/50 animate-spin-slow" />
                 {/* Inner Circle */}
-                <div className="absolute inset-6 rounded-full bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/50 dark:to-orange-900/50 flex items-center justify-center">
+                <div className="absolute inset-6 rounded-full bg-linear-to-br from-amber-100 to-orange-100 dark:from-amber-900/50 dark:to-orange-900/50 flex items-center justify-center">
                   <ShoppingBag className="w-12 h-12 text-amber-500 dark:text-amber-400" />
                 </div>
                 

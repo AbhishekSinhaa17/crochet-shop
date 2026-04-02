@@ -431,7 +431,7 @@ export default function CustomOrderCTA() {
             <div className="relative w-20 h-20 lg:w-32 lg:h-32">
               <div className="absolute inset-0 rounded-full bg-linear-to-br from-violet-300/50 to-violet-400/30 dark:from-violet-700/40 dark:to-violet-800/30 shadow-xl">
                 <div className="absolute inset-3 rounded-full border-2 border-dashed border-violet-400/40 animate-spin-slow" />
-                <div className="absolute inset-6 rounded-full bg-gradient-to-br from-violet-200/50 to-transparent" />
+                <div className="absolute inset-6 rounded-full bg-linear-to-br from-violet-200/50 to-transparent" />
               </div>
               {/* Thread line */}
               <svg className="absolute -bottom-10 left-1/2 w-1 h-16 overflow-visible">
@@ -505,7 +505,7 @@ export default function CustomOrderCTA() {
             <div className="relative w-18 h-18 lg:w-28 lg:h-28">
               <div className="absolute inset-0 rounded-full bg-linear-to-br from-emerald-300/50 to-emerald-400/30 dark:from-emerald-700/40 dark:to-emerald-800/30 shadow-xl">
                 <div className="absolute inset-3 rounded-full border-2 border-dashed border-emerald-400/40 animate-spin-reverse" />
-                <div className="absolute inset-5 rounded-full bg-gradient-to-br from-emerald-200/50 to-transparent" />
+                <div className="absolute inset-5 rounded-full bg-linear-to-br from-emerald-200/50 to-transparent" />
               </div>
             </div>
           </div>
@@ -648,7 +648,7 @@ export default function CustomOrderCTA() {
                       )}
                       
                       {/* Shine effect */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                      <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
 
                       {/* Step number */}
                       <div className="absolute top-4 right-4 text-4xl font-black text-muted-foreground/10">
@@ -668,7 +668,7 @@ export default function CustomOrderCTA() {
 
                       {/* Active dot */}
                       {activeStep === idx && (
-                        <div className="absolute bottom-4 right-4 w-3 h-3 rounded-full bg-gradient-to-r from-violet-500 to-rose-500">
+                        <div className="absolute bottom-4 right-4 w-3 h-3 rounded-full bg-linear-to-r from-violet-500 to-rose-500">
                           <div className="absolute inset-0 rounded-full bg-violet-500 animate-ping opacity-75" />
                         </div>
                       )}
@@ -686,7 +686,7 @@ export default function CustomOrderCTA() {
             }`}
           >
             {/* Card inner */}
-            <div className="relative bg-gradient-to-br from-violet-600 via-purple-600 to-fuchsia-600 animate-gradient-shift p-1">
+            <div className="relative bg-linear-to-br from-violet-600 via-purple-600 to-fuchsia-600 animate-gradient-shift p-1">
               <div className="relative rounded-[2.4rem] lg:rounded-[3.4rem] overflow-hidden">
                 {/* Background effects */}
                 <div className="absolute inset-0 bg-linear-to-br from-violet-600 via-purple-600 to-fuchsia-600" />
@@ -866,7 +866,7 @@ export default function CustomOrderCTA() {
                           {['from-rose-400 to-pink-500', 'from-violet-400 to-purple-500', 'from-amber-400 to-orange-500', 'from-emerald-400 to-teal-500'].map((gradient, i) => (
                             <div 
                               key={i}
-                              className={`w-10 h-10 rounded-full bg-gradient-to-br ${gradient} border-2 border-white/30 flex items-center justify-center text-white text-xs font-bold shadow-md`}
+                              className={`w-10 h-10 rounded-full bg-linear-to-br ${gradient} border-2 border-white/30 flex items-center justify-center text-white text-xs font-bold shadow-md`}
                             >
                               {['PS', 'RM', 'AK', 'VS'][i]}
                             </div>
@@ -894,10 +894,10 @@ export default function CustomOrderCTA() {
         </div>
 
         {/* === CORNER ACCENTS === */}
-        <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-gradient-to-br from-violet-500/15 via-transparent to-transparent blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-gradient-to-tl from-rose-500/15 via-transparent to-transparent blur-3xl pointer-events-none" />
-        <div className="absolute top-1/2 right-0 w-80 h-80 bg-gradient-to-l from-amber-500/10 to-transparent blur-3xl pointer-events-none" />
-        <div className="absolute bottom-1/3 left-0 w-80 h-80 bg-gradient-to-r from-violet-500/10 to-transparent blur-3xl pointer-events-none" />
+        <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-linear-to-br from-violet-500/15 via-transparent to-transparent blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-linear-to-tl from-rose-500/15 via-transparent to-transparent blur-3xl pointer-events-none" />
+        <div className="absolute top-1/2 right-0 w-80 h-80 bg-linear-to-l from-amber-500/10 to-transparent blur-3xl pointer-events-none" />
+        <div className="absolute bottom-1/3 left-0 w-80 h-80 bg-linear-to-r from-violet-500/10 to-transparent blur-3xl pointer-events-none" />
       </section>
     </>
   );

@@ -119,6 +119,7 @@ export default function EditProductClient({ product, categories }: EditProductCl
     } catch (err: any) {
       console.error("Update Error:", err);
       toast.error(err.message || "Failed to update product", { id: toastId });
+      setLoading(false); // Explicitly reset on error
     } finally {
       setLoading(false);
     }
@@ -185,7 +186,7 @@ export default function EditProductClient({ product, categories }: EditProductCl
         {/* Section 1: Basic Info */}
         <div className="rounded-2xl shadow-sm border overflow-hidden bg-white border-gray-100/60 dark:bg-gray-900 dark:border-gray-800">
           <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-100 dark:border-gray-800">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 shadow-lg shadow-violet-500/20 dark:shadow-violet-500/10">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-linear-to-br from-violet-500 to-purple-600 shadow-lg shadow-violet-500/20 dark:shadow-violet-500/10">
               <Package className="h-4 w-4 text-white" />
             </div>
             <h2 className="font-display font-semibold text-gray-900 dark:text-white">Basic Information</h2>
@@ -311,7 +312,7 @@ export default function EditProductClient({ product, categories }: EditProductCl
         {/* Section 2: Images */}
         <div className="rounded-2xl shadow-sm border overflow-hidden bg-white border-gray-100/60 dark:bg-gray-900 dark:border-gray-800">
           <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-100 dark:border-gray-800">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-pink-500 to-rose-600 shadow-lg shadow-pink-500/20 dark:shadow-pink-500/10">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-linear-to-br from-pink-500 to-rose-600 shadow-lg shadow-pink-500/20 dark:shadow-pink-500/10">
               <ImageIcon className="h-4 w-4 text-white" />
             </div>
             <h2 className="font-display font-semibold text-gray-900 dark:text-white">Product Images</h2>
@@ -376,7 +377,7 @@ export default function EditProductClient({ product, categories }: EditProductCl
           <button
             type="submit"
             disabled={loading}
-            className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-xl text-sm font-semibold text-white transition-all bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 disabled:opacity-60"
+            className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-xl text-sm font-semibold text-white transition-all bg-linear-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 disabled:opacity-60"
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin text-white" /> : <Save className="w-4 h-4 text-white" />}
             {loading ? "Updating..." : "Update Product"}

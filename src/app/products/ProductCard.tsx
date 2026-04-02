@@ -85,7 +85,7 @@ export default function ProductCard({ product, className }: Props) {
         {/* Gradient Overlay */}
         <div 
           className={cn(
-            "absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent transition-opacity duration-300",
+            "absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent transition-opacity duration-300",
             isHovered ? "opacity-100" : "opacity-0"
           )} 
         />
@@ -93,7 +93,7 @@ export default function ProductCard({ product, className }: Props) {
         {/* Shimmer Effect */}
         <div 
           className={cn(
-            "absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full transition-transform duration-1000",
+            "absolute inset-0 bg-linear-to-r from-transparent via-white/30 to-transparent -translate-x-full transition-transform duration-1000",
             isHovered ? "translate-x-full" : "-translate-x-full"
           )}
         />
@@ -101,19 +101,19 @@ export default function ProductCard({ product, className }: Props) {
         {/* Badges */}
         <div className="absolute top-3 left-3 flex flex-col gap-2 z-10">
           {hasDiscount && (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-gradient-to-r from-red-500 to-rose-500 text-white text-xs font-bold rounded-full shadow-lg shadow-red-500/30 animate-pulse">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-linear-to-r from-red-500 to-rose-500 text-white text-xs font-bold rounded-full shadow-lg shadow-red-500/30 animate-pulse">
               <Zap className="w-3 h-3" />
               {discountPercent}% OFF
             </span>
           )}
           {isNew && !hasDiscount && (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-xs font-bold rounded-full shadow-lg shadow-emerald-500/30">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-linear-to-r from-emerald-500 to-teal-500 text-white text-xs font-bold rounded-full shadow-lg shadow-emerald-500/30">
               <Sparkles className="w-3 h-3" />
               NEW
             </span>
           )}
           {product.is_featured && (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold rounded-full shadow-lg shadow-amber-500/30">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-linear-to-r from-amber-500 to-orange-500 text-white text-xs font-bold rounded-full shadow-lg shadow-amber-500/30">
               <Star className="w-3 h-3 fill-current" />
               FEATURED
             </span>

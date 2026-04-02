@@ -99,7 +99,7 @@ export default function ChatWindow({ conversationId, currentUserId }: ChatWindow
               <div
                 className={`max-w-[85%] sm:max-w-[75%] rounded-2xl px-4 py-3 shadow-sm ${
                   isOwn
-                    ? "bg-gradient-to-br from-violet-500 to-indigo-500 text-white rounded-br-sm shadow-violet-500/20"
+                    ? "bg-linear-to-br from-violet-500 to-indigo-500 text-white rounded-br-sm shadow-violet-500/20"
                     : "bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-100 dark:border-slate-700/50 rounded-bl-sm"
                 }`}
               >
@@ -141,7 +141,7 @@ export default function ChatWindow({ conversationId, currentUserId }: ChatWindow
         <button
           type="submit"
           disabled={!newMessage.trim() || loading}
-          className="py-2.5 px-5 bg-gradient-to-r from-violet-500 to-indigo-500 text-white rounded-xl hover:shadow-lg hover:shadow-violet-500/30 dark:hover:shadow-violet-500/50 disabled:opacity-50 disabled:shadow-none transition-all flex items-center justify-center hover:scale-105 disabled:hover:scale-100"
+          className="py-2.5 px-5 bg-linear-to-r from-violet-500 to-indigo-500 text-white rounded-xl hover:shadow-lg hover:shadow-violet-500/30 dark:hover:shadow-violet-500/50 disabled:opacity-50 disabled:shadow-none transition-all flex items-center justify-center hover:scale-105 disabled:hover:scale-100"
         >
           <Send className="w-4 h-4" />
         </button>

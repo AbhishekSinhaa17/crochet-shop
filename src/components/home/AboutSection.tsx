@@ -493,7 +493,7 @@ export default function AboutSection() {
               {/* Main Image Container */}
               <div className="relative z-10 group">
                 {/* Glow Effect */}
-                <div className="absolute -inset-6 bg-gradient-to-r from-violet-600/20 via-purple-600/20 to-pink-600/20 rounded-[3rem] blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                <div className="absolute -inset-6 bg-linear-to-r from-violet-600/20 via-purple-600/20 to-pink-600/20 rounded-[3rem] blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
                 
                 {/* Main Image */}
                 <div className="image-container relative w-full aspect-4/5 max-w-lg mx-auto lg:mx-0 rounded-[2.5rem] overflow-hidden shadow-glow-purple animate-image-float">
@@ -504,7 +504,7 @@ export default function AboutSection() {
                     className="object-cover transition-transform duration-700 group-hover:scale-110"
                   />
                   {/* Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                  <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/20 to-transparent" />
                   
                   {/* Play button overlay */}
                   <div className="absolute inset-0 flex items-center justify-center">
@@ -654,7 +654,7 @@ export default function AboutSection() {
                     <div className={`w-16 h-16 rounded-2xl bg-linear-to-br ${stat.color} flex items-center justify-center shadow-lg mb-4 group-hover:scale-110 transition-transform duration-300`}>
                       <stat.icon className="w-8 h-8 text-white" />
                     </div>
-                    <p className={`text-4xl lg:text-5xl font-black bg-gradient-to-r ${stat.color} bg-clip-text text-transparent mb-2`}>
+                    <p className={`text-4xl lg:text-5xl font-black bg-linear-to-r ${stat.color} bg-clip-text text-transparent mb-2`}>
                       {stat.number}
                     </p>
                     <p className="text-sm text-muted-foreground font-medium">{stat.label}</p>

@@ -51,8 +51,8 @@ export default function TermsOfServicePage() {
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white overflow-hidden">
       {/* Animated Background */}
       <div className="fixed inset-0 pointer-events-none -z-10">
-        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-gradient-to-br from-violet-500/10 via-purple-500/5 to-transparent rounded-full blur-3xl animate-blob" />
-        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-gradient-to-tr from-pink-500/10 via-rose-500/5 to-transparent rounded-full blur-3xl animate-blob animation-delay-2000" />
+        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-linear-to-br from-violet-500/10 via-purple-500/5 to-transparent rounded-full blur-3xl animate-blob" />
+        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-linear-to-tr from-pink-500/10 via-rose-500/5 to-transparent rounded-full blur-3xl animate-blob animation-delay-2000" />
         
         <div className="absolute inset-0 opacity-[0.01] dark:opacity-[0.03]" style={{
           backgroundImage: `linear-gradient(rgba(139, 92, 246, 0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(139, 92, 246, 0.5) 1px, transparent 1px)`,
@@ -77,7 +77,7 @@ export default function TermsOfServicePage() {
 
         {/* Hero Section */}
         <div className="text-center mb-20 relative">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-60 h-60 bg-gradient-to-br from-violet-500/20 to-pink-500/20 rounded-full blur-3xl animate-pulse-slow" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-60 h-60 bg-linear-to-br from-violet-500/20 to-pink-500/20 rounded-full blur-3xl animate-pulse-slow" />
           
           <div className="animate-fade-in-down animation-delay-100">
             <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl shadow-lg shadow-violet-500/10 border border-violet-200/50 dark:border-violet-800/50 mb-8 group hover:scale-105 transition-all duration-300">
@@ -88,7 +88,7 @@ export default function TermsOfServicePage() {
 
           <h1 className="text-5xl md:text-7xl font-black mb-6 tracking-tight animate-fade-in-up animation-delay-300">
             <span className="block">Terms of</span>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 animate-gradient-x">Service</span>
+            <span className="text-transparent bg-clip-text bg-linear-to-r from-violet-600 via-purple-600 to-pink-600 animate-gradient-x">Service</span>
           </h1>
           
           <p className="text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed animate-fade-in-up animation-delay-400">
@@ -132,14 +132,14 @@ export default function TermsOfServicePage() {
                 className="animate-fade-in-up"
                 style={{ animationDelay: `${700 + index * 100}ms` }}
               >
-                <div className={`relative rounded-3xl transition-all duration-500 ${isExpanded ? 'bg-gradient-to-r ' + colorMap[section.color as keyof typeof colorMap] + ' p-[2px]' : ''}`}>
+                <div className={`relative rounded-3xl transition-all duration-500 ${isExpanded ? 'bg-linear-to-r ' + colorMap[section.color as keyof typeof colorMap] + ' p-[2px]' : ''}`}>
                   <div className="relative bg-white dark:bg-slate-900 rounded-[22px] overflow-hidden">
                     <button
                       onClick={() => setExpandedSection(isExpanded ? null : index)}
                       className="w-full p-6 lg:p-8 flex items-center gap-6 text-left group"
                     >
                       <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 transition-all duration-500 ${
-                        isExpanded ? 'bg-gradient-to-br ' + colorMap[section.color as keyof typeof colorMap] + ' text-white scale-110' : 'bg-slate-100 dark:bg-slate-800'
+                        isExpanded ? 'bg-linear-to-br ' + colorMap[section.color as keyof typeof colorMap] + ' text-white scale-110' : 'bg-slate-100 dark:bg-slate-800'
                       }`}>
                         <section.icon className="w-7 h-7" />
                       </div>
@@ -166,12 +166,12 @@ export default function TermsOfServicePage() {
         {/* Call to Action */}
         <div className="animate-fade-in-up animation-delay-1200">
           <div className="relative bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl rounded-[2.5rem] p-12 lg:p-16 text-center shadow-2xl border border-slate-200/50 dark:border-slate-800/50 overflow-hidden group">
-            <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 via-pink-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <h2 className="text-3xl font-black mb-4">Any <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-pink-600">Concerns?</span></h2>
+            <div className="absolute inset-0 bg-linear-to-br from-violet-500/5 via-pink-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <h2 className="text-3xl font-black mb-4">Any <span className="text-transparent bg-clip-text bg-linear-to-r from-violet-600 to-pink-600">Concerns?</span></h2>
             <p className="text-slate-600 dark:text-slate-400 mb-10 max-w-lg mx-auto">If you have any questions regarding our terms, feel free to reach out to our team.</p>
             <Link
               href="/contact"
-              className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-bold text-white bg-gradient-to-r from-violet-600 to-pink-600 hover:scale-105 hover:shadow-xl transition-all duration-300"
+              className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-bold text-white bg-linear-to-r from-violet-600 to-pink-600 hover:scale-105 hover:shadow-xl transition-all duration-300"
             >
               Contact Support <ArrowRight className="w-5 h-5" />
             </Link>

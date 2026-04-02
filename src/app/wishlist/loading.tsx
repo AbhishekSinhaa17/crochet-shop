@@ -4,11 +4,11 @@ import { Heart, Sparkles } from "lucide-react";
 
 export default function WishlistLoading() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-rose-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-rose-950/20">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-rose-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-rose-950/20">
       {/* Animated Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-[500px] h-[500px] bg-gradient-to-br from-rose-200/40 to-pink-200/40 dark:from-rose-900/20 dark:to-pink-900/20 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute top-1/2 -left-40 w-[400px] h-[400px] bg-gradient-to-br from-pink-200/40 to-fuchsia-200/40 dark:from-pink-900/20 dark:to-fuchsia-900/20 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute -top-40 -right-40 w-[500px] h-[500px] bg-linear-to-br from-rose-200/40 to-pink-200/40 dark:from-rose-900/20 dark:to-pink-900/20 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute top-1/2 -left-40 w-[400px] h-[400px] bg-linear-to-br from-pink-200/40 to-fuchsia-200/40 dark:from-pink-900/20 dark:to-fuchsia-900/20 rounded-full blur-3xl animate-pulse" />
       </div>
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
@@ -23,7 +23,7 @@ export default function WishlistLoading() {
         <div className="mb-10">
           <div className="flex items-start gap-5">
             {/* Icon */}
-            <div className="w-16 h-16 bg-gradient-to-br from-rose-200 to-pink-200 dark:from-rose-900 dark:to-pink-900 rounded-2xl animate-pulse" />
+            <div className="w-16 h-16 bg-linear-to-br from-rose-200 to-pink-200 dark:from-rose-900 dark:to-pink-900 rounded-2xl animate-pulse" />
             
             <div className="space-y-3">
               <div className="h-10 w-48 bg-gray-200 dark:bg-gray-800 rounded-lg animate-pulse" />
@@ -68,8 +68,8 @@ export default function WishlistLoading() {
               style={{ animationDelay: `${idx * 50}ms` }}
             >
               {/* Image */}
-              <div className="aspect-square bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 animate-pulse relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 dark:via-white/10 to-transparent animate-shimmer" />
+              <div className="aspect-square bg-linear-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 animate-pulse relative overflow-hidden">
+                <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/30 dark:via-white/10 to-transparent animate-shimmer" />
               </div>
               
               {/* Content */}

@@ -93,9 +93,9 @@ export default function FAQPage() {
 
       {/* Gradient Mesh Background */}
       <div className="fixed inset-0 -z-20 overflow-hidden">
-        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-gradient-to-br from-violet-400/30 via-purple-400/20 to-transparent rounded-full blur-3xl animate-blob" />
-        <div className="absolute top-1/3 right-1/4 w-[500px] h-[500px] bg-gradient-to-br from-pink-400/25 via-rose-400/20 to-transparent rounded-full blur-3xl animate-blob animation-delay-2000" />
-        <div className="absolute bottom-1/4 left-1/3 w-[400px] h-[400px] bg-gradient-to-br from-fuchsia-400/20 via-violet-400/15 to-transparent rounded-full blur-3xl animate-blob animation-delay-4000" />
+        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-linear-to-br from-violet-400/30 via-purple-400/20 to-transparent rounded-full blur-3xl animate-blob" />
+        <div className="absolute top-1/3 right-1/4 w-[500px] h-[500px] bg-linear-to-br from-pink-400/25 via-rose-400/20 to-transparent rounded-full blur-3xl animate-blob animation-delay-2000" />
+        <div className="absolute bottom-1/4 left-1/3 w-[400px] h-[400px] bg-linear-to-br from-fuchsia-400/20 via-violet-400/15 to-transparent rounded-full blur-3xl animate-blob animation-delay-4000" />
       </div>
 
       {/* Animated Grid Pattern */}
@@ -114,7 +114,7 @@ export default function FAQPage() {
         {mounted && [...Array(20)].map((_, i) => (
           <div
             key={i}
-            className="absolute w-2 h-2 bg-gradient-to-br from-violet-500/40 to-pink-500/40 rounded-full animate-float"
+            className="absolute w-2 h-2 bg-linear-to-br from-violet-500/40 to-pink-500/40 rounded-full animate-float"
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
@@ -142,7 +142,7 @@ export default function FAQPage() {
         {/* Hero Header */}
         <div className="text-center mb-20 relative">
           {/* Decorative elements */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-gradient-to-br from-violet-500/20 to-pink-500/20 rounded-full blur-2xl animate-pulse-slow" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-linear-to-br from-violet-500/20 to-pink-500/20 rounded-full blur-2xl animate-pulse-slow" />
 
           <div className="animate-fade-in-down">
             <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full glass-card shadow-lg shadow-violet-500/10 mb-8 border border-violet-200/50 dark:border-violet-800/50 group hover:scale-105 transition-transform duration-300 cursor-default">
@@ -161,7 +161,7 @@ export default function FAQPage() {
           <h1 className="text-5xl md:text-7xl font-black text-slate-900 dark:text-white mb-8 animate-fade-in-up animation-delay-100">
             <span className="block mb-2">Frequently Asked</span>
             <span className="relative inline-block">
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 animate-gradient-x">
+              <span className="text-transparent bg-clip-text bg-linear-to-r from-violet-600 via-purple-600 to-pink-600 animate-gradient-x">
                 Questions
               </span>
               <svg
@@ -205,7 +205,7 @@ export default function FAQPage() {
         {/* Search Bar */}
         <div className="mb-12 animate-fade-in-up animation-delay-300">
           <div className="relative max-w-2xl mx-auto group">
-            <div className="absolute -inset-1 bg-gradient-to-r from-violet-500 via-purple-500 to-pink-500 rounded-2xl blur opacity-20 group-hover:opacity-40 transition-opacity duration-500" />
+            <div className="absolute -inset-1 bg-linear-to-r from-violet-500 via-purple-500 to-pink-500 rounded-2xl blur opacity-20 group-hover:opacity-40 transition-opacity duration-500" />
             <div className="relative flex items-center">
               <Search className="absolute left-5 w-5 h-5 text-slate-400 group-focus-within:text-violet-500 transition-colors duration-300" />
               <input
@@ -235,7 +235,7 @@ export default function FAQPage() {
               onClick={() => setActiveCategory(category)}
               className={`px-5 py-2.5 rounded-xl font-semibold text-sm tracking-wide transition-all duration-300 ${
                 activeCategory === category
-                  ? "bg-gradient-to-r from-violet-600 to-pink-600 text-white shadow-lg shadow-violet-500/30 scale-105"
+                  ? "bg-linear-to-r from-violet-600 to-pink-600 text-white shadow-lg shadow-violet-500/30 scale-105"
                   : "bg-white/60 dark:bg-slate-800/60 text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:text-violet-600 dark:hover:text-violet-400 border border-slate-200/50 dark:border-slate-700/50"
               }`}
               style={{ animationDelay: `${index * 50}ms` }}
@@ -260,7 +260,7 @@ export default function FAQPage() {
                 <div
                   className={`relative rounded-3xl transition-all duration-500 ${
                     isOpen
-                      ? "bg-gradient-to-r from-violet-500 via-purple-500 to-pink-500 p-[2px] shadow-2xl shadow-violet-500/20"
+                      ? "bg-linear-to-r from-violet-500 via-purple-500 to-pink-500 p-[2px] shadow-2xl shadow-violet-500/20"
                       : "bg-transparent"
                   }`}
                 >
@@ -272,7 +272,7 @@ export default function FAQPage() {
                   >
                     {/* Background glow on hover */}
                     <div
-                      className={`absolute inset-0 bg-gradient-to-br from-violet-500/5 via-purple-500/5 to-pink-500/5 transition-opacity duration-500 ${
+                      className={`absolute inset-0 bg-linear-to-br from-violet-500/5 via-purple-500/5 to-pink-500/5 transition-opacity duration-500 ${
                         isOpen
                           ? "opacity-100"
                           : "opacity-0 group-hover:opacity-100"
@@ -288,7 +288,7 @@ export default function FAQPage() {
                       <div
                         className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 transition-all duration-500 ${
                           isOpen
-                            ? "bg-gradient-to-br from-violet-500 to-pink-500 shadow-lg shadow-violet-500/30 rotate-3 scale-110"
+                            ? "bg-linear-to-br from-violet-500 to-pink-500 shadow-lg shadow-violet-500/30 rotate-3 scale-110"
                             : "bg-violet-100/80 dark:bg-violet-900/40 group-hover:scale-105 group-hover:bg-violet-200/80 dark:group-hover:bg-violet-800/40"
                         }`}
                       >
@@ -351,7 +351,7 @@ export default function FAQPage() {
                     >
                       <div className="px-6 lg:px-8 pb-8 pl-[5.5rem] lg:pl-[7rem]">
                         <div className="relative">
-                          <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-violet-500 to-pink-500 rounded-full" />
+                          <div className="absolute left-0 top-0 bottom-0 w-1 bg-linear-to-b from-violet-500 to-pink-500 rounded-full" />
                           <p className="pl-6 text-lg text-slate-600 dark:text-slate-400 leading-relaxed">
                             {faq.answer}
                           </p>
@@ -385,13 +385,13 @@ export default function FAQPage() {
         <div className="mt-24 animate-fade-in-up animation-delay-800">
           <div className="relative group">
             {/* Animated border gradient */}
-            <div className="absolute -inset-1 bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 rounded-[2rem] blur opacity-25 group-hover:opacity-50 transition-all duration-700 animate-gradient-x" />
+            <div className="absolute -inset-1 bg-linear-to-r from-violet-600 via-purple-600 to-pink-600 rounded-[2rem] blur opacity-25 group-hover:opacity-50 transition-all duration-700 animate-gradient-x" />
 
             <div className="relative bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl rounded-[2rem] overflow-hidden">
               {/* Decorative background */}
               <div className="absolute inset-0 overflow-hidden">
-                <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-br from-violet-500/10 via-purple-500/10 to-pink-500/10 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2" />
-                <div className="absolute bottom-0 left-0 w-60 h-60 bg-gradient-to-tr from-pink-500/10 via-violet-500/10 to-transparent rounded-full blur-3xl -translate-x-1/2 translate-y-1/2" />
+                <div className="absolute top-0 right-0 w-80 h-80 bg-linear-to-br from-violet-500/10 via-purple-500/10 to-pink-500/10 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2" />
+                <div className="absolute bottom-0 left-0 w-60 h-60 bg-linear-to-tr from-pink-500/10 via-violet-500/10 to-transparent rounded-full blur-3xl -translate-x-1/2 translate-y-1/2" />
               </div>
 
               <div className="relative p-10 lg:p-16 text-center">
@@ -406,7 +406,7 @@ export default function FAQPage() {
                   <Sparkles className="w-4 h-4 text-purple-500" />
                 </div>
 
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-violet-500/10 to-pink-500/10 border border-violet-500/20 mb-8">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-linear-to-r from-violet-500/10 to-pink-500/10 border border-violet-500/20 mb-8">
                   <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                   <span className="text-sm font-semibold text-violet-600 dark:text-violet-400">
                     We typically respond within 2 hours
@@ -415,7 +415,7 @@ export default function FAQPage() {
 
                 <h2 className="text-3xl lg:text-4xl font-black text-slate-800 dark:text-white mb-5">
                   Still have{" "}
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-pink-600">
+                  <span className="text-transparent bg-clip-text bg-linear-to-r from-violet-600 to-pink-600">
                     questions?
                   </span>
                 </h2>
@@ -430,8 +430,8 @@ export default function FAQPage() {
                     href="/chat"
                     className="group/btn relative inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-bold text-white overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-violet-500/30"
                   >
-                    <div className="absolute inset-0 bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 transition-all duration-500" />
-                    <div className="absolute inset-0 bg-gradient-to-r from-pink-600 via-purple-600 to-violet-600 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500" />
+                    <div className="absolute inset-0 bg-linear-to-r from-violet-600 via-purple-600 to-pink-600 transition-all duration-500" />
+                    <div className="absolute inset-0 bg-linear-to-r from-pink-600 via-purple-600 to-violet-600 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500" />
                     <span className="relative flex items-center gap-3">
                       <MessageCircle className="w-5 h-5" />
                       Start a Conversation

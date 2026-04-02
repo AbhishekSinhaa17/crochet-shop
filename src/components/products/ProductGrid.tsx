@@ -179,7 +179,7 @@ export default function ProductGrid({ products, title, subtitle, showHeader = tr
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
               {products.map((product, index) => (
                 <div
-                  key={product.id}
+                  key={`grid-${product.id || 'p'}-${index}`}
                   className={`group relative transition-all duration-700 ${
                     isVisible 
                       ? 'opacity-100 translate-y-0' 

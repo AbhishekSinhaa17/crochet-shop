@@ -66,18 +66,18 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950/30 relative overflow-hidden transition-colors duration-300">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-indigo-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950/30 relative overflow-hidden transition-colors duration-300">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-violet-400/20 to-indigo-400/20 dark:from-violet-600/20 dark:to-indigo-600/20 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute top-1/2 -left-40 w-96 h-96 bg-gradient-to-br from-cyan-400/15 to-blue-400/15 dark:from-cyan-600/15 dark:to-blue-600/15 rounded-full blur-3xl animate-[pulse_4s_ease-in-out_infinite]" />
-        <div className="absolute -bottom-20 right-1/3 w-72 h-72 bg-gradient-to-br from-pink-400/10 to-rose-400/10 dark:from-pink-600/10 dark:to-rose-600/10 rounded-full blur-3xl animate-[pulse_6s_ease-in-out_infinite]" />
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-linear-to-br from-violet-400/20 to-indigo-400/20 dark:from-violet-600/20 dark:to-indigo-600/20 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute top-1/2 -left-40 w-96 h-96 bg-linear-to-br from-cyan-400/15 to-blue-400/15 dark:from-cyan-600/15 dark:to-blue-600/15 rounded-full blur-3xl animate-[pulse_4s_ease-in-out_infinite]" />
+        <div className="absolute -bottom-20 right-1/3 w-72 h-72 bg-linear-to-br from-pink-400/10 to-rose-400/10 dark:from-pink-600/10 dark:to-rose-600/10 rounded-full blur-3xl animate-[pulse_6s_ease-in-out_infinite]" />
         
         {/* Floating Particles */}
         {[...Array(6)].map((_, i) => (
           <div
             key={i}
-            className="absolute w-2 h-2 rounded-full bg-gradient-to-r from-violet-400 to-indigo-400 dark:from-violet-500 dark:to-indigo-500 opacity-30 dark:opacity-40"
+            className="absolute w-2 h-2 rounded-full bg-linear-to-r from-violet-400 to-indigo-400 dark:from-violet-500 dark:to-indigo-500 opacity-30 dark:opacity-40"
             style={{
               top: `${20 + i * 15}%`,
               left: `${10 + i * 12}%`,
@@ -96,13 +96,13 @@ export default function ChatPage() {
         <div className="mb-8 animate-[fadeInDown_0.6s_ease-out]">
           <div className="flex items-center gap-4 mb-2">
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-violet-600 to-indigo-600 rounded-2xl blur-lg opacity-40 dark:opacity-60 animate-pulse" />
-              <div className="relative p-3 bg-gradient-to-r from-violet-600 to-indigo-600 rounded-2xl shadow-lg shadow-violet-500/25 dark:shadow-violet-500/40">
+              <div className="absolute inset-0 bg-linear-to-r from-violet-600 to-indigo-600 rounded-2xl blur-lg opacity-40 dark:opacity-60 animate-pulse" />
+              <div className="relative p-3 bg-linear-to-r from-violet-600 to-indigo-600 rounded-2xl shadow-lg shadow-violet-500/25 dark:shadow-violet-500/40">
                 <MessageSquare className="w-7 h-7 text-white" />
               </div>
             </div>
             <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-900 via-violet-900 to-indigo-900 dark:from-white dark:via-violet-200 dark:to-indigo-200 bg-clip-text text-transparent">
+              <h1 className="text-4xl font-bold bg-linear-to-r from-slate-900 via-violet-900 to-indigo-900 dark:from-white dark:via-violet-200 dark:to-indigo-200 bg-clip-text text-transparent">
                 Messages
               </h1>
               <p className="text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-2">
@@ -121,15 +121,15 @@ export default function ChatPage() {
           >
             <div className="relative group">
               {/* Card Glow Effect */}
-              <div className="absolute -inset-1 bg-gradient-to-r from-violet-600/20 via-indigo-600/20 to-purple-600/20 dark:from-violet-600/30 dark:via-indigo-600/30 dark:to-purple-600/30 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="absolute -inset-1 bg-linear-to-r from-violet-600/20 via-indigo-600/20 to-purple-600/20 dark:from-violet-600/30 dark:via-indigo-600/30 dark:to-purple-600/30 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               
               <div className="relative bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-2xl border border-white/60 dark:border-slate-700/60 shadow-[0_8px_40px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_40px_rgba(0,0,0,0.4)] overflow-hidden">
                 {/* Header */}
-                <div className="p-5 border-b border-slate-100/80 dark:border-slate-800/80 bg-gradient-to-r from-slate-50/80 to-white/80 dark:from-slate-800/80 dark:to-slate-900/80">
+                <div className="p-5 border-b border-slate-100/80 dark:border-slate-800/80 bg-linear-to-r from-slate-50/80 to-white/80 dark:from-slate-800/80 dark:to-slate-900/80">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <h2 className="font-semibold text-slate-800 dark:text-slate-100 text-lg">Conversations</h2>
-                      <span className="px-2.5 py-1 bg-gradient-to-r from-violet-500 to-indigo-500 text-white text-xs font-medium rounded-full shadow-sm shadow-violet-500/30">
+                      <span className="px-2.5 py-1 bg-linear-to-r from-violet-500 to-indigo-500 text-white text-xs font-medium rounded-full shadow-sm shadow-violet-500/30">
                         {conversations.length}
                       </span>
                     </div>
@@ -138,7 +138,7 @@ export default function ChatPage() {
                       className={`relative p-2.5 rounded-xl transition-all duration-300 transform hover:scale-105 ${
                         showNew 
                           ? "bg-red-50 dark:bg-red-950/50 text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50 rotate-45" 
-                          : "bg-gradient-to-r from-violet-500 to-indigo-500 text-white shadow-lg shadow-violet-500/30 dark:shadow-violet-500/50 hover:shadow-violet-500/50"
+                          : "bg-linear-to-r from-violet-500 to-indigo-500 text-white shadow-lg shadow-violet-500/30 dark:shadow-violet-500/50 hover:shadow-violet-500/50"
                       }`}
                     >
                       {showNew ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
@@ -159,7 +159,7 @@ export default function ChatPage() {
                       <button 
                         onClick={createConversation}
                         disabled={!newSubject.trim()}
-                        className="px-4 py-2.5 bg-gradient-to-r from-violet-500 to-indigo-500 text-white rounded-lg font-medium text-sm flex items-center gap-2 hover:shadow-lg hover:shadow-violet-500/30 dark:hover:shadow-violet-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105 disabled:hover:scale-100"
+                        className="px-4 py-2.5 bg-linear-to-r from-violet-500 to-indigo-500 text-white rounded-lg font-medium text-sm flex items-center gap-2 hover:shadow-lg hover:shadow-violet-500/30 dark:hover:shadow-violet-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105 disabled:hover:scale-100"
                       >
                         <Send className="w-4 h-4" />
                       </button>
@@ -184,15 +184,15 @@ export default function ChatPage() {
                     // Empty State
                     <div className="text-center py-12 px-4">
                       <div className="relative mx-auto w-20 h-20 mb-4">
-                        <div className="absolute inset-0 bg-gradient-to-r from-violet-400 to-indigo-400 rounded-full opacity-20 dark:opacity-30 animate-ping" />
-                        <div className="absolute inset-2 bg-gradient-to-r from-violet-100 to-indigo-100 dark:from-violet-900/50 dark:to-indigo-900/50 rounded-full" />
+                        <div className="absolute inset-0 bg-linear-to-r from-violet-400 to-indigo-400 rounded-full opacity-20 dark:opacity-30 animate-ping" />
+                        <div className="absolute inset-2 bg-linear-to-r from-violet-100 to-indigo-100 dark:from-violet-900/50 dark:to-indigo-900/50 rounded-full" />
                         <MessageCircle className="absolute inset-0 m-auto w-8 h-8 text-violet-500 dark:text-violet-400" />
                       </div>
                       <h3 className="font-semibold text-slate-700 dark:text-slate-200 mb-1">No conversations yet</h3>
                       <p className="text-sm text-slate-400 dark:text-slate-500 mb-4">Start a new conversation to get help</p>
                       <button
                         onClick={() => setShowNew(true)}
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-violet-500 to-indigo-500 text-white text-sm rounded-xl hover:shadow-lg hover:shadow-violet-500/30 dark:hover:shadow-violet-500/50 transition-all duration-300 hover:scale-105"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-linear-to-r from-violet-500 to-indigo-500 text-white text-sm rounded-xl hover:shadow-lg hover:shadow-violet-500/30 dark:hover:shadow-violet-500/50 transition-all duration-300 hover:scale-105"
                       >
                         <Sparkles className="w-4 h-4" />
                         Start a conversation
@@ -207,7 +207,7 @@ export default function ChatPage() {
                           onClick={() => setSelectedConv(conv.id)}
                           className={`group w-full text-left p-4 rounded-xl transition-all duration-300 relative overflow-hidden animate-[fadeInUp_0.4s_ease-out] ${
                             selectedConv === conv.id
-                              ? "bg-gradient-to-r from-violet-500 to-indigo-500 shadow-lg shadow-violet-500/25 dark:shadow-violet-500/40"
+                              ? "bg-linear-to-r from-violet-500 to-indigo-500 shadow-lg shadow-violet-500/25 dark:shadow-violet-500/40"
                               : "bg-slate-50/80 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 hover:shadow-md dark:hover:shadow-lg dark:hover:shadow-slate-900/50"
                           }`}
                           style={{ animationDelay: `${index * 0.05}s`, animationFillMode: "both" }}
@@ -263,7 +263,7 @@ export default function ChatPage() {
           >
             {selectedConv ? (
               <div className="flex-1 relative group flex flex-col min-h-0">
-                <div className="absolute -inset-1 bg-gradient-to-r from-violet-600/10 via-indigo-600/10 to-purple-600/10 dark:from-violet-600/20 dark:via-indigo-600/20 dark:to-purple-600/20 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                <div className="absolute -inset-1 bg-linear-to-r from-violet-600/10 via-indigo-600/10 to-purple-600/10 dark:from-violet-600/20 dark:via-indigo-600/20 dark:to-purple-600/20 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
                 <div className="relative flex-1 flex flex-col bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-2xl border border-white/60 dark:border-slate-700/60 shadow-[0_8px_40px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_40px_rgba(0,0,0,0.4)] overflow-hidden min-h-0">
                   <div className="lg:hidden p-3 border-b border-slate-200/50 dark:border-slate-700/50 bg-white/50 dark:bg-slate-800/50 backdrop-blur-md flex items-center shrink-0 z-10">
                     <button 
@@ -284,14 +284,14 @@ export default function ChatPage() {
               </div>
             ) : (
               <div className="h-full min-h-[600px] flex items-center justify-center relative group">
-                <div className="absolute -inset-1 bg-gradient-to-r from-violet-600/10 via-indigo-600/10 to-purple-600/10 dark:from-violet-600/20 dark:via-indigo-600/20 dark:to-purple-600/20 rounded-3xl blur-xl" />
+                <div className="absolute -inset-1 bg-linear-to-r from-violet-600/10 via-indigo-600/10 to-purple-600/10 dark:from-violet-600/20 dark:via-indigo-600/20 dark:to-purple-600/20 rounded-3xl blur-xl" />
                 <div className="relative w-full h-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-2xl border border-white/60 dark:border-slate-700/60 shadow-[0_8px_40px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_40px_rgba(0,0,0,0.4)] flex items-center justify-center">
                   <div className="text-center animate-[fadeIn_0.5s_ease-out]">
                     {/* Animated Icon */}
                     <div className="relative mx-auto w-28 h-28 mb-6">
-                      <div className="absolute inset-0 bg-gradient-to-r from-violet-400 to-indigo-400 rounded-full opacity-20 dark:opacity-30 animate-[ping_2s_ease-in-out_infinite]" />
-                      <div className="absolute inset-4 bg-gradient-to-r from-violet-400 to-indigo-400 rounded-full opacity-30 dark:opacity-40 animate-[ping_2s_ease-in-out_infinite_0.5s]" />
-                      <div className="absolute inset-0 bg-gradient-to-br from-violet-100 to-indigo-100 dark:from-violet-900/50 dark:to-indigo-900/50 rounded-full flex items-center justify-center border border-violet-200/50 dark:border-violet-700/50">
+                      <div className="absolute inset-0 bg-linear-to-r from-violet-400 to-indigo-400 rounded-full opacity-20 dark:opacity-30 animate-[ping_2s_ease-in-out_infinite]" />
+                      <div className="absolute inset-4 bg-linear-to-r from-violet-400 to-indigo-400 rounded-full opacity-30 dark:opacity-40 animate-[ping_2s_ease-in-out_infinite_0.5s]" />
+                      <div className="absolute inset-0 bg-linear-to-br from-violet-100 to-indigo-100 dark:from-violet-900/50 dark:to-indigo-900/50 rounded-full flex items-center justify-center border border-violet-200/50 dark:border-violet-700/50">
                         <MessageCircle className="w-12 h-12 text-violet-500 dark:text-violet-400 animate-[bounce_2s_ease-in-out_infinite]" />
                       </div>
                     </div>
@@ -305,7 +305,7 @@ export default function ChatPage() {
                     
                     <button
                       onClick={() => setShowNew(true)}
-                      className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-violet-500 to-indigo-500 text-white rounded-xl font-medium hover:shadow-xl hover:shadow-violet-500/30 dark:hover:shadow-violet-500/50 transition-all duration-300 hover:scale-105 hover:-translate-y-0.5"
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-linear-to-r from-violet-500 to-indigo-500 text-white rounded-xl font-medium hover:shadow-xl hover:shadow-violet-500/30 dark:hover:shadow-violet-500/50 transition-all duration-300 hover:scale-105 hover:-translate-y-0.5"
                     >
                       <Sparkles className="w-5 h-5" />
                       Start New Conversation

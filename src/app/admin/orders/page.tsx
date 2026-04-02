@@ -48,13 +48,21 @@ export default function AdminOrdersPage() {
   }, []);
 
   const fetchOrders = async () => {
-    const { data } = await supabase
-      .from("orders")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (data) setOrders(data);
-    setLoading(false);
-    setRefreshing(false);
+    try {
+      const { data, error } = await supabase
+        .from("orders")
+        .select("*")
+        .order("created_at", { ascending: false });
+        
+      if (error) throw error;
+      if (data) setOrders(data);
+    } catch (error: any) {
+      console.error("Error fetching orders:", error);
+      toast.error("Failed to load orders");
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
   };
 
   const handleRefresh = () => {
@@ -63,26 +71,32 @@ export default function AdminOrdersPage() {
   };
 
   const updateStatus = async (orderId: string, status: string) => {
+    if (!orderId) return;
     setUpdatingId(orderId);
-    const { error } = await supabase
-      .from("orders")
-      .update({ status })
-      .eq("id", orderId);
+    try {
+      const { error } = await supabase
+        .from("orders")
+        .update({ status })
+        .eq("id", orderId);
 
-    if (error) {
-      toast.error(error.message);
-    } else {
+      if (error) {
+        throw error;
+      }
       toast.success("Order status updated!");
-      fetchOrders();
+      await fetchOrders();
+    } catch (error: any) {
+      console.error("Error updating order status:", error);
+      toast.error(error.message || "Failed to update status");
+    } finally {
+      setUpdatingId(null);
     }
-    setUpdatingId(null);
   };
 
   // Filter & search
   const filteredOrders = orders.filter((order) => {
     const matchesSearch =
       searchQuery === "" ||
-      order.order_number.toLowerCase().includes(searchQuery.toLowerCase());
+      (order.order_number?.toLowerCase() || "").includes(searchQuery.toLowerCase());
 
     const matchesStatus =
       statusFilter === "all" || order.status === statusFilter;
@@ -151,7 +165,7 @@ export default function AdminOrdersPage() {
       <div className="flex flex-col items-center justify-center h-96 gap-4">
         <div className="relative">
           <div
-            className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 
+            className="w-12 h-12 rounded-2xl bg-linear-to-br from-violet-500 to-purple-600 
               flex items-center justify-center shadow-lg shadow-violet-500/20 animate-pulse"
           >
             <Package className="w-6 h-6 text-white" />
@@ -285,7 +299,7 @@ export default function AdminOrdersPage() {
             style={{ animationDelay: `${80 + i * 80}ms` }}
           >
             <div
-              className={`absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r ${stat.color} 
+              className={`absolute inset-x-0 top-0 h-0.5 bg-linear-to-r ${stat.color} 
                 opacity-60 group-hover:opacity-100 transition-opacity duration-500`}
             />
             <div className="flex items-center gap-3">
@@ -382,7 +396,7 @@ export default function AdminOrdersPage() {
           <div className="flex items-center gap-3">
             <div
               className="flex h-10 w-10 items-center justify-center rounded-xl 
-                bg-gradient-to-br from-violet-500 to-purple-600 
+                bg-linear-to-br from-violet-500 to-purple-600 
                 shadow-lg shadow-violet-500/20 dark:shadow-violet-500/10"
             >
               <ShoppingBag className="h-5 w-5 text-white" />
@@ -446,7 +460,7 @@ export default function AdminOrdersPage() {
 
                   return (
                     <tr
-                      key={order.id}
+                      key={`${order.id}-${idx}`}
                       className="order-row group border-b
                         border-gray-50 dark:border-gray-800/60 
                         animate-table-row"
@@ -457,7 +471,7 @@ export default function AdminOrdersPage() {
                         <div className="flex items-center gap-3">
                           <div
                             className="flex h-8 w-8 items-center justify-center rounded-lg 
-                              bg-gradient-to-br from-violet-500 to-purple-600 
+                              bg-linear-to-br from-violet-500 to-purple-600 
                               text-[10px] font-bold text-white shadow-sm 
                               group-hover:scale-110 transition-transform duration-300"
                           >
@@ -489,7 +503,7 @@ export default function AdminOrdersPage() {
                             text-gray-600 dark:text-gray-400"
                         >
                           <Package className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500" />
-                          {(order.items as any[]).length} items
+                          {Array.isArray(order.items) ? order.items.length : 0} items
                         </span>
                       </td>
 

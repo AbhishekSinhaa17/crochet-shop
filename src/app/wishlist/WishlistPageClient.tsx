@@ -203,12 +203,12 @@ export default function WishlistPageClient({ products: initialProducts, wishlist
   const inStockCount = sortedProducts.filter(p => p.stock > 0).length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-rose-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-rose-950/20 transition-colors duration-500">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-rose-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-rose-950/20 transition-colors duration-500">
       {/* Animated Background Orbs */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-[500px] h-[500px] bg-gradient-to-br from-rose-200/40 to-pink-200/40 dark:from-rose-900/20 dark:to-pink-900/20 rounded-full blur-3xl animate-blob" />
-        <div className="absolute top-1/2 -left-40 w-[400px] h-[400px] bg-gradient-to-br from-pink-200/40 to-fuchsia-200/40 dark:from-pink-900/20 dark:to-fuchsia-900/20 rounded-full blur-3xl animate-blob animation-delay-2000" />
-        <div className="absolute -bottom-20 right-1/3 w-[350px] h-[350px] bg-gradient-to-br from-fuchsia-200/30 to-purple-200/30 dark:from-fuchsia-900/15 dark:to-purple-900/15 rounded-full blur-3xl animate-blob animation-delay-4000" />
+        <div className="absolute -top-40 -right-40 w-[500px] h-[500px] bg-linear-to-br from-rose-200/40 to-pink-200/40 dark:from-rose-900/20 dark:to-pink-900/20 rounded-full blur-3xl animate-blob" />
+        <div className="absolute top-1/2 -left-40 w-[400px] h-[400px] bg-linear-to-br from-pink-200/40 to-fuchsia-200/40 dark:from-pink-900/20 dark:to-fuchsia-900/20 rounded-full blur-3xl animate-blob animation-delay-2000" />
+        <div className="absolute -bottom-20 right-1/3 w-[350px] h-[350px] bg-linear-to-br from-fuchsia-200/30 to-purple-200/30 dark:from-fuchsia-900/15 dark:to-purple-900/15 rounded-full blur-3xl animate-blob animation-delay-4000" />
       </div>
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
@@ -236,8 +236,8 @@ export default function WishlistPageClient({ products: initialProducts, wishlist
             <div className="flex items-start gap-5">
               {/* Animated Heart Icon */}
               <div className="relative flex-shrink-0">
-                <div className="absolute inset-0 bg-gradient-to-br from-rose-500 to-pink-600 rounded-2xl blur-xl opacity-40 animate-pulse" />
-                <div className="relative w-16 h-16 bg-gradient-to-br from-rose-500 via-pink-500 to-fuchsia-500 rounded-2xl flex items-center justify-center shadow-2xl shadow-rose-500/30 dark:shadow-rose-500/20">
+                <div className="absolute inset-0 bg-linear-to-br from-rose-500 to-pink-600 rounded-2xl blur-xl opacity-40 animate-pulse" />
+                <div className="relative w-16 h-16 bg-linear-to-br from-rose-500 via-pink-500 to-fuchsia-500 rounded-2xl flex items-center justify-center shadow-2xl shadow-rose-500/30 dark:shadow-rose-500/20">
                   <Heart className="w-8 h-8 text-white fill-white animate-heartbeat" />
                 </div>
                 {/* Floating Sparkle */}
@@ -248,7 +248,7 @@ export default function WishlistPageClient({ products: initialProducts, wishlist
 
               <div>
                 <h1 className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold">
-                  <span className="bg-gradient-to-r from-gray-900 via-rose-900 to-gray-900 dark:from-white dark:via-rose-200 dark:to-white bg-clip-text text-transparent">
+                  <span className="bg-linear-to-r from-gray-900 via-rose-900 to-gray-900 dark:from-white dark:via-rose-200 dark:to-white bg-clip-text text-transparent">
                     My Wishlist
                   </span>
                 </h1>
@@ -264,7 +264,7 @@ export default function WishlistPageClient({ products: initialProducts, wishlist
               <div className="flex flex-wrap items-center gap-3">
                 <button
                   onClick={handleAddAllToCart}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-rose-500 to-pink-500 text-white rounded-xl font-semibold text-sm shadow-lg shadow-rose-500/30 dark:shadow-rose-500/20 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-linear-to-r from-rose-500 to-pink-500 text-white rounded-xl font-semibold text-sm shadow-lg shadow-rose-500/30 dark:shadow-rose-500/20 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
                 >
                   <ShoppingBag className="w-4 h-4" />
                   Add All to Cart
@@ -316,13 +316,13 @@ export default function WishlistPageClient({ products: initialProducts, wishlist
                 <div
                   key={stat.label}
                   className={cn(
-                    "relative overflow-hidden rounded-2xl p-4 bg-gradient-to-br border border-white/50 dark:border-white/10 transition-all duration-300 hover:shadow-lg group",
+                    "relative overflow-hidden rounded-2xl p-4 bg-linear-to-br border border-white/50 dark:border-white/10 transition-all duration-300 hover:shadow-lg group",
                     stat.bgColor
                   )}
                   style={{ animationDelay: `${idx * 100}ms` }}
                 >
                   <div className={cn(
-                    "w-10 h-10 rounded-xl bg-gradient-to-br flex items-center justify-center mb-3 group-hover:scale-110 transition-transform",
+                    "w-10 h-10 rounded-xl bg-linear-to-br flex items-center justify-center mb-3 group-hover:scale-110 transition-transform",
                     stat.color
                   )}>
                     <stat.icon className="w-5 h-5 text-white" />
@@ -338,7 +338,7 @@ export default function WishlistPageClient({ products: initialProducts, wishlist
 
           {/* Savings Banner */}
           {totalSavings > 0 && (
-            <div className="mt-6 p-4 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl text-white flex items-center justify-between">
+            <div className="mt-6 p-4 bg-linear-to-r from-emerald-500 to-teal-500 rounded-2xl text-white flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
                   <Gift className="w-5 h-5" />
@@ -783,7 +783,7 @@ function WishlistProductCard({
         {/* Gradient Overlay */}
         <div 
           className={cn(
-            "absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent transition-opacity duration-300",
+            "absolute inset-0 bg-linear-to-t from-black/50 via-transparent to-transparent transition-opacity duration-300",
             isHovered ? "opacity-100" : "opacity-0"
           )}
         />
@@ -791,7 +791,7 @@ function WishlistProductCard({
         {/* Badges */}
         <div className="absolute top-3 right-3 flex flex-col gap-2 z-10">
           {hasDiscount && (
-            <span className="px-2.5 py-1 bg-gradient-to-r from-red-500 to-rose-500 text-white text-xs font-bold rounded-full shadow-lg animate-pulse">
+            <span className="px-2.5 py-1 bg-linear-to-r from-red-500 to-rose-500 text-white text-xs font-bold rounded-full shadow-lg animate-pulse">
               -{discountPercent}%
             </span>
           )}
@@ -964,12 +964,12 @@ function EmptyWishlist({ isLoaded }: { isLoaded: boolean }) {
     >
       <div className="relative mx-auto max-w-lg">
         {/* Glow Effect */}
-        <div className="absolute -inset-4 rounded-3xl bg-gradient-to-r from-rose-200 via-pink-200 to-fuchsia-200 dark:from-rose-900/30 dark:via-pink-900/30 dark:to-fuchsia-900/30 opacity-50 blur-2xl" />
+        <div className="absolute -inset-4 rounded-3xl bg-linear-to-r from-rose-200 via-pink-200 to-fuchsia-200 dark:from-rose-900/30 dark:via-pink-900/30 dark:to-fuchsia-900/30 opacity-50 blur-2xl" />
 
         {/* Card */}
         <div className="relative overflow-hidden rounded-3xl border border-white/60 dark:border-white/10 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl shadow-2xl">
           {/* Gradient Bar */}
-          <div className="h-1.5 bg-gradient-to-r from-rose-400 via-pink-500 to-fuchsia-500" />
+          <div className="h-1.5 bg-linear-to-r from-rose-400 via-pink-500 to-fuchsia-500" />
 
           <div className="px-8 py-16 text-center">
             {/* Animated Icon */}
@@ -979,7 +979,7 @@ function EmptyWishlist({ isLoaded }: { isLoaded: boolean }) {
               {/* Middle Ring */}
               <div className="absolute inset-4 rounded-full border border-pink-200 dark:border-pink-800/40 animate-spin-slow-reverse" />
               {/* Inner Circle */}
-              <div className="absolute inset-8 rounded-full bg-gradient-to-br from-rose-100 to-pink-100 dark:from-rose-900/50 dark:to-pink-900/50 flex items-center justify-center">
+              <div className="absolute inset-8 rounded-full bg-linear-to-br from-rose-100 to-pink-100 dark:from-rose-900/50 dark:to-pink-900/50 flex items-center justify-center">
                 <Heart className="w-10 h-10 text-rose-400 dark:text-rose-500 animate-heartbeat" />
               </div>
               
@@ -999,10 +999,10 @@ function EmptyWishlist({ isLoaded }: { isLoaded: boolean }) {
             {/* CTA Button */}
             <Link
               href="/products"
-              className="group relative inline-flex items-center gap-2.5 overflow-hidden rounded-full bg-gradient-to-r from-rose-500 via-pink-500 to-fuchsia-500 px-8 py-4 text-sm font-semibold text-white shadow-lg shadow-rose-500/25 dark:shadow-rose-500/15 hover:shadow-xl hover:shadow-rose-500/30 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
+              className="group relative inline-flex items-center gap-2.5 overflow-hidden rounded-full bg-linear-to-r from-rose-500 via-pink-500 to-fuchsia-500 px-8 py-4 text-sm font-semibold text-white shadow-lg shadow-rose-500/25 dark:shadow-rose-500/15 hover:shadow-xl hover:shadow-rose-500/30 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
             >
               {/* Shimmer Effect */}
-              <span className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+              <span className="absolute inset-0 -translate-x-full animate-shimmer bg-linear-to-r from-transparent via-white/20 to-transparent" />
               <ShoppingBag className="w-5 h-5" />
               <span>Browse Products</span>
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -1034,7 +1034,7 @@ function EmptyWishlist({ isLoaded }: { isLoaded: boolean }) {
             className="p-6 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 hover:shadow-lg dark:hover:shadow-gray-950/50 transition-all duration-300 text-center"
             style={{ animationDelay: `${idx * 100}ms` }}
           >
-            <div className="w-12 h-12 bg-gradient-to-br from-rose-100 to-pink-100 dark:from-rose-900/50 dark:to-pink-900/50 rounded-xl flex items-center justify-center mx-auto mb-4">
+            <div className="w-12 h-12 bg-linear-to-br from-rose-100 to-pink-100 dark:from-rose-900/50 dark:to-pink-900/50 rounded-xl flex items-center justify-center mx-auto mb-4">
               <feature.icon className="w-6 h-6 text-rose-500 dark:text-rose-400" />
             </div>
             <h3 className="font-semibold text-gray-900 dark:text-white">{feature.title}</h3>

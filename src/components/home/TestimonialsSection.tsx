@@ -383,20 +383,20 @@ export default function TestimonialsSection() {
         <div className="absolute left-0 top-0 bottom-0 w-28 lg:w-44 pointer-events-none">
           {/* Yarn balls */}
           <div className="absolute top-[15%] left-4 lg:left-8 animate-float-gentle">
-            <div className="w-18 h-18 lg:w-26 lg:h-26 rounded-full bg-gradient-to-br from-rose-200/50 to-rose-300/30 dark:from-rose-800/30 dark:to-rose-900/20 shadow-lg">
+            <div className="w-18 h-18 lg:w-26 lg:h-26 rounded-full bg-linear-to-br from-rose-200/50 to-rose-300/30 dark:from-rose-800/30 dark:to-rose-900/20 shadow-lg">
               <div className="absolute inset-2 rounded-full border-2 border-dashed border-rose-400/30 animate-spin-slow" />
-              <div className="absolute inset-4 rounded-full bg-gradient-to-br from-rose-300/40 to-transparent" />
+              <div className="absolute inset-4 rounded-full bg-linear-to-br from-rose-300/40 to-transparent" />
             </div>
           </div>
 
           <div className="absolute top-[45%] left-6 lg:left-12 animate-float-reverse" style={{ animationDelay: '1s' }}>
-            <div className="w-14 h-14 lg:w-20 lg:h-20 rounded-full bg-gradient-to-br from-pink-200/50 to-pink-300/30 dark:from-pink-800/30 dark:to-pink-900/20 shadow-lg">
+            <div className="w-14 h-14 lg:w-20 lg:h-20 rounded-full bg-linear-to-br from-pink-200/50 to-pink-300/30 dark:from-pink-800/30 dark:to-pink-900/20 shadow-lg">
               <div className="absolute inset-2 rounded-full border border-dashed border-pink-400/30 animate-spin-slow" style={{ animationDirection: 'reverse' }} />
             </div>
           </div>
 
           <div className="absolute bottom-[25%] left-4 lg:left-8 animate-float-gentle" style={{ animationDelay: '2s' }}>
-            <div className="w-16 h-16 lg:w-22 lg:h-22 rounded-full bg-gradient-to-br from-violet-200/50 to-violet-300/30 dark:from-violet-800/30 dark:to-violet-900/20 shadow-lg">
+            <div className="w-16 h-16 lg:w-22 lg:h-22 rounded-full bg-linear-to-br from-violet-200/50 to-violet-300/30 dark:from-violet-800/30 dark:to-violet-900/20 shadow-lg">
               <div className="absolute inset-3 rounded-full border border-dashed border-violet-400/30 animate-spin-slow" />
             </div>
           </div>
@@ -437,19 +437,19 @@ export default function TestimonialsSection() {
         <div className="absolute right-0 top-0 bottom-0 w-28 lg:w-44 pointer-events-none">
           {/* Yarn balls */}
           <div className="absolute top-[20%] right-4 lg:right-8 animate-float-reverse">
-            <div className="w-16 h-16 lg:w-24 lg:h-24 rounded-full bg-gradient-to-br from-amber-200/50 to-amber-300/30 dark:from-amber-800/30 dark:to-amber-900/20 shadow-lg">
+            <div className="w-16 h-16 lg:w-24 lg:h-24 rounded-full bg-linear-to-br from-amber-200/50 to-amber-300/30 dark:from-amber-800/30 dark:to-amber-900/20 shadow-lg">
               <div className="absolute inset-2 rounded-full border border-dashed border-amber-400/30 animate-spin-slow" style={{ animationDirection: 'reverse' }} />
             </div>
           </div>
 
           <div className="absolute top-[50%] right-6 lg:right-12 animate-float-gentle" style={{ animationDelay: '2s' }}>
-            <div className="w-20 h-20 lg:w-28 lg:h-28 rounded-full bg-gradient-to-br from-orange-200/50 to-orange-300/30 dark:from-orange-800/30 dark:to-orange-900/20 shadow-lg">
+            <div className="w-20 h-20 lg:w-28 lg:h-28 rounded-full bg-linear-to-br from-orange-200/50 to-orange-300/30 dark:from-orange-800/30 dark:to-orange-900/20 shadow-lg">
               <div className="absolute inset-3 rounded-full border-2 border-dashed border-orange-400/30 animate-spin-slow" />
             </div>
           </div>
 
           <div className="absolute bottom-[20%] right-4 lg:right-8 animate-float-reverse" style={{ animationDelay: '1s' }}>
-            <div className="w-12 h-12 lg:w-18 lg:h-18 rounded-full bg-gradient-to-br from-emerald-200/50 to-emerald-300/30 dark:from-emerald-800/30 dark:to-emerald-900/20 shadow-lg" />
+            <div className="w-12 h-12 lg:w-18 lg:h-18 rounded-full bg-linear-to-br from-emerald-200/50 to-emerald-300/30 dark:from-emerald-800/30 dark:to-emerald-900/20 shadow-lg" />
           </div>
 
           {/* Floating icons */}
@@ -516,7 +516,7 @@ export default function TestimonialsSection() {
           >
             {/* Badge */}
             <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full glass-badge shadow-lg shadow-glow-rose mb-6">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-rose-500 to-pink-500 flex items-center justify-center shadow-md">
+              <div className="w-8 h-8 rounded-lg bg-linear-to-br from-rose-500 to-pink-500 flex items-center justify-center shadow-md">
                 <Heart className="w-4 h-4 text-white fill-white" />
               </div>
               <span className="text-sm font-bold text-gradient-love">Customer Love Stories</span>
@@ -588,15 +588,15 @@ export default function TestimonialsSection() {
               >
                 <div className={`relative h-full p-6 lg:p-8 rounded-3xl glass-card shadow-lg hover:shadow-2xl flex flex-col overflow-hidden`}>
                   {/* Background gradient */}
-                  <div className={`absolute inset-0 bg-gradient-to-br ${testimonial.bgGradient} opacity-50`} />
+                  <div className={`absolute inset-0 bg-linear-to-br ${testimonial.bgGradient} opacity-50`} />
                   
                   {/* Shine effect */}
                   <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                    <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                   </div>
 
                   {/* Quote icon */}
-                  <div className={`absolute -top-4 left-6 lg:left-8 w-12 h-12 rounded-2xl bg-gradient-to-br ${testimonial.gradient} flex items-center justify-center shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:rotate-6 animate-quote-bounce`}>
+                  <div className={`absolute -top-4 left-6 lg:left-8 w-12 h-12 rounded-2xl bg-linear-to-br ${testimonial.gradient} flex items-center justify-center shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:rotate-6 animate-quote-bounce`}>
                     <Quote className="w-6 h-6 text-white" />
                   </div>
 
@@ -631,7 +631,7 @@ export default function TestimonialsSection() {
 
                     {/* Author */}
                     <div className="flex items-center gap-4 pt-6 border-t border-border/50 mt-auto">
-                      <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${testimonial.gradient} flex items-center justify-center text-white font-bold text-lg shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                      <div className={`w-14 h-14 rounded-2xl bg-linear-to-br ${testimonial.gradient} flex items-center justify-center text-white font-bold text-lg shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                         {testimonial.avatar}
                       </div>
                       <div className="flex-1">
@@ -662,7 +662,7 @@ export default function TestimonialsSection() {
                   {['from-rose-400 to-pink-500', 'from-violet-400 to-purple-500', 'from-amber-400 to-orange-500', 'from-emerald-400 to-teal-500', 'from-blue-400 to-cyan-500'].map((gradient, i) => (
                     <div 
                       key={i}
-                      className={`w-10 h-10 rounded-full bg-gradient-to-br ${gradient} border-2 border-white dark:border-slate-800 flex items-center justify-center text-white text-xs font-bold shadow-md`}
+                      className={`w-10 h-10 rounded-full bg-linear-to-br ${gradient} border-2 border-white dark:border-slate-800 flex items-center justify-center text-white text-xs font-bold shadow-md`}
                     >
                       {['PS', 'RM', 'AK', 'SP', 'VS'][i]}
                     </div>
@@ -701,7 +701,7 @@ export default function TestimonialsSection() {
                   Shop Now & Join the Family
                 </span>
                 
-                <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-rose-500 to-pink-500 group-hover:from-white/20 group-hover:to-white/10 flex items-center justify-center shadow-md transition-all duration-300 group-hover:scale-110">
+                <div className="relative w-10 h-10 rounded-xl bg-linear-to-br from-rose-500 to-pink-500 group-hover:from-white/20 group-hover:to-white/10 flex items-center justify-center shadow-md transition-all duration-300 group-hover:scale-110">
                   <ArrowRight className="w-5 h-5 text-white transition-transform duration-300 group-hover:translate-x-0.5" />
                 </div>
               </a>
@@ -710,10 +710,10 @@ export default function TestimonialsSection() {
         </div>
 
         {/* === CORNER ACCENTS === */}
-        <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-rose-500/10 via-transparent to-transparent blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-tl from-pink-500/10 via-transparent to-transparent blur-3xl pointer-events-none" />
-        <div className="absolute top-1/3 right-0 w-64 h-64 bg-gradient-to-l from-violet-500/8 to-transparent blur-3xl pointer-events-none" />
-        <div className="absolute bottom-1/3 left-0 w-64 h-64 bg-gradient-to-r from-rose-500/8 to-transparent blur-3xl pointer-events-none" />
+        <div className="absolute top-0 left-0 w-96 h-96 bg-linear-to-br from-rose-500/10 via-transparent to-transparent blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-linear-to-tl from-pink-500/10 via-transparent to-transparent blur-3xl pointer-events-none" />
+        <div className="absolute top-1/3 right-0 w-64 h-64 bg-linear-to-l from-violet-500/8 to-transparent blur-3xl pointer-events-none" />
+        <div className="absolute bottom-1/3 left-0 w-64 h-64 bg-linear-to-r from-rose-500/8 to-transparent blur-3xl pointer-events-none" />
       </section>
     </>
   );

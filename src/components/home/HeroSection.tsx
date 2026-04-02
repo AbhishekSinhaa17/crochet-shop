@@ -257,7 +257,7 @@ export default function HeroSection() {
       >
         {/* === BACKGROUND === */}
         <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-br from-violet-50 via-white to-rose-50 dark:from-slate-950 dark:via-slate-900 dark:to-violet-950" />
+          <div className="absolute inset-0 bg-linear-to-br from-violet-50 via-white to-rose-50 dark:from-slate-950 dark:via-slate-900 dark:to-violet-950" />
           
           <div 
             className="absolute w-[800px] h-[800px] rounded-full animate-pulse-glow animate-morph"
@@ -306,20 +306,20 @@ export default function HeroSection() {
         {/* === LEFT SIDE DECORATIONS === */}
         <div className="absolute left-0 top-0 bottom-0 w-32 lg:w-48 pointer-events-none">
           <div className="absolute top-[15%] left-4 lg:left-8 animate-float-slow">
-            <div className="w-20 h-20 lg:w-28 lg:h-28 rounded-full bg-gradient-to-br from-violet-200/60 to-violet-300/40 dark:from-violet-800/30 dark:to-violet-900/20 shadow-lg">
+            <div className="w-20 h-20 lg:w-28 lg:h-28 rounded-full bg-linear-to-br from-violet-200/60 to-violet-300/40 dark:from-violet-800/30 dark:to-violet-900/20 shadow-lg">
               <div className="absolute inset-2 rounded-full border-2 border-dashed border-violet-400/30 animate-spin-slow" />
-              <div className="absolute inset-4 rounded-full bg-gradient-to-br from-violet-300/40 to-transparent" />
+              <div className="absolute inset-4 rounded-full bg-linear-to-br from-violet-300/40 to-transparent" />
             </div>
           </div>
 
           <div className="absolute top-[45%] left-6 lg:left-12 animate-float-medium" style={{ animationDelay: '1s' }}>
-            <div className="w-14 h-14 lg:w-20 lg:h-20 rounded-full bg-gradient-to-br from-rose-200/60 to-rose-300/40 dark:from-rose-800/30 dark:to-rose-900/20 shadow-lg">
+            <div className="w-14 h-14 lg:w-20 lg:h-20 rounded-full bg-linear-to-br from-rose-200/60 to-rose-300/40 dark:from-rose-800/30 dark:to-rose-900/20 shadow-lg">
               <div className="absolute inset-2 rounded-full border border-dashed border-rose-400/30 animate-spin-slow" style={{ animationDirection: 'reverse' }} />
             </div>
           </div>
 
           <div className="absolute bottom-[25%] left-4 lg:left-8 animate-float-fast" style={{ animationDelay: '2s' }}>
-            <div className="w-16 h-16 lg:w-24 lg:h-24 rounded-full bg-gradient-to-br from-amber-200/60 to-amber-300/40 dark:from-amber-800/30 dark:to-amber-900/20 shadow-lg">
+            <div className="w-16 h-16 lg:w-24 lg:h-24 rounded-full bg-linear-to-br from-amber-200/60 to-amber-300/40 dark:from-amber-800/30 dark:to-amber-900/20 shadow-lg">
               <div className="absolute inset-3 rounded-full border border-dashed border-amber-400/30 animate-spin-slow" />
             </div>
           </div>
@@ -357,19 +357,19 @@ export default function HeroSection() {
         {/* === RIGHT SIDE DECORATIONS === */}
         <div className="absolute right-0 top-0 bottom-0 w-32 lg:w-48 pointer-events-none">
           <div className="absolute top-[20%] right-4 lg:right-8 animate-float-medium">
-            <div className="w-16 h-16 lg:w-24 lg:h-24 rounded-full bg-gradient-to-br from-violet-200/60 to-violet-300/40 dark:from-violet-800/30 dark:to-violet-900/20 shadow-lg">
+            <div className="w-16 h-16 lg:w-24 lg:h-24 rounded-full bg-linear-to-br from-violet-200/60 to-violet-300/40 dark:from-violet-800/30 dark:to-violet-900/20 shadow-lg">
               <div className="absolute inset-2 rounded-full border border-dashed border-violet-400/30 animate-spin-slow" style={{ animationDirection: 'reverse' }} />
             </div>
           </div>
 
           <div className="absolute top-[50%] right-6 lg:right-12 animate-float-slow" style={{ animationDelay: '2s' }}>
-            <div className="w-20 h-20 lg:w-28 lg:h-28 rounded-full bg-gradient-to-br from-rose-200/60 to-rose-300/40 dark:from-rose-800/30 dark:to-rose-900/20 shadow-lg">
+            <div className="w-20 h-20 lg:w-28 lg:h-28 rounded-full bg-linear-to-br from-rose-200/60 to-rose-300/40 dark:from-rose-800/30 dark:to-rose-900/20 shadow-lg">
               <div className="absolute inset-3 rounded-full border-2 border-dashed border-rose-400/30 animate-spin-slow" />
             </div>
           </div>
 
           <div className="absolute bottom-[20%] right-4 lg:right-8 animate-float-fast" style={{ animationDelay: '1s' }}>
-            <div className="w-12 h-12 lg:w-18 lg:h-18 rounded-full bg-gradient-to-br from-amber-200/60 to-amber-300/40 dark:from-amber-800/30 dark:to-amber-900/20 shadow-lg" />
+            <div className="w-12 h-12 lg:w-18 lg:h-18 rounded-full bg-linear-to-br from-amber-200/60 to-amber-300/40 dark:from-amber-800/30 dark:to-amber-900/20 shadow-lg" />
           </div>
 
           <svg className="absolute top-[60%] right-0 w-full h-40 opacity-30 dark:opacity-20" viewBox="0 0 100 160">
@@ -436,7 +436,7 @@ export default function HeroSection() {
                 }`}
               >
                 <span className="relative flex h-2.5 w-2.5">
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-gradient-to-r from-violet-500 to-rose-500"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-linear-to-r from-violet-500 to-rose-500"></span>
                 </span>
                 <span className="text-sm font-semibold text-gradient-primary">
                   ✨ Artisan Handcrafted Collection
@@ -503,7 +503,7 @@ export default function HeroSection() {
               >
                 <Link
                   href="/products"
-                  className="group relative inline-flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-violet-600 via-purple-600 to-violet-600 rounded-2xl font-bold text-white btn-premium shadow-glow-primary animate-gradient"
+                  className="group relative inline-flex items-center justify-center gap-3 px-8 py-4 bg-linear-to-r from-violet-600 via-purple-600 to-violet-600 rounded-2xl font-bold text-white btn-premium shadow-glow-primary animate-gradient"
                 >
                   <span className="relative z-10 flex items-center gap-2">
                     <span>Explore Collection</span>
@@ -556,12 +556,12 @@ export default function HeroSection() {
               </div>
 
               {/* Glow effect */}
-              <div className="absolute -inset-8 bg-gradient-to-r from-violet-500/30 via-rose-500/30 to-amber-500/30 rounded-full blur-3xl animate-pulse-glow z-0" />
+              <div className="absolute -inset-8 bg-linear-to-r from-violet-500/30 via-rose-500/30 to-amber-500/30 rounded-full blur-3xl animate-pulse-glow z-0" />
 
               {/* Main image container */}
               <div className="relative z-10 w-[320px] h-[320px] md:w-[450px] md:h-[450px] mx-auto">
                 {/* Gradient border */}
-                <div className="absolute -inset-1 bg-gradient-to-r from-violet-500 via-rose-500 to-amber-500 rounded-full opacity-60 blur-sm animate-gradient" />
+                <div className="absolute -inset-1 bg-linear-to-r from-violet-500 via-rose-500 to-amber-500 rounded-full opacity-60 blur-sm animate-gradient" />
                 
                 {/* Image */}
                 <div className="relative w-full h-full rounded-full overflow-hidden shadow-premium">
@@ -574,14 +574,14 @@ export default function HeroSection() {
                   />
                   
                   {/* Overlays */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-white/10 pointer-events-none" />
-                  <div className="absolute inset-0 bg-gradient-to-br from-violet-500/10 via-transparent to-rose-500/10 mix-blend-overlay pointer-events-none" />
+                  <div className="absolute inset-0 bg-linear-to-t from-black/50 via-transparent to-white/10 pointer-events-none" />
+                  <div className="absolute inset-0 bg-linear-to-br from-violet-500/10 via-transparent to-rose-500/10 mix-blend-overlay pointer-events-none" />
                 </div>
 
                 {/* Floating Card - Top Left */}
                 <div className="absolute -left-6 top-12 z-20 animate-float-slow">
                   <div className="flex items-center gap-3 px-5 py-4 glass-premium rounded-2xl shadow-premium hover-lift">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-rose-500 flex items-center justify-center shadow-lg">
+                    <div className="w-12 h-12 rounded-xl bg-linear-to-br from-violet-500 to-rose-500 flex items-center justify-center shadow-lg">
                       <Sparkles className="w-6 h-6 text-white" />
                     </div>
                     <div>
@@ -594,7 +594,7 @@ export default function HeroSection() {
                 {/* Floating Card - Bottom Right */}
                 <div className="absolute -right-4 bottom-16 z-20 animate-float-medium" style={{ animationDelay: '1s' }}>
                   <div className="flex items-center gap-3 px-5 py-4 glass-premium rounded-2xl shadow-premium hover-lift">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-500 to-pink-500 flex items-center justify-center shadow-lg">
+                    <div className="w-12 h-12 rounded-xl bg-linear-to-br from-rose-500 to-pink-500 flex items-center justify-center shadow-lg">
                       <Heart className="w-6 h-6 text-white fill-current" />
                     </div>
                     <div>
@@ -614,7 +614,7 @@ export default function HeroSection() {
                 {/* Play button */}
                 <div className="absolute bottom-8 left-8 z-20">
                   <button className="group w-14 h-14 rounded-full glass-premium shadow-premium flex items-center justify-center hover-lift overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-r from-violet-500 to-rose-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <div className="absolute inset-0 bg-linear-to-r from-violet-500 to-rose-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     <Play className="w-6 h-6 text-foreground group-hover:text-white transition-colors duration-300 relative z-10 ml-0.5" fill="currentColor" />
                   </button>
                 </div>
@@ -637,10 +637,10 @@ export default function HeroSection() {
         </div>
 
         {/* === CORNER ACCENTS === */}
-        <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-to-br from-violet-500/10 via-transparent to-transparent blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-tl from-rose-500/10 via-transparent to-transparent blur-3xl pointer-events-none" />
-        <div className="absolute top-1/3 right-0 w-64 h-64 bg-gradient-to-l from-amber-500/8 to-transparent blur-3xl pointer-events-none" />
-        <div className="absolute bottom-1/3 left-0 w-64 h-64 bg-gradient-to-r from-violet-500/8 to-transparent blur-3xl pointer-events-none" />
+        <div className="absolute top-0 left-0 w-96 h-96 bg-linear-to-br from-violet-500/10 via-transparent to-transparent blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-linear-to-tl from-rose-500/10 via-transparent to-transparent blur-3xl pointer-events-none" />
+        <div className="absolute top-1/3 right-0 w-64 h-64 bg-linear-to-l from-amber-500/8 to-transparent blur-3xl pointer-events-none" />
+        <div className="absolute bottom-1/3 left-0 w-64 h-64 bg-linear-to-r from-violet-500/8 to-transparent blur-3xl pointer-events-none" />
       </section>
     </>
   );

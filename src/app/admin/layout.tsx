@@ -45,7 +45,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <aside className="w-64 bg-card border-r border-border fixed inset-y-0 left-0 z-40 hidden lg:block overflow-y-auto">
         <div className="p-6 border-b border-gray-100">
           <Link href="/admin" className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center">
+            <div className="w-10 h-10 bg-linear-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center">
               <Scissors className="w-5 h-5 text-white" />
             </div>
             <div>

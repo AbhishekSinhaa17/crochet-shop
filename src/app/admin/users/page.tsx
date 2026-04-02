@@ -44,13 +44,13 @@ export default async function AdminUsersPage() {
       {/* Header */}
       <div className="flex items-center gap-3 mb-8 animate-[fadeInDown_0.5s_ease-out]">
         <div className="relative">
-          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/25">
+          <div className="w-11 h-11 rounded-xl bg-linear-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/25">
             <Users className="w-5 h-5 text-white" />
           </div>
           <span className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-white animate-pulse" />
         </div>
         <div>
-          <h1 className="text-3xl font-display font-bold bg-gradient-to-r from-gray-900 via-indigo-900 to-purple-900 bg-clip-text text-transparent">
+          <h1 className="text-3xl font-display font-bold bg-linear-to-r from-gray-900 via-indigo-900 to-purple-900 bg-clip-text text-transparent">
             Users
           </h1>
           <p className="text-sm text-gray-500">
@@ -64,7 +64,7 @@ export default async function AdminUsersPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-gradient-to-r from-gray-50/80 to-gray-100/50">
+              <tr className="bg-linear-to-r from-gray-50/80 to-gray-100/50">
                 <th className="text-left py-4 px-6 font-semibold text-gray-600 text-xs uppercase tracking-wider">
                   User
                 </th>
@@ -89,7 +89,7 @@ export default async function AdminUsersPage() {
                 return (
                   <tr
                     key={profile.id}
-                    className="border-t border-gray-100/80 hover:bg-gradient-to-r hover:from-indigo-50/40 hover:to-purple-50/20 transition-all duration-300 group"
+                    className="border-t border-gray-100/80 hover:bg-linear-to-r hover:from-indigo-50/40 hover:to-purple-50/20 transition-all duration-300 group"
                     style={{
                       animation: `fadeInUp 0.4s ease-out ${index * 0.05}s both`,
                     }}
@@ -98,7 +98,7 @@ export default async function AdminUsersPage() {
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-3">
                         <div
-                          className={`relative w-10 h-10 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center shadow-md group-hover:shadow-lg group-hover:scale-105 transition-all duration-300`}
+                          className={`relative w-10 h-10 rounded-xl bg-linear-to-br ${gradient} flex items-center justify-center shadow-md group-hover:shadow-lg group-hover:scale-105 transition-all duration-300`}
                         >
                           <span className="text-white font-bold text-xs">
                             {getInitials(profile.full_name)}
@@ -137,7 +137,7 @@ export default async function AdminUsersPage() {
                       <span
                         className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold capitalize ${
                           profile.role === "admin"
-                            ? "bg-gradient-to-r from-purple-100 to-fuchsia-100 text-purple-700 border border-purple-200/50 shadow-sm shadow-purple-500/10"
+                            ? "bg-linear-to-r from-purple-100 to-fuchsia-100 text-purple-700 border border-purple-200/50 shadow-sm shadow-purple-500/10"
                             : "bg-gray-100 text-gray-600 border border-gray-200/50"
                         }`}
                       >
@@ -162,7 +162,7 @@ export default async function AdminUsersPage() {
         </div>
 
         {/* Footer */}
-        <div className="bg-gradient-to-r from-gray-50/80 to-gray-100/50 px-6 py-3 border-t border-gray-100 flex items-center justify-between">
+        <div className="bg-linear-to-r from-gray-50/80 to-gray-100/50 px-6 py-3 border-t border-gray-100 flex items-center justify-between">
           <p className="text-xs text-gray-500">
             <span className="font-semibold text-gray-700">{total}</span> user
             {total !== 1 && "s"}
@@ -171,7 +171,7 @@ export default async function AdminUsersPage() {
             {(profiles || []).slice(0, 5).map((p) => (
               <div
                 key={p.id}
-                className={`w-6 h-6 rounded-full bg-gradient-to-br ${
+                className={`w-6 h-6 rounded-full bg-linear-to-br ${
                   avatarGradients[p.id.charCodeAt(0) % avatarGradients.length]
                 } border-2 border-white flex items-center justify-center shadow-sm`}
               >

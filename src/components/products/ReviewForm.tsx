@@ -110,7 +110,7 @@ export default function ReviewForm({ productId, onSuccess }: ReviewFormProps) {
             rotate: [0, 90, 0],
           }}
           transition={{ duration: 20, repeat: Infinity }}
-          className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-purple-200/40 to-pink-200/40 rounded-full blur-3xl"
+          className="absolute top-0 right-0 w-64 h-64 bg-linear-to-br from-purple-200/40 to-pink-200/40 rounded-full blur-3xl"
         />
         <motion.div
           animate={{
@@ -118,7 +118,7 @@ export default function ReviewForm({ productId, onSuccess }: ReviewFormProps) {
             rotate: [90, 0, 90],
           }}
           transition={{ duration: 15, repeat: Infinity }}
-          className="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-br from-blue-200/40 to-cyan-200/40 rounded-full blur-3xl"
+          className="absolute bottom-0 left-0 w-64 h-64 bg-linear-to-br from-blue-200/40 to-cyan-200/40 rounded-full blur-3xl"
         />
       </div>
 
@@ -154,7 +154,7 @@ export default function ReviewForm({ productId, onSuccess }: ReviewFormProps) {
                     transition={{ duration: 2, repeat: Infinity }}
                     className="absolute inset-0 bg-green-400 rounded-full"
                   />
-                  <div className="relative w-20 h-20 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center shadow-lg shadow-green-500/30">
+                  <div className="relative w-20 h-20 bg-linear-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center shadow-lg shadow-green-500/30">
                     <CheckCircle className="w-10 h-10 text-white" />
                   </div>
                 </motion.div>
@@ -187,13 +187,13 @@ export default function ReviewForm({ productId, onSuccess }: ReviewFormProps) {
               whileHover={{ scale: 1.1, rotate: 5 }}
               transition={{ type: "spring", stiffness: 400 }}
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl blur-lg opacity-50" />
-              <div className="relative w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg">
+              <div className="absolute inset-0 bg-linear-to-r from-purple-500 to-pink-500 rounded-2xl blur-lg opacity-50" />
+              <div className="relative w-14 h-14 bg-linear-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg">
                 <Sparkles className="w-7 h-7 text-white" />
               </div>
             </motion.div>
             <div>
-              <h3 className="text-2xl font-display font-bold bg-gradient-to-r from-gray-900 via-purple-800 to-gray-900 bg-clip-text text-transparent">
+              <h3 className="text-2xl font-display font-bold bg-linear-to-r from-gray-900 via-purple-800 to-gray-900 bg-clip-text text-transparent">
                 Write a Review
               </h3>
               <p className="text-gray-500 text-sm">Share your experience with others</p>
@@ -275,7 +275,7 @@ export default function ReviewForm({ productId, onSuccess }: ReviewFormProps) {
                     initial={{ opacity: 0, x: -20, scale: 0.8 }}
                     animate={{ opacity: 1, x: 0, scale: 1 }}
                     exit={{ opacity: 0, x: 20, scale: 0.8 }}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-full"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-linear-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-full"
                   >
                     <motion.span
                       key={hoverRating || rating}
@@ -311,7 +311,7 @@ export default function ReviewForm({ productId, onSuccess }: ReviewFormProps) {
                 animate={{
                   opacity: focusedField === "title" ? 0.5 : 0,
                 }}
-                className="absolute -inset-0.5 bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 rounded-xl blur"
+                className="absolute -inset-0.5 bg-linear-to-r from-purple-500 via-pink-500 to-blue-500 rounded-xl blur"
               />
 
               <div className="relative flex items-center">
@@ -350,7 +350,7 @@ export default function ReviewForm({ productId, onSuccess }: ReviewFormProps) {
                 animate={{
                   opacity: focusedField === "comment" ? 0.5 : 0,
                 }}
-                className="absolute -inset-0.5 bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 rounded-xl blur"
+                className="absolute -inset-0.5 bg-linear-to-r from-purple-500 via-pink-500 to-blue-500 rounded-xl blur"
               />
 
               <div className="relative">
@@ -398,14 +398,14 @@ export default function ReviewForm({ productId, onSuccess }: ReviewFormProps) {
                 backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
               }}
               transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-              className="absolute inset-0 bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 bg-[length:200%_100%]"
+              className="absolute inset-0 bg-linear-to-r from-purple-600 via-pink-600 to-purple-600 bg-[length:200%_100%]"
             />
 
             {/* Shimmer */}
             <motion.div
               animate={{ x: ["-100%", "100%"] }}
               transition={{ duration: 1.5, repeat: Infinity, repeatDelay: 1 }}
-              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+              className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent"
             />
 
             {/* Content */}

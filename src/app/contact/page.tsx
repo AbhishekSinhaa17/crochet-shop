@@ -31,8 +31,8 @@ export default function ContactPage() {
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white overflow-hidden">
       {/* Animated Background */}
       <div className="fixed inset-0 pointer-events-none -z-10">
-        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-gradient-to-br from-violet-500/10 via-pink-500/5 to-transparent rounded-full blur-3xl animate-blob" />
-        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-gradient-to-tr from-blue-500/10 via-emerald-500/5 to-transparent rounded-full blur-3xl animate-blob animation-delay-2000" />
+        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-linear-to-br from-violet-500/10 via-pink-500/5 to-transparent rounded-full blur-3xl animate-blob" />
+        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-linear-to-tr from-blue-500/10 via-emerald-500/5 to-transparent rounded-full blur-3xl animate-blob animation-delay-2000" />
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-20 lg:py-28 relative z-10">
@@ -60,7 +60,7 @@ export default function ContactPage() {
               </div>
               <h1 className="text-5xl md:text-6xl font-black mb-6 leading-tight">
                 Let's Start a <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 animate-gradient-x">Conversation</span>
+                <span className="text-transparent bg-clip-text bg-linear-to-r from-violet-600 via-purple-600 to-pink-600 animate-gradient-x">Conversation</span>
               </h1>
               <p className="text-xl text-slate-600 dark:text-slate-400 max-w-lg leading-relaxed">
                 Have a question about a product or interested in a custom commission? We'd love to hear from you.
@@ -101,7 +101,7 @@ export default function ContactPage() {
           {/* Right Side: Contact Form */}
           <div className="animate-fade-in-up animation-delay-500">
             <div className="relative group">
-              <div className="absolute -inset-1 bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 rounded-[2.5rem] blur opacity-25 group-focus-within:opacity-50 transition-all duration-700" />
+              <div className="absolute -inset-1 bg-linear-to-r from-violet-600 via-purple-600 to-pink-600 rounded-[2.5rem] blur opacity-25 group-focus-within:opacity-50 transition-all duration-700" />
               <div className="relative bg-white dark:bg-slate-900 rounded-[2.5rem] p-10 lg:p-12 shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
                 <h2 className="text-2xl font-black mb-8">Send a <span className="text-violet-600">Message</span></h2>
                 
@@ -158,7 +158,7 @@ export default function ContactPage() {
                   <button 
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full py-5 rounded-2xl bg-gradient-to-r from-violet-600 to-pink-600 text-white font-bold text-lg hover:shadow-2xl hover:shadow-violet-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 disabled:opacity-70 flex items-center justify-center gap-3"
+                    className="w-full py-5 rounded-2xl bg-linear-to-r from-violet-600 to-pink-600 text-white font-bold text-lg hover:shadow-2xl hover:shadow-violet-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 disabled:opacity-70 flex items-center justify-center gap-3"
                   >
                     {isSubmitting ? (
                       <div className="w-6 h-6 border-4 border-white/30 border-t-white rounded-full animate-spin" />

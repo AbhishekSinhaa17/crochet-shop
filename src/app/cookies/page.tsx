@@ -32,8 +32,8 @@ export default function CookiesPolicyPage() {
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white overflow-hidden">
       {/* Animated Background */}
       <div className="fixed inset-0 pointer-events-none -z-10">
-        <div className="absolute top-1/2 left-0 w-[500px] h-[500px] bg-gradient-to-br from-rose-500/10 via-pink-500/5 to-transparent rounded-full blur-3xl animate-blob animate-pulse-slow" />
-        <div className="absolute bottom-1/4 right-0 w-[400px] h-[400px] bg-gradient-to-tr from-violet-500/10 via-purple-500/5 to-transparent rounded-full blur-3xl animate-blob animation-delay-2000" />
+        <div className="absolute top-1/2 left-0 w-[500px] h-[500px] bg-linear-to-br from-rose-500/10 via-pink-500/5 to-transparent rounded-full blur-3xl animate-blob animate-pulse-slow" />
+        <div className="absolute bottom-1/4 right-0 w-[400px] h-[400px] bg-linear-to-tr from-violet-500/10 via-purple-500/5 to-transparent rounded-full blur-3xl animate-blob animation-delay-2000" />
       </div>
 
       <div className="max-w-5xl mx-auto px-6 py-20 lg:py-28 relative z-10">
@@ -62,7 +62,7 @@ export default function CookiesPolicyPage() {
 
           <h1 className="text-5xl md:text-7xl font-black mb-6 tracking-tight animate-fade-in-up animation-delay-300">
             <span className="block">Cookie</span>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-600 via-pink-600 to-violet-600 animate-gradient-x">Management</span>
+            <span className="text-transparent bg-clip-text bg-linear-to-r from-rose-600 via-pink-600 to-violet-600 animate-gradient-x">Management</span>
           </h1>
           
           <p className="text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed animate-fade-in-up animation-delay-400">
@@ -86,14 +86,14 @@ export default function CookiesPolicyPage() {
                 className="animate-fade-in-up"
                 style={{ animationDelay: `${500 + index * 100}ms` }}
               >
-                <div className={`relative rounded-3xl transition-all duration-500 ${isExpanded ? 'bg-gradient-to-r ' + colorMap[cookie.color as keyof typeof colorMap] + ' p-[2px]' : ''}`}>
+                <div className={`relative rounded-3xl transition-all duration-500 ${isExpanded ? 'bg-linear-to-r ' + colorMap[cookie.color as keyof typeof colorMap] + ' p-[2px]' : ''}`}>
                   <div className="relative bg-white dark:bg-slate-900 rounded-[22px] overflow-hidden">
                     <button
                       onClick={() => setExpandedSection(isExpanded ? null : index)}
                       className="w-full p-6 lg:p-8 flex items-center gap-6 text-left group"
                     >
                       <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 transition-all duration-500 ${
-                        isExpanded ? 'bg-gradient-to-br ' + colorMap[cookie.color as keyof typeof colorMap] + ' text-white scale-110' : 'bg-slate-100 dark:bg-slate-800'
+                        isExpanded ? 'bg-linear-to-br ' + colorMap[cookie.color as keyof typeof colorMap] + ' text-white scale-110' : 'bg-slate-100 dark:bg-slate-800'
                       }`}>
                         <cookie.icon className="w-7 h-7" />
                       </div>
