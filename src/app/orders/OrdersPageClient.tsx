@@ -643,10 +643,9 @@ function EmptyState({ isLoaded }: { isLoaded: boolean }) {
       </div>
 
       {/* Feature Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16 max-w-3xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-16 max-w-2xl mx-auto">
         {[
           { icon: Truck, title: "Free Shipping", desc: "On orders over ₹999" },
-          { icon: RotateCcw, title: "Easy Returns", desc: "7-day return policy" },
           { icon: CreditCard, title: "Secure Payment", desc: "100% secure checkout" },
         ].map((feature, idx) => (
           <div

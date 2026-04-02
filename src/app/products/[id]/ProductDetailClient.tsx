@@ -398,11 +398,10 @@ export default function ProductDetailClient({
             )}
 
             {/* Premium Features */}
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               {[
                 { icon: Truck, label: "Free Shipping", sublabel: "Over ₹999", color: "from-blue-500 to-cyan-500" },
                 { icon: Shield, label: "Quality Assured", sublabel: "100% Authentic", color: "from-emerald-500 to-teal-500" },
-                { icon: RotateCcw, label: "Easy Returns", sublabel: "7 Days Policy", color: "from-purple-500 to-pink-500" },
               ].map(({ icon: Icon, label, sublabel, color }, idx) => (
                 <div 
                   key={label} 

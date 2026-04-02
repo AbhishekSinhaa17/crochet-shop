@@ -472,10 +472,9 @@ export default function CartPage() {
               </div>
 
               {/* Trust Badges */}
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 gap-3">
                 {[
                   { icon: Truck, label: "Free Shipping", sublabel: "Over ₹999" },
-                  { icon: RotateCcw, label: "Easy Returns", sublabel: "7 Days" },
                   { icon: Shield, label: "Secure Pay", sublabel: "100% Safe" },
                 ].map((badge, i) => (
                   <div
@@ -826,11 +825,10 @@ function EmptyCart({
           </div>
 
           {/* Feature Cards */}
-          <div className="grid grid-cols-3 gap-4 mt-8">
+          <div className="grid grid-cols-2 gap-4 mt-8">
             {[
               { icon: Truck, label: "Free Shipping", desc: "Over ₹999" },
               { icon: Shield, label: "Secure Pay", desc: "100% Safe" },
-              { icon: RotateCcw, label: "Easy Returns", desc: "7 Days" },
             ].map((feature, idx) => (
               <div
                 key={feature.label}
