@@ -4,6 +4,8 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { slugify, getProductImages } from "@/lib/utils";
+import { uploadProductImage } from "@/actions/uploadImage";
+import { updateProductAction } from "@/actions/product";
 import {
   Upload,
   Save,
@@ -57,73 +59,69 @@ export default function EditProductClient({ product, categories }: EditProductCl
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return;
     setLoading(true);
+
+    const toastId = toast.loading("Uploading new images...");
 
     try {
       const uploadedUrls: string[] = [];
       
       // 1. Upload new images if any
       for (const file of newImages) {
-        const ext = file.name.split(".").pop();
-        const path = `product-images/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+        const formData = new FormData();
+        formData.append("file", file);
         
-        const { error: uploadError } = await supabase.storage
-          .from("product-images")
-          .upload(path, file);
+        const { url, error } = await uploadProductImage(formData);
 
-        if (uploadError) {
-          toast.error(`Failed to upload ${file.name}: ${uploadError.message}`);
-          throw new Error(`Image upload failed: ${uploadError.message}`);
+        if (error || !url) {
+          throw new Error(`Image ${file.name} upload failed: ${error || "Unknown error"}`);
         }
 
-        const { data } = supabase.storage
-          .from("product-images")
-          .getPublicUrl(path);
-          
-        if (data?.publicUrl) {
-          uploadedUrls.push(data.publicUrl);
-        }
+        uploadedUrls.push(url);
       }
 
       // Combine existing images (that weren't removed) and newly uploaded ones
       const finalImages = [...existingImages, ...uploadedUrls];
 
       if (finalImages.length === 0) {
-        toast.error("Please provide at least one image.");
-        setLoading(false);
-        return;
+        throw new Error("Please provide at least one image.");
       }
 
-      // 2. Update product in database
-      const { error } = await supabase
-        .from("products")
-        .update({
-          name,
-          description,
-          price: parseFloat(price),
-          compare_price: comparePrice ? parseFloat(comparePrice) : null,
-          stock: parseInt(stock) || 0,
-          category_id: categoryId || null,
-          images: finalImages,
-          tags: tags
-            .split(",")
-            .map((t) => t.trim())
-            .filter(Boolean),
-          is_featured: isFeatured,
-          is_active: isActive,
-        })
-        .eq("id", product.id);
+      toast.loading("Saving product details...", { id: toastId });
 
-      if (error) throw error;
+      const productData = {
+        name,
+        slug: slugify(name) + "-" + Date.now().toString(36),
+        description,
+        price: parseFloat(price),
+        compare_price: comparePrice && parseFloat(comparePrice) > 0 ? parseFloat(comparePrice) : null,
+        stock: parseInt(stock) || 0,
+        category_id: categoryId || null,
+        images: finalImages,
+        tags: tags
+          .split(",")
+          .map((t) => t.trim())
+          .filter(Boolean),
+        is_featured: isFeatured,
+        is_active: isActive,
+      };
 
-      toast.success("Product updated successfully!");
+      const { success, error } = await updateProductAction(product.id, productData);
+
+      if (error || !success) {
+        throw new Error(`Database error: ${error || "Unknown server action error"}`);
+      }
+
+      toast.success("Product updated successfully!", { id: toastId });
       router.push("/admin/products");
       router.refresh();
     } catch (err: any) {
       console.error("Update Error:", err);
-      toast.error(err.message || "Failed to update product");
+      toast.error(err.message || "Failed to update product", { id: toastId });
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleDrop = (e: React.DragEvent) => {
