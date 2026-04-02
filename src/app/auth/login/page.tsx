@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -125,6 +125,11 @@ export default function LoginPage() {
   const redirect = searchParams.get("redirect") || "/";
   const supabase = createClient();
 
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -224,7 +229,7 @@ export default function LoginPage() {
       <CrochetHook className="absolute top-10 right-1/4 w-6 h-24 text-pink-400 dark:text-pink-500/40 opacity-30" />
 
       {/* Sparkle Effects */}
-      {[...Array(6)].map((_, i) => (
+      {mounted && [...Array(6)].map((_, i) => (
         <motion.div
           key={i}
           className="absolute"

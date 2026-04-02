@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -227,6 +227,11 @@ export default function RegisterPage() {
   const router = useRouter();
   const supabase = createClient();
 
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const handleGoogleLogin = async () => {
     await supabase.auth.signInWithOAuth({
       provider: "google",
@@ -324,7 +329,7 @@ export default function RegisterPage() {
       <KnittingNeedles className="absolute bottom-20 left-1/4 w-12 h-20 text-pink-400 dark:text-pink-500/40" />
 
       {/* Sparkle Effects */}
-      {[...Array(8)].map((_, i) => (
+      {mounted && [...Array(8)].map((_, i) => (
         <motion.div
           key={i}
           className="absolute"
