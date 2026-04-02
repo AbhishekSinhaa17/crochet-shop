@@ -24,6 +24,11 @@ export default function FAQPage() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
+  const [mounted, setMounted] = useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const categories = [
     "All",
@@ -106,7 +111,7 @@ export default function FAQPage() {
 
       {/* Floating Particles */}
       <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-        {[...Array(20)].map((_, i) => (
+        {mounted && [...Array(20)].map((_, i) => (
           <div
             key={i}
             className="absolute w-2 h-2 bg-gradient-to-br from-violet-500/40 to-pink-500/40 rounded-full animate-float"
