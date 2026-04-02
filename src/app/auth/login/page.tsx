@@ -4,7 +4,7 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Eye, EyeOff, Mail, Lock, Sparkles, Heart, ChevronLeft } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, Sparkles, Heart, ChevronLeft, Scissors } from "lucide-react";
 import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -174,7 +174,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12 relative overflow-hidden bg-gradient-to-br from-rose-50 via-pink-50 to-fuchsia-50 dark:from-gray-950 dark:via-gray-900 dark:to-purple-950">
+    <div className="min-h-screen flex items-center justify-center px-4 py-12 relative overflow-hidden bg-linear-to-br from-rose-50 via-pink-50 to-fuchsia-50 dark:from-gray-950 dark:via-gray-900 dark:to-purple-950">
       {/* Back to Home Button */}
       <motion.div
         className="absolute top-8 left-8 z-50"
@@ -254,57 +254,37 @@ export default function LoginPage() {
         initial="hidden"
         animate="visible"
       >
-        {/* Logo Section */}
         <motion.div className="text-center mb-8" variants={itemVariants}>
           <motion.div
-            className="relative w-20 h-20 mx-auto mb-6"
-            whileHover={{ scale: 1.1, rotate: 5 }}
+            className="relative w-16 h-16 mx-auto mb-6"
+            whileHover={{ scale: 1.1 }}
             transition={{ type: "spring", stiffness: 300 }}
           >
-            {/* Animated ring */}
-            <motion.div
-              className="absolute inset-0 rounded-full bg-gradient-to-r from-pink-400 via-rose-400 to-fuchsia-400 dark:from-pink-500 dark:via-rose-500 dark:to-fuchsia-500"
-              animate={{ rotate: 360 }}
-              transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-            />
-            <div className="absolute inset-1 rounded-full bg-white dark:bg-gray-900 flex items-center justify-center">
-              <motion.div
-                animate={{
-                  scale: [1, 1.1, 1],
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-              >
-                <svg viewBox="0 0 40 40" className="w-10 h-10">
-                  <circle cx="20" cy="20" r="15" fill="none" stroke="url(#logoGradient)" strokeWidth="3" />
-                  <path
-                    d="M10 20 Q15 12 20 20 T30 20"
-                    stroke="url(#logoGradient)"
-                    strokeWidth="2"
-                    fill="none"
-                  />
-                  <path
-                    d="M12 15 Q20 25 28 15"
-                    stroke="url(#logoGradient)"
-                    strokeWidth="1.5"
-                    fill="none"
-                  />
-                  <defs>
-                    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#ec4899" />
-                      <stop offset="100%" stopColor="#a855f7" />
-                    </linearGradient>
-                  </defs>
-                </svg>
-              </motion.div>
+            {/* Logo Glow */}
+            <div className="absolute -inset-4 bg-linear-to-r from-pink-500/20 via-purple-500/20 to-violet-500/20 rounded-3xl blur-2xl opacity-100" />
+            
+            <div className="relative">
+              {/* Spinning Border */}
+              <motion.div 
+                className="absolute -inset-1 bg-linear-to-r from-pink-500 via-purple-500 to-violet-500 rounded-2xl opacity-75 blur-sm"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+              />
+
+              {/* Icon Container */}
+              <div className="relative w-16 h-16 rounded-2xl bg-linear-to-br from-[#C2185B] to-[#9C27B0] flex items-center justify-center shadow-xl shadow-purple-500/25 overflow-hidden">
+                <Scissors className="w-8 h-8 text-white relative z-10" />
+                <motion.div 
+                  className="absolute inset-0 bg-linear-to-tr from-white/0 via-white/20 to-white/0"
+                  animate={{ x: ['-100%', '100%'] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                />
+              </div>
             </div>
           </motion.div>
 
           <motion.h1
-            className="text-4xl font-bold bg-gradient-to-r from-pink-600 via-rose-500 to-fuchsia-600 dark:from-pink-400 dark:via-rose-400 dark:to-fuchsia-400 bg-clip-text text-transparent"
+            className="text-4xl font-bold bg-linear-to-r from-pink-600 via-rose-500 to-fuchsia-600 dark:from-pink-400 dark:via-rose-400 dark:to-fuchsia-400 bg-clip-text text-transparent"
             variants={itemVariants}
           >
             Welcome Back
@@ -505,7 +485,7 @@ export default function LoginPage() {
             >
               {/* Animated gradient background */}
               <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-pink-500 via-rose-500 to-fuchsia-500"
+                className="absolute inset-0 bg-linear-to-r from-pink-500 via-rose-500 to-fuchsia-500"
                 animate={{
                   backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
                 }}
@@ -567,11 +547,11 @@ export default function LoginPage() {
             <p className="text-center text-gray-500 dark:text-gray-400">
               New to Strokes of Craft?{" "}
               <Link href="/auth/register" className="relative group">
-                <span className="font-semibold bg-gradient-to-r from-pink-500 to-fuchsia-500 bg-clip-text text-transparent">
+                <span className="font-semibold bg-linear-to-r from-pink-500 to-fuchsia-500 bg-clip-text text-transparent">
                   Create an account
                 </span>
                 <motion.span
-                  className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-pink-500 to-fuchsia-500 origin-left"
+                  className="absolute -bottom-1 left-0 w-full h-0.5 bg-linear-to-r from-pink-500 to-fuchsia-500 origin-left"
                   initial={{ scaleX: 0 }}
                   whileHover={{ scaleX: 1 }}
                   transition={{ duration: 0.3 }}
@@ -582,7 +562,7 @@ export default function LoginPage() {
         </motion.div>
 
         {/* Footer Text */}
-        <motion.p
+        <motion.div
           className="text-center text-sm text-gray-400 dark:text-gray-500 mt-8 flex items-center justify-center gap-2"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -596,7 +576,7 @@ export default function LoginPage() {
             <Heart className="w-4 h-4 text-pink-400 fill-pink-400" />
           </motion.div>
           <span>for crafters everywhere</span>
-        </motion.p>
+        </motion.div>
       </motion.div>
     </div>
   );

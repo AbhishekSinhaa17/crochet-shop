@@ -4,7 +4,7 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Eye, EyeOff, Mail, Lock, User, Sparkles, Heart, Check, X, ChevronLeft } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, Sparkles, Heart, Check, X, ChevronLeft, Scissors } from "lucide-react";
 import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -284,7 +284,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12 relative overflow-hidden bg-gradient-to-br from-fuchsia-50 via-pink-50 to-rose-50 dark:from-gray-950 dark:via-purple-950 dark:to-gray-900">
+    <div className="min-h-screen flex items-center justify-center px-4 py-12 relative overflow-hidden bg-linear-to-br from-fuchsia-50 via-pink-50 to-rose-50 dark:from-gray-950 dark:via-purple-950 dark:to-gray-900">
       {/* Back to Home Button */}
       <motion.div
         className="absolute top-8 left-8 z-50"
@@ -355,72 +355,37 @@ export default function RegisterPage() {
         initial="hidden"
         animate="visible"
       >
-        {/* Logo Section */}
         <motion.div className="text-center mb-6" variants={itemVariants}>
           <motion.div
-            className="relative w-20 h-20 mx-auto mb-4"
-            whileHover={{ scale: 1.1, rotate: -5 }}
+            className="relative w-16 h-16 mx-auto mb-4"
+            whileHover={{ scale: 1.1 }}
             transition={{ type: "spring", stiffness: 300 }}
           >
-            {/* Animated gradient ring */}
-            <motion.div
-              className="absolute inset-0 rounded-full bg-gradient-to-r from-fuchsia-400 via-pink-400 to-rose-400 dark:from-fuchsia-500 dark:via-pink-500 dark:to-rose-500"
-              animate={{ rotate: -360 }}
-              transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-            />
-            {/* Inner spinning ring */}
-            <motion.div
-              className="absolute inset-1 rounded-full bg-gradient-to-r from-purple-400 via-fuchsia-400 to-pink-400 dark:from-purple-500 dark:via-fuchsia-500 dark:to-pink-500 opacity-50"
-              animate={{ rotate: 360 }}
-              transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-            />
-            <div className="absolute inset-2 rounded-full bg-white dark:bg-gray-900 flex items-center justify-center shadow-inner">
-              <motion.div
-                animate={{
-                  scale: [1, 1.15, 1],
-                  rotate: [0, 5, -5, 0],
-                }}
-                transition={{
-                  duration: 3,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-              >
-                {/* Custom yarn/crochet icon */}
-                <svg viewBox="0 0 40 40" className="w-9 h-9">
-                  <defs>
-                    <linearGradient id="registerLogoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#a855f7" />
-                      <stop offset="50%" stopColor="#ec4899" />
-                      <stop offset="100%" stopColor="#f43f5e" />
-                    </linearGradient>
-                  </defs>
-                  <circle cx="20" cy="20" r="14" fill="none" stroke="url(#registerLogoGradient)" strokeWidth="2.5" />
-                  <path
-                    d="M10 20 Q15 12 20 20 T30 20"
-                    stroke="url(#registerLogoGradient)"
-                    strokeWidth="2"
-                    fill="none"
-                  />
-                  <path
-                    d="M12 14 Q20 26 28 14"
-                    stroke="url(#registerLogoGradient)"
-                    strokeWidth="1.5"
-                    fill="none"
-                  />
-                  <path
-                    d="M12 26 Q20 14 28 26"
-                    stroke="url(#registerLogoGradient)"
-                    strokeWidth="1.5"
-                    fill="none"
-                  />
-                </svg>
-              </motion.div>
+            {/* Logo Glow */}
+            <div className="absolute -inset-4 bg-linear-to-r from-fuchsia-500/20 via-pink-500/20 to-rose-500/20 rounded-3xl blur-2xl opacity-100" />
+            
+            <div className="relative">
+              {/* Spinning Border */}
+              <motion.div 
+                className="absolute -inset-1 bg-linear-to-r from-fuchsia-500 via-pink-500 to-rose-500 rounded-2xl opacity-75 blur-sm"
+                animate={{ rotate: -360 }}
+                transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+              />
+
+              {/* Icon Container */}
+              <div className="relative w-16 h-16 rounded-2xl bg-linear-to-br from-[#C2185B] to-[#9C27B0] flex items-center justify-center shadow-xl shadow-fuchsia-500/25 overflow-hidden">
+                <Scissors className="w-8 h-8 text-white relative z-10" />
+                <motion.div 
+                  className="absolute inset-0 bg-linear-to-tr from-white/0 via-white/20 to-white/0"
+                  animate={{ x: ['-100%', '100%'] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                />
+              </div>
             </div>
           </motion.div>
 
           <motion.h1
-            className="text-4xl font-bold bg-gradient-to-r from-fuchsia-600 via-pink-500 to-rose-500 dark:from-fuchsia-400 dark:via-pink-400 dark:to-rose-400 bg-clip-text text-transparent"
+            className="text-4xl font-bold bg-linear-to-r from-fuchsia-600 via-pink-500 to-rose-500 dark:from-fuchsia-400 dark:via-pink-400 dark:to-rose-400 bg-clip-text text-transparent"
             variants={itemVariants}
           >
             Join Our Craft
@@ -663,7 +628,7 @@ export default function RegisterPage() {
                 onClick={() => setAgreedToTerms(!agreedToTerms)}
                 className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all duration-300 flex-shrink-0 mt-0.5 ${
                   agreedToTerms
-                    ? "bg-gradient-to-r from-fuchsia-500 to-pink-500 border-transparent"
+                    ? "bg-linear-to-r from-fuchsia-500 to-pink-500 border-transparent"
                     : "border-gray-300 dark:border-gray-600 hover:border-fuchsia-400 dark:hover:border-fuchsia-500"
                 }`}
                 whileHover={{ scale: 1.1 }}
@@ -700,7 +665,7 @@ export default function RegisterPage() {
             >
               {/* Animated gradient background */}
               <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-fuchsia-500 via-pink-500 to-rose-500"
+                className="absolute inset-0 bg-linear-to-r from-fuchsia-500 via-pink-500 to-rose-500"
                 animate={{
                   backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
                 }}
@@ -779,11 +744,11 @@ export default function RegisterPage() {
             <p className="text-center text-gray-500 dark:text-gray-400">
               Already part of the craft?{" "}
               <Link href="/auth/login" className="relative group">
-                <span className="font-semibold bg-gradient-to-r from-fuchsia-500 to-pink-500 bg-clip-text text-transparent">
+                <span className="font-semibold bg-linear-to-r from-fuchsia-500 to-pink-500 bg-clip-text text-transparent">
                   Sign In
                 </span>
                 <motion.span
-                  className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-fuchsia-500 to-pink-500 origin-left"
+                  className="absolute -bottom-1 left-0 w-full h-0.5 bg-linear-to-r from-fuchsia-500 to-pink-500 origin-left"
                   initial={{ scaleX: 0 }}
                   whileHover={{ scaleX: 1 }}
                   transition={{ duration: 0.3 }}
@@ -826,7 +791,7 @@ export default function RegisterPage() {
         </motion.div>
 
         {/* Footer Text */}
-        <motion.p
+        <motion.div
           className="text-center text-sm text-gray-400 dark:text-gray-500 mt-6 flex items-center justify-center gap-2"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -837,7 +802,7 @@ export default function RegisterPage() {
             <Heart className="w-4 h-4 text-fuchsia-400 fill-fuchsia-400" />
           </motion.div>
           <span>by creators, for creators</span>
-        </motion.p>
+        </motion.div>
       </motion.div>
     </div>
   );
