@@ -21,11 +21,19 @@ export default async function ProductsPage({ searchParams }: Props) {
   const params = await searchParams;
   const supabase = await createServerSupabaseClient();
 
-  // Fetch categories
-  const { data: categories } = await supabase
-    .from("categories")
-    .select("*")
-    .order("name");
+  // Fetch categories and total products concurrently
+  const [
+    { data: categories },
+    { data: totalProducts }
+  ] = await Promise.all([
+    supabase.from("categories").select("*").order("name"),
+    supabase.from("products").select("id, category_id").eq("is_active", true)
+  ]);
+
+  // Derive current category data locally without extra DB calls
+  const currentCategoryData = params.category && categories 
+    ? categories.find(c => c.slug === params.category) || null 
+    : null;
 
   // Build products query
   let query = supabase
@@ -34,13 +42,8 @@ export default async function ProductsPage({ searchParams }: Props) {
     .eq("is_active", true);
 
   // Filter by category
-  if (params.category) {
-    const { data: cat } = await supabase
-      .from("categories")
-      .select("id")
-      .eq("slug", params.category)
-      .single();
-    if (cat) query = query.eq("category_id", cat.id);
+  if (currentCategoryData) {
+    query = query.eq("category_id", currentCategoryData.id);
   }
 
   // Search filter
@@ -68,7 +71,6 @@ export default async function ProductsPage({ searchParams }: Props) {
   }
 
   const { data: products } = await query;
-  const { data: totalProducts } = await supabase.from("products").select("id, category_id").eq("is_active", true);
   
   const categoryCounts: Record<string, number> = {
     all: totalProducts?.length || 0
@@ -79,17 +81,6 @@ export default async function ProductsPage({ searchParams }: Props) {
       categoryCounts[p.category_id] = (categoryCounts[p.category_id] || 0) + 1;
     }
   });
-
-  // Get category details for header
-  let currentCategoryData = null;
-  if (params.category) {
-    const { data } = await supabase
-      .from("categories")
-      .select("*")
-      .eq("slug", params.category)
-      .single();
-    currentCategoryData = data;
-  }
 
   return (
     <ProductsPageClient

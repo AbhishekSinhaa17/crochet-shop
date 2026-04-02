@@ -51,19 +51,23 @@ export default async function ProductDetailPage({ params }: Props) {
 
   if (!product) notFound();
 
-  const { data: reviews } = await supabase
-    .from("reviews")
-    .select("*, profile:profiles!user_id(full_name, avatar_url)")
-    .eq("product_id", product.id)
-    .order("created_at", { ascending: false });
-
-  const { data: relatedProducts } = await supabase
-    .from("products")
-    .select("*, category:categories(*)")
-    .eq("category_id", product.category_id)
-    .neq("id", product.id)
-    .eq("is_active", true)
-    .limit(4);
+  const [
+    { data: reviews },
+    { data: relatedProducts }
+  ] = await Promise.all([
+    supabase
+      .from("reviews")
+      .select("*, profile:profiles!user_id(full_name, avatar_url)")
+      .eq("product_id", product.id)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("products")
+      .select("*, category:categories(*)")
+      .eq("category_id", product.category_id)
+      .neq("id", product.id)
+      .eq("is_active", true)
+      .limit(4)
+  ]);
 
   return (
     <ProductDetailClient

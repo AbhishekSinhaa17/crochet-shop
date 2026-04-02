@@ -25,31 +25,41 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
+  const pathname = request.nextUrl.pathname;
+
+  // Define route types
+  const protectedRoutes = ["/profile", "/orders", "/wishlist", "/cart", "/checkout", "/chat", "/custom-order"];
+  const adminRoutes = ["/admin"];
+  const authRoutes = ["/auth/login", "/auth/register"];
+  const retailPages = ["/cart", "/wishlist", "/checkout"];
+
+  const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route));
+  const isAdminRoute = adminRoutes.some((route) => pathname.startsWith(route));
+  const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
+  const isRetailPage = retailPages.some((route) => pathname.startsWith(route));
+
+  // Determine if this route needs an authentication/authorization check
+  const needsAuthCheck = isProtectedRoute || isAdminRoute || isAuthRoute || isRetailPage;
+
+  if (!needsAuthCheck) {
+    // Fast path: bypass expensive DB checks for public pages
+    return supabaseResponse;
+  }
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Protect routes
-  const protectedRoutes = ["/profile", "/orders", "/wishlist", "/cart", "/checkout", "/chat", "/custom-order"];
-  const adminRoutes = ["/admin"];
-  const authRoutes = ["/auth/login", "/auth/register"];
-
-  const pathname = request.nextUrl.pathname;
-
-  if (!user && protectedRoutes.some((route) => pathname.startsWith(route))) {
+  if (!user && isProtectedRoute) {
     const url = request.nextUrl.clone();
     url.pathname = "/auth/login";
     url.searchParams.set("redirect", pathname);
     return NextResponse.redirect(url);
   }
 
-  if (user && authRoutes.some((route) => pathname.startsWith(route))) {
+  if (user && isAuthRoute) {
     return NextResponse.redirect(new URL("/", request.url));
   }
-
-  const retailPages = ["/cart", "/wishlist", "/checkout"];
-  const isAdminRoute = adminRoutes.some((route) => pathname.startsWith(route));
-  const isRetailPage = retailPages.some((route) => pathname.startsWith(route));
 
   if (user && (isAdminRoute || isRetailPage)) {
     const { data: profile } = await supabase

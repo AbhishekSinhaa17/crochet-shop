@@ -23,24 +23,28 @@ export const metadata: Metadata = {
 export default async function HomePage() {
   const supabase = await createServerSupabaseClient();
 
-  const { data: featuredProducts } = await supabase
-    .from("products")
-    .select("*, category:categories(*)")
-    .eq("is_active", true)
-    .eq("is_featured", true)
-    .limit(8);
-
-  const { data: latestProducts } = await supabase
-    .from("products")
-    .select("*, category:categories(*)")
-    .eq("is_active", true)
-    .order("created_at", { ascending: false })
-    .limit(8);
-
-  const { data: categories } = await supabase
-    .from("categories")
-    .select("*")
-    .limit(5);
+  const [
+    { data: featuredProducts },
+    { data: latestProducts },
+    { data: categories }
+  ] = await Promise.all([
+    supabase
+      .from("products")
+      .select("*, category:categories(*)")
+      .eq("is_active", true)
+      .eq("is_featured", true)
+      .limit(8),
+    supabase
+      .from("products")
+      .select("*, category:categories(*)")
+      .eq("is_active", true)
+      .order("created_at", { ascending: false })
+      .limit(8),
+    supabase
+      .from("categories")
+      .select("*")
+      .limit(5)
+  ]);
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
