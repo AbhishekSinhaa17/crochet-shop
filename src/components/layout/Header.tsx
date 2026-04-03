@@ -5,30 +5,8 @@ import { useEffect, useState, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useCartStore } from "@/store/cartStore";
 import { useRouter, usePathname } from "next/navigation";
-import {
-  ShoppingBag,
-  Heart,
-  User,
-  Menu,
-  X,
-  Search,
-  LogOut,
-  Package,
-  MessageCircle,
-  LayoutDashboard,
-  ChevronDown,
-  Sparkles,
-  Crown,
-  ArrowRight,
-  Flower2,
-  Star,
-  Gift,
-  Zap,
-  TrendingUp,
-  Clock,
-  ChevronRight,
-  Scissors,
-} from "lucide-react";
+import { ShoppingBag, Heart, User, Menu, X, Search, LogOut, Package, MessageCircle, LayoutDashboard, ChevronDown, Sparkles, Crown, ArrowRight, Flower2, Star, Gift, Zap, TrendingUp, Clock, ChevronRight, Scissors } from "lucide-react";
+import { useWishlistStore } from "@/store/wishlistStore";
 import { cn } from "@/lib/utils";
 import type { Profile } from "@/types";
 import ThemeToggle from "./ThemeToggle";
@@ -51,6 +29,9 @@ export default function Header() {
   const itemCount = useCartStore((s) => s.getItemCount());
   const clearCart = useCartStore((s) => s.clearCart);
   const setItems = useCartStore((s) => s.setItems);
+  const setWishlistItems = useWishlistStore((s) => s.setItems);
+  const clearWishlist = useWishlistStore((s) => s.clearWishlist);
+  const wishlistCount = useWishlistStore((s) => s.items.length);
   const supabase = createClient();
 
   const fetchProfile = async () => {
@@ -108,6 +89,24 @@ export default function Header() {
       }
     };
 
+    // Fetch individual wishlist for the user
+    const fetchWishlist = async (userId: string) => {
+      try {
+        const { data, error } = await supabase
+          .from("wishlist")
+          .select("product_id")
+          .eq("user_id", userId);
+        
+        if (error) throw error;
+        
+        if (data) {
+          setWishlistItems(data.map((item: any) => item.product_id));
+        }
+      } catch (err) {
+        console.error("Wishlist Fetch Error:", err);
+      }
+    };
+
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
@@ -115,9 +114,11 @@ export default function Header() {
       if (session?.user) {
         await fetchProfile();
         await fetchCart(session.user.id);
+        await fetchWishlist(session.user.id);
       } else {
         setProfile(null);
         clearCart();
+        clearWishlist();
       }
     });
 
@@ -182,8 +183,9 @@ export default function Header() {
   }, [menuOpen, searchOpen]);
 
   const handleLogout = async () => {
-    // Clear cart before logging out to ensure individual sections
+    // Clear cart and wishlist before logging out
     clearCart();
+    clearWishlist();
     
     const form = document.createElement("form");
     form.method = "POST";
@@ -490,6 +492,16 @@ export default function Header() {
                 >
                   <Heart className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
                   <Heart className="absolute inset-0 m-auto w-5 h-5 text-pink-500 opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-125 transition-all duration-500 fill-pink-500" />
+                  
+                  {/* Wishlist Badge */}
+                  {mounted && wishlistCount > 0 && (
+                    <span className="absolute -top-1 -right-1 flex items-center justify-center">
+                      <span className="absolute w-4 h-4 bg-pink-500 rounded-full animate-ping opacity-75" />
+                      <span className="relative w-4 h-4 bg-pink-500 rounded-full flex items-center justify-center text-[9px] font-bold text-white shadow-lg">
+                        {wishlistCount}
+                      </span>
+                    </span>
+                  )}
                 </Link>
               )}
 

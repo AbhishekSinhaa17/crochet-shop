@@ -152,9 +152,10 @@ export default function LoginPage() {
   };
 
   const handleGoogleLogin = async () => {
-    // Determine the redirect URL based on the environment
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
-    const redirectTo = `${siteUrl.replace(/\/$/, "")}/auth/callback?redirect=${redirect}`;
+    // Store redirect path in sessionStorage so the callback page can read it
+    sessionStorage.setItem("auth_redirect", redirect);
+    // Use exact URL that matches Supabase's allowed redirect URLs (no query params)
+    const redirectTo = `${window.location.origin}/auth/callback`;
     
     await supabase.auth.signInWithOAuth({
       provider: "google",

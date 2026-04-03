@@ -36,6 +36,7 @@ import {
 import { cn } from "@/lib/utils";
 import toast from "react-hot-toast";
 import { useCartStore } from "@/store/cartStore";
+import { useWishlistStore } from "@/store/wishlistStore";
 
 interface WishlistItem {
   id: string;
@@ -65,6 +66,8 @@ export default function WishlistPageClient({ products: initialProducts, wishlist
   const supabase = createClient();
   const router = useRouter();
   const addItem = useCartStore((s) => s.addItem);
+  const setWishlistItems = useWishlistStore((s) => s.setItems);
+  const wishlistStoreItems = useWishlistStore((s) => s.items);
 
   useEffect(() => {
     setIsLoaded(true);
@@ -92,28 +95,60 @@ export default function WishlistPageClient({ products: initialProducts, wishlist
   });
 
   const handleRemoveFromWishlist = async (productId: string) => {
-    setRemovingIds(new Set([...removingIds, productId]));
+    setRemovingIds(prev => new Set([...prev, productId]));
     
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      toast.error("Please sign in first");
-      return;
+    try {
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      
+      if (authError) {
+        console.error("Auth error:", authError);
+        toast.error("Authentication error. Please sign in again.");
+        setRemovingIds(prev => {
+          const next = new Set(prev);
+          next.delete(productId);
+          return next;
+        });
+        return;
+      }
+      
+      if (!user) {
+        toast.error("Please sign in first");
+        setRemovingIds(prev => {
+          const next = new Set(prev);
+          next.delete(productId);
+          return next;
+        });
+        return;
+      }
+
+      console.log("Deleting wishlist item:", { userId: user.id, productId });
+
+      const { error } = await supabase
+        .from("wishlist")
+        .delete()
+        .eq("user_id", user.id)
+        .eq("product_id", productId);
+
+      if (error) {
+        console.error("Wishlist delete error:", error);
+        toast.error("Failed to remove item: " + error.message);
+      } else {
+        console.log("Successfully removed from wishlist");
+        setProducts(prev => prev.filter(p => p.id !== productId));
+        // Sync with global wishlist store
+        setWishlistItems(wishlistStoreItems.filter(id => id !== productId));
+        toast.success("Removed from wishlist");
+      }
+    } catch (err) {
+      console.error("Unexpected error removing from wishlist:", err);
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setRemovingIds(prev => {
+        const next = new Set(prev);
+        next.delete(productId);
+        return next;
+      });
     }
-
-    const { error } = await supabase
-      .from("wishlist")
-      .delete()
-      .eq("user_id", user.id)
-      .eq("product_id", productId);
-
-    if (error) {
-      toast.error("Failed to remove item");
-    } else {
-      setProducts(products.filter(p => p.id !== productId));
-      toast.success("Removed from wishlist");
-    }
-
-    setRemovingIds(new Set([...removingIds].filter(id => id !== productId)));
   };
 
   const handleAddToCart = async (product: Product) => {
@@ -168,6 +203,8 @@ export default function WishlistPageClient({ products: initialProducts, wishlist
     }
 
     setProducts(products.filter(p => !selectedItems.has(p.id)));
+    // Sync with global wishlist store
+    setWishlistItems(wishlistStoreItems.filter(id => !selectedItems.has(id)));
     setSelectedItems(new Set());
     setIsSelectMode(false);
     toast.success(`Removed ${idsToRemove.length} items from wishlist`);

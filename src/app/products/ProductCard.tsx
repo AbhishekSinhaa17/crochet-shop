@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Product } from "@/types";
 import { useCartStore } from "@/store/cartStore";
+import { useWishlistStore } from "@/store/wishlistStore";
 import { createClient } from "@/lib/supabase/client";
 import { formatPrice, getProductImage, getDiscountPercent } from "@/lib/utils";
 import { Heart, ShoppingBag, Star, Sparkles, Zap } from "lucide-react";
@@ -18,10 +19,11 @@ interface Props {
 
 export default function ProductCard({ product, className }: Props) {
   const [isHovered, setIsHovered] = useState(false);
-  const [isWishlisted, setIsWishlisted] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const addItem = useCartStore((s) => s.addItem);
+  const { toggleWishlist, isInWishlist } = useWishlistStore();
+  const isWishlisted = isInWishlist(product.id);
 
   const hasDiscount = product.compare_price && product.compare_price > product.price;
   const discountPercent = hasDiscount ? getDiscountPercent(product.price, product.compare_price!) : 0;
@@ -45,11 +47,21 @@ export default function ProductCard({ product, className }: Props) {
     setTimeout(() => setIsAddingToCart(false), 1000);
   };
 
-  const handleWishlist = (e: React.MouseEvent) => {
+  const handleWishlist = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsWishlisted(!isWishlisted);
-    toast.success(isWishlisted ? "Removed from wishlist" : "Added to wishlist!");
+    
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      toast.error("Please sign in to add to wishlist");
+      return;
+    }
+
+    const wasWishlisted = isWishlisted;
+    await toggleWishlist(product, supabase);
+    toast.success(wasWishlisted ? "Removed from wishlist" : "Added to wishlist!");
   };
 
   const productImage = imageError 

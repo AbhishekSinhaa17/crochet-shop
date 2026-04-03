@@ -6,6 +6,7 @@ import { Heart, ShoppingBag, Star, Sparkles, Check } from "lucide-react";
 import { Product } from "@/types";
 import { formatPrice, getDiscountPercent, getProductImage } from "@/lib/utils";
 import { useCartStore } from "@/store/cartStore";
+import { useWishlistStore } from "@/store/wishlistStore";
 import { createClient } from "@/lib/supabase/client";
 import { useState, useRef, useEffect } from "react";
 import toast from "react-hot-toast";
@@ -19,7 +20,8 @@ interface ProductCardProps {
 
 export default function ProductCard({ product, index = 0, isAdmin = false }: ProductCardProps) {
   const addItem = useCartStore((s) => s.addItem);
-  const [wishlisted, setWishlisted] = useState(false);
+  const { toggleWishlist, isInWishlist } = useWishlistStore();
+  const wishlisted = isInWishlist(product.id);
   const [imgError, setImgError] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
@@ -99,15 +101,9 @@ export default function ProductCard({ product, index = 0, isAdmin = false }: Pro
       return;
     }
 
-    setWishlisted(!wishlisted);
-
-    if (wishlisted) {
-      await supabase.from("wishlist").delete().eq("user_id", user.id).eq("product_id", product.id);
-      toast.success("Removed from wishlist");
-    } else {
-      await supabase.from("wishlist").upsert({ user_id: user.id, product_id: product.id });
-      toast.success("Added to wishlist!");
-    }
+    const wasWishlisted = wishlisted;
+    await toggleWishlist(product, supabase);
+    toast.success(wasWishlisted ? "Removed from wishlist" : "Added to wishlist!");
   };
 
   const imageUrl = getProductImage(product.images) || 
@@ -280,25 +276,17 @@ export default function ProductCard({ product, index = 0, isAdmin = false }: Pro
             </AnimatePresence>
           </div>
 
-          {/* Action buttons */}
-          <motion.div 
-            className="absolute top-4 right-4 flex flex-col gap-2 z-20"
-            initial={false}
-            animate={{ 
-              opacity: isHovered ? 1 : 0,
-              x: isHovered ? 0 : 20,
-            }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
-          >
-            {/* Wishlist button */}
-            {!isAdmin && (
+          {/* Action buttons - Wishlist always visible */}
+          {!isAdmin && (
+            <div className="absolute top-4 right-4 flex flex-col gap-2 z-20">
+              {/* Wishlist button */}
               <motion.button
                 onClick={handleWishlist}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 className="relative w-10 h-10 rounded-full flex items-center justify-center overflow-hidden group/btn"
                 style={{
-                  background: "rgba(255, 255, 255, 0.9)",
+                  background: wishlisted ? "rgba(244, 63, 94, 0.9)" : "rgba(255, 255, 255, 0.9)",
                   backdropFilter: "blur(10px)",
                   boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
                 }}
@@ -310,7 +298,7 @@ export default function ProductCard({ product, index = 0, isAdmin = false }: Pro
                   <Heart
                     className={`w-4 h-4 transition-all duration-300 ${
                       wishlisted 
-                        ? "fill-rose-500 text-rose-500" 
+                        ? "fill-white text-white" 
                         : "text-gray-600 group-hover/btn:text-rose-500"
                     }`}
                   />
@@ -325,9 +313,19 @@ export default function ProductCard({ product, index = 0, isAdmin = false }: Pro
                   />
                 )}
               </motion.button>
-            )}
+            </div>
+          )}
 
-
+          {/* Other hover action buttons container */}
+          <motion.div 
+            className="absolute top-4 right-4 flex flex-col gap-2 z-20 mt-12"
+            initial={false}
+            animate={{ 
+              opacity: isHovered ? 1 : 0,
+              x: isHovered ? 0 : 20,
+            }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+          >
           </motion.div>
 
           {/* Add to Cart button */}

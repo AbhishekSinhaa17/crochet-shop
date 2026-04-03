@@ -233,9 +233,8 @@ export default function RegisterPage() {
   }, []);
 
   const handleGoogleLogin = async () => {
-    // Determine the redirect URL based on the environment
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
-    const redirectTo = `${siteUrl.replace(/\/$/, "")}/auth/callback`;
+    // Use exact URL that matches Supabase's allowed redirect URLs (no query params)
+    const redirectTo = `${window.location.origin}/auth/callback`;
     
     await supabase.auth.signInWithOAuth({
       provider: "google",
