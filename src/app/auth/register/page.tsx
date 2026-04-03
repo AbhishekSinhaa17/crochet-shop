@@ -233,6 +233,9 @@ export default function RegisterPage() {
   }, []);
 
   const handleGoogleLogin = async () => {
+    // Store redirect path in a cookie so the server-side callback can read it
+    document.cookie = `auth_redirect=/; path=/; max-age=300; SameSite=Lax; Secure`;
+    
     // Use exact URL that matches Supabase's allowed redirect URLs (no query params)
     const redirectTo = `${window.location.origin}/auth/callback`;
     
