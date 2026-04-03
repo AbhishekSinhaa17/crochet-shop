@@ -1,18 +1,19 @@
 "use client";
 
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
-export default function AuthCallbackPage() {
+function AuthCallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  // Read redirect from sessionStorage (set before OAuth) or URL params as fallback
-  const redirect = (typeof window !== 'undefined' && sessionStorage.getItem("auth_redirect")) 
-    || searchParams.get("redirect") 
-    || "/";
-
+  
   useEffect(() => {
+    // Read redirect from sessionStorage (set before OAuth) or URL params as fallback
+    const redirect = (typeof window !== 'undefined' ? sessionStorage.getItem("auth_redirect") : null) 
+      || searchParams.get("redirect") 
+      || "/";
+
     const handleCallback = async () => {
       const supabase = createClient();
       
@@ -20,23 +21,12 @@ export default function AuthCallbackPage() {
       const code = searchParams.get("code");
       
       if (code) {
-        console.log("Auth callback: exchanging code for session...");
-        const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-        
-        if (error) {
-          console.error("Auth callback error:", error.message);
-        } else {
-          console.log("Auth callback: session established for", data.user?.email);
-        }
-      } else {
-        // No code - check if we already have a session (hash fragment flow)
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
-          console.log("Auth callback: session already exists for", session.user?.email);
-        } else {
-          console.error("Auth callback: no code and no session");
-        }
+        const { error } = await supabase.auth.exchangeCodeForSession(code);
+        if (error) console.error("Auth callback error:", error.message);
       }
+      
+      // Clear the stored redirect
+      if (typeof window !== 'undefined') sessionStorage.removeItem("auth_redirect");
       
       // Redirect to target page
       router.push(redirect);
@@ -44,7 +34,7 @@ export default function AuthCallbackPage() {
     };
 
     handleCallback();
-  }, []);
+  }, [router, searchParams]);
 
   return (
     <div style={{ 
@@ -69,5 +59,13 @@ export default function AuthCallbackPage() {
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     </div>
+  );
+}
+
+export default function AuthCallbackPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <AuthCallbackContent />
+    </Suspense>
   );
 }
