@@ -152,10 +152,13 @@ export default function LoginPage() {
   };
 
   const handleGoogleLogin = async () => {
-    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    // Determine the redirect URL based on the environment
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
+    const redirectTo = `${siteUrl.replace(/\/$/, "")}/auth/callback?redirect=${redirect}`;
+    
     await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${origin}/auth/callback?redirect=${redirect}` },
+      options: { redirectTo },
     });
   };
 

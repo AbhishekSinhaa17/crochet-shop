@@ -233,10 +233,13 @@ export default function RegisterPage() {
   }, []);
 
   const handleGoogleLogin = async () => {
-    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    // Determine the redirect URL based on the environment
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
+    const redirectTo = `${siteUrl.replace(/\/$/, "")}/auth/callback`;
+    
     await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${origin}/auth/callback` },
+      options: { redirectTo },
     });
   };
 
@@ -632,7 +635,7 @@ export default function RegisterPage() {
               <motion.button
                 type="button"
                 onClick={() => setAgreedToTerms(!agreedToTerms)}
-                className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all duration-300 flex-shrink-0 mt-0.5 ${
+                className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all duration-300 shrink-0 mt-0.5 ${
                   agreedToTerms
                     ? "bg-linear-to-r from-fuchsia-500 to-pink-500 border-transparent"
                     : "border-gray-300 dark:border-gray-600 hover:border-fuchsia-400 dark:hover:border-fuchsia-500"
