@@ -27,6 +27,7 @@ export default function ProductCard({ product, index = 0, isAdmin = false }: Pro
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [mounted, setMounted] = useState(false);
   
   const cardRef = useRef<HTMLDivElement>(null);
   
@@ -53,6 +54,10 @@ export default function ProductCard({ product, index = 0, isAdmin = false }: Pro
     rotateX.set(rotateXValue);
     rotateY.set(rotateYValue);
   };
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleMouseLeave = () => {
     setIsHovered(false);
@@ -290,25 +295,25 @@ export default function ProductCard({ product, index = 0, isAdmin = false }: Pro
                 whileTap={{ scale: 0.9 }}
                 className="relative w-10 h-10 rounded-full flex items-center justify-center overflow-hidden group/btn"
                 style={{
-                  background: wishlisted ? "rgba(244, 63, 94, 0.9)" : "rgba(255, 255, 255, 0.9)",
+                  background: (mounted && wishlisted) ? "rgba(244, 63, 94, 0.9)" : "rgba(255, 255, 255, 0.9)",
                   backdropFilter: "blur(10px)",
                   boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
                 }}
               >
                 <motion.div
-                  animate={wishlisted ? { scale: [1, 1.3, 1] } : {}}
+                  animate={(mounted && wishlisted) ? { scale: [1, 1.3, 1] } : {}}
                   transition={{ duration: 0.3 }}
                 >
                   <Heart
                     className={`w-4 h-4 transition-all duration-300 ${
-                      wishlisted 
+                      (mounted && wishlisted)
                         ? "fill-white text-white" 
                         : "text-gray-600 group-hover/btn:text-rose-500"
                     }`}
                   />
                 </motion.div>
                 {/* Ripple effect */}
-                {wishlisted && (
+                {(mounted && wishlisted) && (
                   <motion.div
                     initial={{ scale: 0, opacity: 0.5 }}
                     animate={{ scale: 2.5, opacity: 0 }}
