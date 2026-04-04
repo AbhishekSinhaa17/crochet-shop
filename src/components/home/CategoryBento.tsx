@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Sparkles, Layers, Package, ArrowRight, Star, Heart, Gem, Crown } from "lucide-react";
+import { drand } from "@/lib/drand";
 import { useState, useEffect } from "react";
 
 interface Category {
@@ -365,18 +366,18 @@ export default function CategoryBento({ categories }: CategoryBentoProps) {
         {/* === FLOATING PARTICLES === */}
         {[...Array(15)].map((_, i) => (
           <div
-            key={i}
+            key={`bento-particle-${i}`}
             className="absolute rounded-full animate-float-slow pointer-events-none"
             style={{
-              width: `${4 + Math.random() * 6}px`,
-              height: `${4 + Math.random() * 6}px`,
+              width: `${4 + drand(i, 20) * 6}px`,
+              height: `${4 + drand(i, 20) * 6}px`,
               background: `linear-gradient(135deg, 
-                rgba(${i % 3 === 0 ? '147, 51, 234' : i % 3 === 1 ? '236, 72, 153' : '251, 146, 60'}, ${0.3 + Math.random() * 0.3}), 
+                rgba(${i % 3 === 0 ? '147, 51, 234' : i % 3 === 1 ? '236, 72, 153' : '251, 146, 60'}, ${0.3 + drand(i, 21) * 0.3}), 
                 transparent)`,
-              top: `${10 + Math.random() * 80}%`,
-              left: `${10 + Math.random() * 80}%`,
-              animationDuration: `${5 + Math.random() * 5}s`,
-              animationDelay: `${Math.random() * 3}s`,
+              top: `${10 + drand(i, 22) * 80}%`,
+              left: `${10 + drand(i, 23) * 80}%`,
+              animationDuration: `${5 + drand(i, 24) * 5}s`,
+              animationDelay: `${drand(i, 25) * 3}s`,
               filter: 'blur(1px)',
             }}
           />

@@ -190,7 +190,7 @@ export default function FeaturedProductsSection({ products }: FeaturedProductsSe
         <div className="absolute inset-0 pointer-events-none">
           {particles.map((p) => (
             <div
-              key={p.i}
+              key={`particle-feat-${p.i}`}
               className="rounded-full"
               style={{
                 position: "absolute",

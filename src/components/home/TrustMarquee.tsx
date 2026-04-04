@@ -1,6 +1,7 @@
 'use client';
 
 import { Sparkles, Shield, Truck, Gift, Heart, Award, Clock, Crown, Star, Gem, Palette, Scissors } from "lucide-react";
+import { drand } from "@/lib/drand";
 
 export default function TrustMarquee() {
   const topItems = [
@@ -158,18 +159,18 @@ export default function TrustMarquee() {
         {/* === FLOATING DECORATIONS === */}
         {[...Array(12)].map((_, i) => (
           <div
-            key={i}
+            key={`trust-particle-${i}`}
             className="absolute rounded-full animate-float-particle pointer-events-none"
             style={{
-              width: `${4 + Math.random() * 6}px`,
-              height: `${4 + Math.random() * 6}px`,
+              width: `${4 + drand(i, 30) * 6}px`,
+              height: `${4 + drand(i, 30) * 6}px`,
               background: `linear-gradient(135deg, 
                 rgba(${i % 3 === 0 ? '147, 51, 234' : i % 3 === 1 ? '236, 72, 153' : '251, 146, 60'}, 0.4), 
                 transparent)`,
-              top: `${20 + Math.random() * 60}%`,
-              left: `${Math.random() * 100}%`,
-              animationDuration: `${3 + Math.random() * 3}s`,
-              animationDelay: `${Math.random() * 2}s`,
+              top: `${20 + drand(i, 31) * 60}%`,
+              left: `${drand(i, 32) * 100}%`,
+              animationDuration: `${3 + drand(i, 33) * 3}s`,
+              animationDelay: `${drand(i, 34) * 2}s`,
             }}
           />
         ))}

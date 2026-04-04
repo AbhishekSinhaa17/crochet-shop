@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { drand } from "@/lib/drand";
 import {
   HelpCircle,
   MessageCircle,
@@ -113,13 +114,13 @@ export default function FAQPage() {
       <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
         {mounted && [...Array(20)].map((_, i) => (
           <div
-            key={i}
+            key={`faq-particle-${i}`}
             className="absolute w-2 h-2 bg-linear-to-br from-violet-500/40 to-pink-500/40 rounded-full animate-float"
             style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 5}s`,
-              animationDuration: `${8 + Math.random() * 4}s`,
+              left: `${drand(i, 90) * 100}%`,
+              top: `${drand(i, 91) * 100}%`,
+              animationDelay: `${drand(i, 92) * 5}s`,
+              animationDuration: `${8 + drand(i, 93) * 4}s`,
             }}
           />
         ))}

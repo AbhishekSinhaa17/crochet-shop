@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState, useMemo } from "react";
+import { drand } from "@/lib/drand";
 import { 
   Sparkles,
   Heart,
@@ -32,14 +33,8 @@ export default function AboutSection() {
     const interval = setInterval(() => {
       setActiveValue((prev) => (prev + 1) % 4);
     }, 3000);
-    return () => clearInterval(interval);
+    return () => clearTimeout(interval);
   }, []);
-
-  // Deterministic random for SSR
-  const drand = (i: number, seed: number) => {
-    const x = Math.sin(i * 127.1 + seed * 311.7) * 43758.5453;
-    return x - Math.floor(x);
-  };
 
   const particles = useMemo(() => {
     return Array.from({ length: 20 }).map((_, i) => ({
@@ -441,7 +436,7 @@ export default function AboutSection() {
                   rgba(${
                     p.colorIdx === 0 ? '147, 51, 234' : 
                     p.colorIdx === 1 ? '236, 72, 153' : '251, 146, 60'
-                  }, ${0.25 + Math.random() * 0.35}), 
+                  }, ${0.25 + drand(i, 60) * 0.35}), 
                   transparent)`,
                 filter: 'blur(1px)',
                 animation: `particle-float ${p.duration}s ease-in-out ${p.delay}s infinite`,

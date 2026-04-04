@@ -224,6 +224,7 @@ export default function ProductCard({ product, index = 0, isAdmin = false }: Pro
             <AnimatePresence>
               {hasDiscount && (
                 <motion.span
+                  key="discount-badge"
                   initial={{ x: -30, opacity: 0, scale: 0.8 }}
                   animate={{ x: 0, opacity: 1, scale: 1 }}
                   exit={{ x: -30, opacity: 0, scale: 0.8 }}
@@ -237,6 +238,7 @@ export default function ProductCard({ product, index = 0, isAdmin = false }: Pro
               
               {product.is_featured && (
                 <motion.span
+                  key="featured-badge"
                   initial={{ x: -30, opacity: 0, scale: 0.8 }}
                   animate={{ x: 0, opacity: 1, scale: 1 }}
                   exit={{ x: -30, opacity: 0, scale: 0.8 }}
@@ -250,6 +252,7 @@ export default function ProductCard({ product, index = 0, isAdmin = false }: Pro
               
               {product.stock <= 0 && (
                 <motion.span
+                  key="sold-out-badge"
                   initial={{ x: -30, opacity: 0, scale: 0.8 }}
                   animate={{ x: 0, opacity: 1, scale: 1 }}
                   transition={{ delay: 0.15 }}
@@ -261,6 +264,7 @@ export default function ProductCard({ product, index = 0, isAdmin = false }: Pro
               
               {product.stock > 0 && product.stock <= 3 && (
                 <motion.span
+                  key="low-stock-badge"
                   initial={{ x: -30, opacity: 0, scale: 0.8 }}
                   animate={{ x: 0, opacity: 1, scale: 1 }}
                   transition={{ delay: 0.2 }}
@@ -463,7 +467,7 @@ export default function ProductCard({ product, index = 0, isAdmin = false }: Pro
               <div className="flex items-center gap-0.5">
                 {[...Array(5)].map((_, i) => (
                   <motion.div
-                    key={i}
+                    key={`star-${product.id}-${i}`}
                     initial={{ opacity: 0, scale: 0, rotate: -180 }}
                     animate={{ opacity: 1, scale: 1, rotate: 0 }}
                     transition={{ 

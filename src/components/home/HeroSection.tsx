@@ -3,20 +3,28 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState, useRef } from "react";
+import { drand } from "@/lib/drand";
 import { 
   ArrowRight, 
   Star, 
   Sparkles,
   Heart,
+  ChevronRight,
+  ShieldCheck,
+  Zap,
+  ShoppingBag,
+  Award,
+  Users,
+  Clock,
+  Layout,
+  Globe,
+  Palette,
+  Scissors,
   Play,
   ChevronDown,
-  Zap,
   Gift,
   Truck,
-  Shield,
-  Palette,
-  Award,
-  Scissors
+  Shield
 } from "lucide-react";
 
 export default function HeroSection() {
@@ -405,18 +413,18 @@ export default function HeroSection() {
         {/* === FLOATING PARTICLES === */}
         {[...Array(20)].map((_, i) => (
           <div
-            key={i}
+            key={`hero-particle-${i}`}
             className="absolute rounded-full animate-float-slow"
             style={{
-              width: `${4 + Math.random() * 8}px`,
-              height: `${4 + Math.random() * 8}px`,
+              width: `${4 + drand(i, 10) * 8}px`,
+              height: `${4 + drand(i, 10) * 8}px`,
               background: `linear-gradient(135deg, 
-                rgba(${i % 3 === 0 ? '147, 51, 234' : i % 3 === 1 ? '236, 72, 153' : '251, 146, 60'}, ${0.3 + Math.random() * 0.3}), 
+                rgba(${i % 3 === 0 ? '147, 51, 234' : i % 3 === 1 ? '236, 72, 153' : '251, 146, 60'}, ${0.3 + drand(i, 11) * 0.3}), 
                 transparent)`,
-              top: `${10 + Math.random() * 80}%`,
-              left: `${5 + Math.random() * 90}%`,
-              animationDuration: `${6 + Math.random() * 6}s`,
-              animationDelay: `${Math.random() * 4}s`,
+              top: `${10 + drand(i, 12) * 80}%`,
+              left: `${5 + drand(i, 13) * 90}%`,
+              animationDuration: `${6 + drand(i, 14) * 6}s`,
+              animationDelay: `${drand(i, 15) * 4}s`,
               filter: 'blur(1px)',
             }}
           />

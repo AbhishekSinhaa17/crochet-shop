@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Eye, EyeOff, Mail, Lock, User, Sparkles, Heart, Check, X, ChevronLeft, Scissors } from "lucide-react";
 import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
+import { drand } from "@/lib/drand";
 
 // Custom Yarn Ball SVG Component
 const YarnBall = ({ className, delay = 0 }: { className?: string; delay?: number }) => (
@@ -340,8 +341,8 @@ export default function RegisterPage() {
           key={i}
           className="absolute"
           style={{
-            top: `${Math.random() * 100}%`,
-            left: `${Math.random() * 100}%`,
+            top: `${drand(i, 110) * 100}%`,
+            left: `${drand(i, 111) * 100}%`,
           }}
           animate={{
             scale: [0, 1, 0],

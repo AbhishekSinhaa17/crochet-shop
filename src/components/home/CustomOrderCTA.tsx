@@ -29,6 +29,7 @@ import {
   Scissors,
   Gift
 } from "lucide-react";
+import { drand } from "@/lib/drand";
 
 export default function CustomOrderCTA() {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -61,12 +62,6 @@ export default function CustomOrderCTA() {
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
-
-  // Deterministic random for SSR
-  const drand = (i: number, seed: number) => {
-    const x = Math.sin(i * 127.1 + seed * 311.7) * 43758.5453;
-    return x - Math.floor(x);
-  };
 
   const particles = useMemo(() => {
     return Array.from({ length: 25 }).map((_, i) => ({
@@ -578,7 +573,7 @@ export default function CustomOrderCTA() {
                     p.colorIdx === 0 ? '147, 51, 234' : 
                     p.colorIdx === 1 ? '236, 72, 153' : 
                     p.colorIdx === 2 ? '251, 146, 60' : '16, 185, 129'
-                  }, ${0.25 + Math.random() * 0.35}), 
+                  }, ${0.25 + drand(i, 70) * 0.35}), 
                   transparent)`,
                 filter: 'blur(1px)',
                 animation: `particle-float ${p.duration}s ease-in-out ${p.delay}s infinite`,

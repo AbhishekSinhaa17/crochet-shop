@@ -3,6 +3,7 @@
 import { ArrowLeft, RefreshCcw, ShieldCheck, Mail, AlertTriangle, PackageSearch, Check, Clock, Package, Sparkles, ChevronRight, ArrowRight, MessageCircle, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { drand } from "@/lib/drand";
 
 // export const metadata: Metadata = {
 //   title: "Returns Policy | Strokes of Craft",
@@ -71,13 +72,13 @@ export default function ReturnPolicyPage() {
         {/* Floating Particles */}
         {[...Array(15)].map((_, i) => (
           <div
-            key={i}
+            key={`return-particle-${i}`}
             className="absolute w-2 h-2 bg-linear-to-br from-rose-500/30 to-pink-500/30 rounded-full animate-float"
             style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 5}s`,
-              animationDuration: `${8 + Math.random() * 4}s`,
+              left: `${drand(i, 80) * 100}%`,
+              top: `${drand(i, 81) * 100}%`,
+              animationDelay: `${drand(i, 82) * 5}s`,
+              animationDuration: `${8 + drand(i, 83) * 4}s`,
             }}
           />
         ))}

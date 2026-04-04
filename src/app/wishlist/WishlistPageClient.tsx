@@ -513,7 +513,7 @@ export default function WishlistPageClient({ products: initialProducts, wishlist
             >
               {sortedProducts.map((product, idx) => (
                 <WishlistProductCard
-                  key={product.id}
+                  key={`wish-${product.id || 'p'}-${idx}`}
                   product={product}
                   viewMode={viewMode}
                   isSelectMode={isSelectMode}
@@ -707,7 +707,7 @@ function WishlistProductCard({
             <div className="flex items-center gap-1.5 mt-1">
               {[...Array(5)].map((_, i) => (
                 <Star
-                  key={i}
+                  key={`star-${product.id}-${i}`}
                   className={cn(
                     "w-3.5 h-3.5",
                     i < Math.round(product.avg_rating)

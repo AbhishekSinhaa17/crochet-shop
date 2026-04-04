@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState, useMemo } from "react";
+import { drand } from "@/lib/drand";
 import { 
   Zap, 
   ArrowRight, 
@@ -62,12 +63,6 @@ export default function NewArrivalsSection({ products }: NewArrivalsSectionProps
     }, 1000);
     return () => clearInterval(interval);
   }, []);
-
-  // Deterministic random for SSR
-  const drand = (i: number, seed: number) => {
-    const x = Math.sin(i * 127.1 + seed * 311.7) * 43758.5453;
-    return x - Math.floor(x);
-  };
 
   const particles = useMemo(() => {
     return Array.from({ length: 18 }).map((_, i) => ({
@@ -392,9 +387,9 @@ export default function NewArrivalsSection({ products }: NewArrivalsSectionProps
 
         {/* === FLOATING PARTICLES === */}
         <div className="absolute inset-0 pointer-events-none">
-          {particles.map((p) => (
+          {particles.map((p, idx) => (
             <div
-              key={p.x + p.y}
+              key={`particle-new-${idx}`}
               className="absolute rounded-full"
               style={{
                 left: `${p.x}%`,
@@ -402,7 +397,7 @@ export default function NewArrivalsSection({ products }: NewArrivalsSectionProps
                 width: `${p.size}px`,
                 height: `${p.size}px`,
                 background: `linear-gradient(135deg, 
-                  rgba(${p.colorIdx === 0 ? '6, 182, 212' : p.colorIdx === 1 ? '59, 130, 246' : '139, 92, 246'}, ${0.3 + Math.random() * 0.3}), 
+                  rgba(${p.colorIdx === 0 ? '6, 182, 212' : p.colorIdx === 1 ? '59, 130, 246' : '139, 92, 246'}, ${0.3 + drand(idx, 50) * 0.3}), 
                   transparent)`,
                 filter: 'blur(1px)',
                 animation: `particle-float ${p.duration}s ease-in-out ${p.delay}s infinite`,

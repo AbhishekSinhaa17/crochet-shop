@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useMemo } from "react";
+import { drand } from "@/lib/drand";
 import { 
   Heart, 
   Star, 
@@ -40,12 +41,6 @@ export default function TestimonialsSection() {
     }, 5000);
     return () => clearInterval(interval);
   }, [isAutoPlaying]);
-
-  // Deterministic random for SSR
-  const drand = (i: number, seed: number) => {
-    const x = Math.sin(i * 127.1 + seed * 311.7) * 43758.5453;
-    return x - Math.floor(x);
-  };
 
   const particles = useMemo(() => {
     return Array.from({ length: 16 }).map((_, i) => ({
@@ -486,9 +481,9 @@ export default function TestimonialsSection() {
 
         {/* === FLOATING PARTICLES === */}
         <div className="absolute inset-0 pointer-events-none">
-          {particles.map((p) => (
+          {particles.map((p, idx) => (
             <div
-              key={p.x + p.y}
+              key={`particle-testi-${idx}`}
               className="absolute rounded-full"
               style={{
                 left: `${p.x}%`,
@@ -496,7 +491,7 @@ export default function TestimonialsSection() {
                 width: `${p.size}px`,
                 height: `${p.size}px`,
                 background: `linear-gradient(135deg, 
-                  rgba(${p.colorIdx === 0 ? '244, 63, 94' : p.colorIdx === 1 ? '236, 72, 153' : '168, 85, 247'}, ${0.3 + Math.random() * 0.3}), 
+                  rgba(${p.colorIdx === 0 ? '244, 63, 94' : p.colorIdx === 1 ? '236, 72, 153' : '168, 85, 247'}, ${0.3 + drand(idx, 40) * 0.3}), 
                   transparent)`,
                 filter: 'blur(1px)',
                 animation: `particle-float ${p.duration}s ease-in-out ${p.delay}s infinite`,
@@ -661,7 +656,7 @@ export default function TestimonialsSection() {
                 <div className="flex -space-x-3">
                   {['from-rose-400 to-pink-500', 'from-violet-400 to-purple-500', 'from-amber-400 to-orange-500', 'from-emerald-400 to-teal-500', 'from-blue-400 to-cyan-500'].map((gradient, i) => (
                     <div 
-                      key={i}
+                      key={`particle-feat-${i}`}
                       className={`w-10 h-10 rounded-full bg-linear-to-br ${gradient} border-2 border-white dark:border-slate-800 flex items-center justify-center text-white text-xs font-bold shadow-md`}
                     >
                       {['PS', 'RM', 'AK', 'SP', 'VS'][i]}

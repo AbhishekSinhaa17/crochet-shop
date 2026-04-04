@@ -278,7 +278,7 @@ export default async function AdminProductsPage() {
 
                   return (
                     <tr
-                      key={product.id}
+                      key={`admin-prod-${product.id || 'p'}-${idx}`}
                       className="order-row group border-b
                         border-gray-50 dark:border-gray-800/60 
                         animate-table-row"

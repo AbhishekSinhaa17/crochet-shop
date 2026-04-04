@@ -2,8 +2,9 @@
 
 import { Product } from "@/types";
 import ProductCard from "./ProductCard";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import Link from "next/link";
+import { drand } from "@/lib/drand";
 
 interface ProductGridProps {
   products: Product[];
@@ -62,13 +63,13 @@ export default function ProductGrid({ products, title, subtitle, showHeader = tr
       <div className="absolute inset-0 -z-10 overflow-hidden">
         {[...Array(20)].map((_, i) => (
           <div
-            key={i}
+            key={`pg-particle-${i}`}
             className="absolute w-2 h-2 bg-linear-to-r from-purple-400 to-pink-400 rounded-full opacity-20 animate-float"
             style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 5}s`,
-              animationDuration: `${5 + Math.random() * 10}s`
+              left: `${drand(i, 1) * 100}%`,
+              top: `${drand(i, 2) * 100}%`,
+              animationDelay: `${drand(i, 3) * 5}s`,
+              animationDuration: `${5 + drand(i, 4) * 10}s`
             }}
           />
         ))}
@@ -111,7 +112,7 @@ export default function ProductGrid({ products, title, subtitle, showHeader = tr
 
             {subtitle && (
               <p className="mt-6 text-lg md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-                {subtitle.split(' ').map((word, i) => (
+                {subtitle && subtitle.split(' ').map((word, i) => (
                   <span
                     key={i}
                     className="inline-block animate-fadeInUp"
@@ -212,7 +213,7 @@ export default function ProductGrid({ products, title, subtitle, showHeader = tr
                       </div>
                     )}
 
-                    <ProductCard product={product} isAdmin={isAdmin} />
+                    <ProductCard product={product} isAdmin={isAdmin} index={index} />
                   </div>
 
                   {/* Reflection Effect */}

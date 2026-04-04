@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { drand } from "@/lib/drand";
 import { createClient } from "@/lib/supabase/client";
 import { submitCustomOrderAction } from "@/actions/customOrder";
 import { useRouter } from "next/navigation";
@@ -967,16 +968,16 @@ function SuccessScreen() {
           <>
             {[...Array(50)].map((_, i) => (
               <div
-                key={i}
+                key={`confetti-${i}`}
                 className="absolute w-3 h-3 animate-confetti"
                 style={{
-                  left: `${Math.random() * 100}%`,
+                  left: `${drand(i, 120) * 100}%`,
                   top: `-10%`,
-                  backgroundColor: ["#a855f7", "#ec4899", "#f97316", "#10b981", "#3b82f6"][Math.floor(Math.random() * 5)],
-                  animationDelay: `${Math.random() * 3}s`,
-                  animationDuration: `${3 + Math.random() * 2}s`,
-                  borderRadius: Math.random() > 0.5 ? "50%" : "0",
-                  transform: `rotate(${Math.random() * 360}deg)`,
+                  backgroundColor: ["#a855f7", "#ec4899", "#f97316", "#10b981", "#3b82f6"][Math.floor(drand(i, 121) * 5)],
+                  animationDelay: `${drand(i, 122) * 3}s`,
+                  animationDuration: `${3 + drand(i, 123) * 2}s`,
+                  borderRadius: drand(i, 124) > 0.5 ? "50%" : "0",
+                  transform: `rotate(${drand(i, 125) * 360}deg)`,
                 }}
               />
             ))}
