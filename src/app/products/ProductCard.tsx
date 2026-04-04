@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Product } from "@/types";
@@ -21,6 +21,11 @@ export default function ProductCard({ product, className }: Props) {
   const [isHovered, setIsHovered] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   const addItem = useCartStore((s) => s.addItem);
   const { toggleWishlist, isInWishlist } = useWishlistStore();
   const isWishlisted = isInWishlist(product.id);
@@ -91,6 +96,7 @@ export default function ProductCard({ product, className }: Props) {
             "object-cover transition-all duration-700",
             isHovered ? "scale-110" : "scale-100"
           )}
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           onError={() => setImageError(true)}
         />
 
@@ -143,12 +149,12 @@ export default function ProductCard({ product, className }: Props) {
             onClick={handleWishlist}
             className={cn(
               "p-2.5 rounded-xl backdrop-blur-md transition-all duration-300 shadow-lg",
-              isWishlisted
+              (mounted && isWishlisted)
                 ? "bg-red-500 text-white"
                 : "bg-white/90 text-gray-600 hover:bg-red-500 hover:text-white"
             )}
           >
-            <Heart className={cn("w-4 h-4", isWishlisted && "fill-current")} />
+            <Heart className={cn("w-4 h-4", (mounted && isWishlisted) && "fill-current")} />
           </button>
 
         </div>

@@ -467,6 +467,7 @@ export default function CategoryBento({ categories }: CategoryBentoProps) {
                         alt={cat.name}
                         fill
                         className="object-cover transition-all duration-700 group-hover:scale-110"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       />
                     ) : (
                       <div className={`w-full h-full flex items-center justify-center bg-linear-to-br ${gradient.replace('from-', 'from-').split(' ').map(c => c.includes('from-') || c.includes('via-') || c.includes('to-') ? c.replace('500', '100') : c).join(' ')} dark:${gradient.replace('from-', 'from-').split(' ').map(c => c.includes('from-') || c.includes('via-') || c.includes('to-') ? c.replace('500', '900/30') : c).join(' ')}`}>

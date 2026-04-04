@@ -53,7 +53,7 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="min-h-screen flex flex-col transition-colors duration-300">
+      <body className="min-h-screen flex flex-col transition-colors duration-300" suppressHydrationWarning>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <LayoutWrapper>{children}</LayoutWrapper>
           <Toaster

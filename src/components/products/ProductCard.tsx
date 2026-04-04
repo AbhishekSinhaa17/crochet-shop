@@ -202,13 +202,13 @@ export default function ProductCard({ product, index = 0, isAdmin = false }: Pro
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           >
             <Image
-              src={imgError ? "https://images.unsplash.com/photo-1615529151169-7b1ff50dc7f2?w=400" : imageUrl}
+              src={imgError ? "https://images.unsplash.com/photo-1615529151169-7b1ff50dc7f2" : imageUrl}
               alt={product.name}
               fill
               className={`object-cover transition-all duration-700 ${
                 imageLoaded ? "opacity-100" : "opacity-0"
               }`}
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               onError={() => setImgError(true)}
               onLoad={() => setImageLoaded(true)}
             />
@@ -300,26 +300,32 @@ export default function ProductCard({ product, index = 0, isAdmin = false }: Pro
                   boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
                 }}
               >
-                <motion.div
-                  animate={(mounted && wishlisted) ? { scale: [1, 1.3, 1] } : {}}
-                  transition={{ duration: 0.3 }}
-                >
-                  <Heart
-                    className={`w-4 h-4 transition-all duration-300 ${
-                      (mounted && wishlisted)
-                        ? "fill-white text-white" 
-                        : "text-gray-600 group-hover/btn:text-rose-500"
-                    }`}
-                  />
-                </motion.div>
-                {/* Ripple effect */}
-                {(mounted && wishlisted) && (
-                  <motion.div
-                    initial={{ scale: 0, opacity: 0.5 }}
-                    animate={{ scale: 2.5, opacity: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className="absolute inset-0 bg-rose-500 rounded-full"
-                  />
+                {mounted ? (
+                  <>
+                    <motion.div
+                      animate={wishlisted ? { scale: [1, 1.3, 1] } : {}}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <Heart
+                        className={`w-4 h-4 transition-all duration-300 ${
+                          wishlisted
+                            ? "fill-white text-white" 
+                            : "text-gray-600 group-hover/btn:text-rose-500"
+                        }`}
+                      />
+                    </motion.div>
+                    {/* Ripple effect */}
+                    {wishlisted && (
+                      <motion.div
+                        initial={{ scale: 0, opacity: 0.5 }}
+                        animate={{ scale: 2.5, opacity: 0 }}
+                        transition={{ duration: 0.5 }}
+                        className="absolute inset-0 bg-rose-500 rounded-full"
+                      />
+                    )}
+                  </>
+                ) : (
+                  <Heart className="w-4 h-4 text-gray-600" />
                 )}
               </motion.button>
             </div>

@@ -578,6 +578,7 @@ export default function HeroSection() {
                     alt="Handmade crochet collection"
                     fill
                     className="object-cover transition-transform duration-700 hover:scale-105"
+                    sizes="(max-width: 768px) 320px, (max-width: 1200px) 450px, 600px"
                     priority
                   />
                   
