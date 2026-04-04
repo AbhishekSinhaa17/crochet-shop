@@ -5,17 +5,10 @@ import { Crown, Sparkles } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import ProductGrid from "@/components/products/ProductGrid";
+import { drand } from "@/lib/drand";
 
 interface FeaturedProductsSectionProps {
   products: any[];
-}
-
-function fract(n: number) {
-  return n - Math.floor(n);
-}
-// deterministic “random” (no hydration mismatch)
-function drand(i: number, seed: number) {
-  return fract(Math.sin(i * 999.123 + seed * 77.77) * 10000);
 }
 
 export default function FeaturedProductsSection({ products }: FeaturedProductsSectionProps) {
