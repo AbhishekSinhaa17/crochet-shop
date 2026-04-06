@@ -87,7 +87,7 @@ export default function Header() {
       fetchCart(user.id);
       fetchWishlist(user.id);
     } else if (mounted) {
-      clearCart();
+      clearCart(false); // Clear local items only, preserve DB
       clearWishlist();
     }
   }, [user, mounted, setItems, setWishlistItems, clearCart, clearWishlist]);
@@ -156,8 +156,8 @@ export default function Header() {
   }, [menuOpen, searchOpen]);
 
   const handleLogout = async () => {
-    // Clear cart and wishlist before logging out
-    clearCart();
+    // Clear local state only - don't sync-delete from DB before the session is actually closed
+    clearCart(false);
     clearWishlist();
     
     const form = document.createElement("form");

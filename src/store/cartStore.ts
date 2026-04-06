@@ -21,7 +21,7 @@ interface CartState {
   removeItem: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
   setItems: (items: CartProduct[]) => void;
-  clearCart: () => void;
+  clearCart: (shouldSync?: boolean) => void;
   getTotal: () => number;
   getItemCount: () => number;
 }
@@ -125,9 +125,9 @@ export const useCartStore = create<CartState>()(
 
       setItems: (items) => set({ items }),
 
-      clearCart: async () => {
+      clearCart: async (shouldSync = true) => {
         set({ items: [] });
-        if (supabase) {
+        if (shouldSync && supabase) {
           const syncClear = async () => {
             const { data: { session } } = await supabase.auth.getSession();
             const user = session?.user;
