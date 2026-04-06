@@ -1,5 +1,8 @@
+"use server";
+
 import { OrderService } from "@/services/order-service";
 import { UploadService } from "@/services/upload-service";
+
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 

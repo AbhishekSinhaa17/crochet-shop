@@ -1,4 +1,7 @@
+"use server";
+
 import { UploadService } from "@/services/upload-service";
+
 
 export async function uploadProductImage(formData: FormData): Promise<{ url?: string; error?: string }> {
   try {
