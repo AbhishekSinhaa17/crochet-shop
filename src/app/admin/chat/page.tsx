@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { supabase } from "@/lib/supabase/client";
 import ChatWindow from "@/components/chat/ChatWindow";
 import { Conversation } from "@/types";
 import { formatDateTime } from "@/lib/utils";
@@ -60,7 +60,6 @@ export default function AdminChatPage() {
   const [userId, setUserId] = useState("");
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const supabase = createClient();
 
   useEffect(() => {
     const load = async () => {

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Star, Send, Sparkles, PenLine, MessageSquare, CheckCircle } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { supabase } from "@/lib/supabase/client";
 import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -28,7 +28,6 @@ export default function ReviewForm({ productId, onSuccess }: ReviewFormProps) {
     }
 
     setLoading(true);
-    const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {

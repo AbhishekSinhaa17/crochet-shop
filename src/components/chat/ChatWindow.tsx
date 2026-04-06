@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { supabase } from "@/lib/supabase/client";
 import { Message } from "@/types";
 import { Send, ImagePlus } from "lucide-react";
 import { formatDateTime } from "@/lib/utils";
@@ -16,7 +16,6 @@ export default function ChatWindow({ conversationId, currentUserId }: ChatWindow
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
-  const supabase = createClient();
 
   useEffect(() => {
     fetchMessages();

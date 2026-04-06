@@ -27,7 +27,7 @@ import {
   X,
 } from "lucide-react";
 import toast from "react-hot-toast";
-import { createClient } from "@/lib/supabase/client";
+import { supabase } from "@/lib/supabase/client";
 
 interface Props {
   product: Product;
@@ -76,45 +76,57 @@ export default function ProductDetailClient({
   const hasDiscount =
     product.compare_price && product.compare_price > product.price;
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (isAdmin) return;
     if (product.stock <= 0) {
       toast.error("Out of stock!");
       return;
     }
-    const supabase = createClient();
-    addItem(product, quantity, supabase);
-    setAddedToCart(true);
-    toast.success(`${product.name} added to cart!`);
-    setTimeout(() => setAddedToCart(false), 2000);
+    
+    try {
+      addItem(product, quantity, supabase);
+      setAddedToCart(true);
+      toast.success(`${product.name} added to cart!`);
+      setTimeout(() => setAddedToCart(false), 2000);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleWishlist = async () => {
     if (isAdmin) return;
-    const supabase = createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) {
-      toast.error("Please sign in first");
-      return;
+    
+    try {
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      
+      if (authError || !user) {
+        toast.error("Session expired. Please login again.");
+        return;
+      }
+
+      await supabase
+        .from("wishlist")
+        .upsert({ user_id: user.id, product_id: product.id });
+      setIsWishlisted(true);
+      toast.success("Added to wishlist!");
+      router.refresh();
+    } catch (err) {
+      console.error(err);
     }
-    await supabase
-      .from("wishlist")
-      .upsert({ user_id: user.id, product_id: product.id });
-    setIsWishlisted(true);
-    toast.success("Added to wishlist!");
   };
 
   const refreshReviews = async () => {
-    const supabase = createClient();
-    const { data } = await supabase
-      .from("reviews")
-      .select("*, profile:profiles!user_id(full_name, avatar_url)")
-      .eq("product_id", product.id)
-      .order("created_at", { ascending: false });
-    if (data) setCurrentReviews(data);
-    setShowReviewForm(false);
+    try {
+      const { data } = await supabase
+        .from("reviews")
+        .select("*, profile:profiles!user_id(full_name, avatar_url)")
+        .eq("product_id", product.id)
+        .order("created_at", { ascending: false });
+      if (data) setCurrentReviews(data);
+      setShowReviewForm(false);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (

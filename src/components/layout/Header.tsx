@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState, useRef } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { supabase } from "@/lib/supabase/client";
 import { useCartStore } from "@/store/cartStore";
 import { useRouter, usePathname } from "next/navigation";
 import { ShoppingBag, Heart, User, Menu, X, Search, LogOut, Package, MessageCircle, LayoutDashboard, ChevronDown, Sparkles, Crown, ArrowRight, Flower2, Star, Gift, Zap, TrendingUp, Clock, ChevronRight, Scissors } from "lucide-react";
@@ -32,7 +32,6 @@ export default function Header() {
   const setWishlistItems = useWishlistStore((s) => s.setItems);
   const clearWishlist = useWishlistStore((s) => s.clearWishlist);
   const wishlistCount = useWishlistStore((s) => s.items.length);
-  const supabase = createClient();
 
   const fetchProfile = async () => {
     try {

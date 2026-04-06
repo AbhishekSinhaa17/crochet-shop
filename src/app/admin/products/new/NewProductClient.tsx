@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { uploadProductImage } from "@/actions/uploadImage";
 import { createProductAction } from "@/actions/product";
-import { createClient } from "@/lib/supabase/client";
+import { supabase } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { slugify } from "@/lib/utils";
 import {
@@ -43,7 +43,6 @@ export default function NewProductClient({ categories }: { categories: Category[
   const [loading, setLoading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const router = useRouter();
-  const supabase = createClient();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

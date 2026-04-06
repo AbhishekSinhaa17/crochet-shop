@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { supabase } from "@/lib/supabase/client";
 import { Eye, Edit, Trash2, Loader2 } from "lucide-react";
 import Link from "next/link";
 import toast from "react-hot-toast";
@@ -18,7 +18,6 @@ interface AdminProductActionsProps {
 
 export default function AdminProductActions({ product }: AdminProductActionsProps) {
   const [isDeleting, setIsDeleting] = useState(false);
-  const supabase = createClient();
   const router = useRouter();
 
   const handleDelete = async () => {

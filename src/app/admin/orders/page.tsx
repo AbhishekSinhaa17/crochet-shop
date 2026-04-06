@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
 import { Order } from "@/types";
 import { formatPrice, formatDate } from "@/lib/utils";
 import toast from "react-hot-toast";

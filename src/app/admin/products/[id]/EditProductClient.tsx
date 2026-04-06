@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { supabase } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { slugify, getProductImages } from "@/lib/utils";
 import { uploadProductImage } from "@/actions/uploadImage";
@@ -55,7 +55,6 @@ export default function EditProductClient({ product, categories }: EditProductCl
   const [loading, setLoading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const router = useRouter();
-  const supabase = createClient();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

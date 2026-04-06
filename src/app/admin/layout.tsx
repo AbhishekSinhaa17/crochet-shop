@@ -14,7 +14,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { createClient } from "@/lib/supabase/client";
+import { supabase } from "@/lib/supabase/client";
 import toast from "react-hot-toast";
 import ThemeToggle from "@/components/layout/ThemeToggle";
 
@@ -29,7 +29,6 @@ const navItems = [
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const supabase = createClient();
 
   const handleLogout = () => {
     const form = document.createElement("form");

@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Product } from "@/types";
 import { useCartStore } from "@/store/cartStore";
 import { useWishlistStore } from "@/store/wishlistStore";
-import { createClient } from "@/lib/supabase/client";
+import { supabase } from "@/lib/supabase/client";
 import { formatPrice, getProductImage, getDiscountPercent } from "@/lib/utils";
 import { Heart, ShoppingBag, Star, Sparkles, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -35,7 +35,7 @@ export default function ProductCard({ product, className }: Props) {
   const isOutOfStock = product.stock <= 0;
   const isNew = new Date(product.created_at) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
-  const handleAddToCart = (e: React.MouseEvent) => {
+  const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
@@ -44,29 +44,35 @@ export default function ProductCard({ product, className }: Props) {
       return;
     }
     
-    setIsAddingToCart(true);
-    const supabase = createClient();
-    addItem(product, 1, supabase);
-    toast.success(`${product.name} added to cart!`);
-    
-    setTimeout(() => setIsAddingToCart(false), 1000);
+    try {
+      setIsAddingToCart(true);
+      addItem(product, 1, supabase);
+      toast.success(`${product.name} added to cart!`);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setTimeout(() => setIsAddingToCart(false), 1000);
+    }
   };
 
   const handleWishlist = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
-      toast.error("Please sign in to add to wishlist");
-      return;
-    }
+    try {
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      
+      if (authError || !user) {
+        toast.error("Please sign in to add to wishlist");
+        return;
+      }
 
-    const wasWishlisted = isWishlisted;
-    await toggleWishlist(product, supabase);
-    toast.success(wasWishlisted ? "Removed from wishlist" : "Added to wishlist!");
+      const wasWishlisted = isWishlisted;
+      await toggleWishlist(product, supabase);
+      toast.success(wasWishlisted ? "Removed from wishlist" : "Added to wishlist!");
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const productImage = imageError 

@@ -28,7 +28,7 @@ import {
   Heart,
   ShoppingBag,
 } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { supabase } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -616,9 +616,12 @@ function ProductListCard({ product, isAdmin = false }: { product: Product; isAdm
       return;
     }
 
-    const supabase = createClient();
-    addItem(product, 1, supabase);
-    toast.success(`${product.name} added to cart!`);
+    try {
+      addItem(product, 1, supabase);
+      toast.success(`${product.name} added to cart!`);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleWishlist = (e: React.MouseEvent) => {

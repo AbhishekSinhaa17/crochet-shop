@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { supabase } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff, Mail, Lock, User, Sparkles, Heart, Check, X, ChevronLeft, Scissors } from "lucide-react";
@@ -226,7 +226,6 @@ export default function RegisterPage() {
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const router = useRouter();
-  const supabase = createClient();
 
   const [mounted, setMounted] = useState(false);
   useEffect(() => {

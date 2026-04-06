@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { supabase } from "@/lib/supabase/client";
 import ChatWindow from "@/components/chat/ChatWindow";
 import { MessageCircle, Plus, Sparkles, X, Send, MessageSquare, Clock, ChevronRight, ArrowLeft } from "lucide-react";
 import { Conversation } from "@/types";
@@ -14,7 +14,6 @@ export default function ChatPage() {
   const [newSubject, setNewSubject] = useState("");
   const [showNew, setShowNew] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const supabase = createClient();
 
   useEffect(() => {
     const load = async () => {

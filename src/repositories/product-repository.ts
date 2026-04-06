@@ -1,4 +1,3 @@
-import { createClient } from "@/lib/supabase/client";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { ProductInput, ProductUpdateInput } from "@/validators/product";

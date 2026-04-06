@@ -31,7 +31,7 @@ import {
   Zap,
   Info,
 } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { supabase } from "@/lib/supabase/client";
 import ProductCard from "@/components/products/ProductCard";
 import { Product } from "@/types";
 import { formatPrice, getProductImage } from "@/lib/utils";
@@ -69,7 +69,6 @@ export default function CartPage() {
 
   const fetchRecommended = async () => {
     try {
-      const supabase = createClient();
       let query = supabase
         .from("products")
         .select("*, category:categories(*)")
@@ -98,7 +97,6 @@ export default function CartPage() {
     
     setUpdatingIds(new Set([...updatingIds, id]));
     await new Promise(resolve => setTimeout(resolve, 300));
-    const supabase = createClient();
     updateQuantity(id, newQuantity, supabase);
     setUpdatingIds(new Set([...updatingIds].filter(i => i !== id)));
   };
@@ -106,13 +104,11 @@ export default function CartPage() {
   const handleRemoveItem = async (id: string, name: string) => {
     setRemovingIds(new Set([...removingIds, id]));
     await new Promise(resolve => setTimeout(resolve, 500));
-    const supabase = createClient();
     removeItem(id, supabase);
     toast.success(`${name} removed from cart`);
   };
 
   const handleClearCart = () => {
-    const supabase = createClient();
     clearCart(supabase);
     setAppliedPromo(null);
     toast.success("Cart cleared");

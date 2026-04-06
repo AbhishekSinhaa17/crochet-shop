@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { supabase } from "@/lib/supabase/client";
 import { Profile } from "@/types";
 import Link from "next/link";
 import Image from "next/image";
@@ -79,7 +79,6 @@ export default function ProfilePage() {
   const [changingPassword, setChangingPassword] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const supabase = createClient();
   const router = useRouter();
 
   useEffect(() => {
@@ -227,9 +226,13 @@ export default function ProfilePage() {
   };
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push("/");
-    toast.success("Logged out successfully!");
+    try {
+      await supabase.auth.signOut();
+      router.push("/");
+      toast.success("Logged out successfully!");
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   if (loading) {

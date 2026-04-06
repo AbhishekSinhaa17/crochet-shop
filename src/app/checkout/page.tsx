@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useCartStore } from "@/store/cartStore";
-import { createClient } from "@/lib/supabase/client";
+import { supabase } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { formatPrice } from "@/lib/utils";
 import { ShieldCheck, Lock } from "lucide-react";
@@ -49,7 +49,6 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     const loadProfile = async () => {
-      const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         const { data: profile } = await supabase
@@ -84,7 +83,6 @@ export default function CheckoutPage() {
       const data = await res.json();
       if (!data.orderId) throw new Error("Failed to create order");
 
-      const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 

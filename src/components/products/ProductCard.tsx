@@ -7,7 +7,7 @@ import { Product } from "@/types";
 import { formatPrice, getDiscountPercent, getProductImage } from "@/lib/utils";
 import { useCartStore } from "@/store/cartStore";
 import { useWishlistStore } from "@/store/wishlistStore";
-import { createClient } from "@/lib/supabase/client";
+import { supabase } from "@/lib/supabase/client";
 import { useState, useRef, useEffect } from "react";
 import toast from "react-hot-toast";
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion";
@@ -74,41 +74,48 @@ export default function ProductCard({ product, index = 0, isAdmin = false }: Pro
       return;
     }
     
-    setIsAddingToCart(true);
-    
-    // Simulate a small delay for better UX
-    await new Promise(resolve => setTimeout(resolve, 600));
-    
-    const supabase = createClient();
-    addItem(product, 1, supabase);
-    setIsAddingToCart(false);
-    setAddedToCart(true);
-    
-    toast.success(
-      <div className="flex items-center gap-2">
-        <Check className="w-4 h-4 text-green-500" />
-        <span><strong>{product.name}</strong> added to cart!</span>
-      </div>
-    );
-    
-    setTimeout(() => setAddedToCart(false), 2000);
+    try {
+      setIsAddingToCart(true);
+      
+      // Simulate a small delay for better UX
+      await new Promise(resolve => setTimeout(resolve, 600));
+      
+      addItem(product, 1, supabase);
+      setIsAddingToCart(false);
+      setAddedToCart(true);
+      
+      toast.success(
+        <div className="flex items-center gap-2">
+          <Check className="w-4 h-4 text-green-500" />
+          <span><strong>{product.name}</strong> added to cart!</span>
+        </div>
+      );
+      
+      setTimeout(() => setAddedToCart(false), 2000);
+    } catch (err) {
+      console.error(err);
+      setIsAddingToCart(false);
+    }
   };
 
   const handleWishlist = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
-      toast.error("Please sign in to add to wishlist");
-      return;
-    }
+    try {
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      
+      if (authError || !user) {
+        toast.error("Please sign in to add to wishlist");
+        return;
+      }
 
-    const wasWishlisted = wishlisted;
-    await toggleWishlist(product, supabase);
-    toast.success(wasWishlisted ? "Removed from wishlist" : "Added to wishlist!");
+      const wasWishlisted = wishlisted;
+      await toggleWishlist(product, supabase);
+      toast.success(wasWishlisted ? "Removed from wishlist" : "Added to wishlist!");
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const imageUrl = getProductImage(product.images) || 

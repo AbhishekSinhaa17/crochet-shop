@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { supabase } from "@/lib/supabase/client";
 import { Product } from "@/types";
 import { formatPrice, getProductImage, getDiscountPercent } from "@/lib/utils";
 import {
@@ -55,7 +55,9 @@ type ViewMode = "grid" | "list";
 
 export default function WishlistPageClient({ products: initialProducts, wishlistData }: Props) {
   const [products, setProducts] = useState(initialProducts);
+  const [wishlist, setWishlist] = useState(wishlistData);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [sortBy, setSortBy] = useState<SortOption>("newest");
   const [removingIds, setRemovingIds] = useState<Set<string>>(new Set());
@@ -63,7 +65,6 @@ export default function WishlistPageClient({ products: initialProducts, wishlist
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const [isSelectMode, setIsSelectMode] = useState(false);
   
-  const supabase = createClient();
   const router = useRouter();
   const addItem = useCartStore((s) => s.addItem);
   const setWishlistItems = useWishlistStore((s) => s.setItems);
@@ -75,8 +76,8 @@ export default function WishlistPageClient({ products: initialProducts, wishlist
 
   // Sort products
   const sortedProducts = [...products].sort((a, b) => {
-    const wishlistA = wishlistData.find(w => w.product_id === a.id);
-    const wishlistB = wishlistData.find(w => w.product_id === b.id);
+    const wishlistA = wishlist.find(w => w.product_id === a.id);
+    const wishlistB = wishlist.find(w => w.product_id === b.id);
     
     switch (sortBy) {
       case "newest":
@@ -95,34 +96,18 @@ export default function WishlistPageClient({ products: initialProducts, wishlist
   });
 
   const handleRemoveFromWishlist = async (productId: string) => {
-    setRemovingIds(prev => new Set([...prev, productId]));
-    
     try {
+      setLoading(true);
+      setRemovingIds(prev => new Set([...prev, productId]));
+      
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       
-      if (authError) {
-        console.error("Auth error:", authError);
-        toast.error("Authentication error. Please sign in again.");
-        setRemovingIds(prev => {
-          const next = new Set(prev);
-          next.delete(productId);
-          return next;
-        });
+      if (authError || !user) {
+        toast.error("Session expired. Please login again.");
+        router.push("/login");
         return;
       }
       
-      if (!user) {
-        toast.error("Please sign in first");
-        setRemovingIds(prev => {
-          const next = new Set(prev);
-          next.delete(productId);
-          return next;
-        });
-        return;
-      }
-
-      console.log("Deleting wishlist item:", { userId: user.id, productId });
-
       const { error } = await supabase
         .from("wishlist")
         .delete()
@@ -130,17 +115,17 @@ export default function WishlistPageClient({ products: initialProducts, wishlist
         .eq("product_id", productId);
 
       if (error) {
-        console.error("Wishlist delete error:", error);
         toast.error("Failed to remove item: " + error.message);
       } else {
-        console.log("Successfully removed from wishlist");
         setProducts(prev => prev.filter(p => p.id !== productId));
+        setWishlist(prev => prev.filter(w => w.product_id !== productId));
         // Sync with global wishlist store
         setWishlistItems(wishlistStoreItems.filter(id => id !== productId));
         toast.success("Removed from wishlist");
+        router.refresh();
       }
     } catch (err) {
-      console.error("Unexpected error removing from wishlist:", err);
+      console.error(err);
       toast.error("Something went wrong. Please try again.");
     } finally {
       setRemovingIds(prev => {
@@ -148,6 +133,7 @@ export default function WishlistPageClient({ products: initialProducts, wishlist
         next.delete(productId);
         return next;
       });
+      setLoading(false);
     }
   };
 
@@ -186,28 +172,39 @@ export default function WishlistPageClient({ products: initialProducts, wishlist
   const handleRemoveSelected = async () => {
     if (selectedItems.size === 0) return;
 
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      toast.error("Please sign in first");
-      return;
-    }
+    try {
+      setLoading(true);
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      
+      if (authError || !user) {
+        toast.error("Session expired. Please login again.");
+        router.push("/login");
+        return;
+      }
 
-    const idsToRemove = Array.from(selectedItems);
-    
-    for (const productId of idsToRemove) {
-      await supabase
-        .from("wishlist")
-        .delete()
-        .eq("user_id", user.id)
-        .eq("product_id", productId);
-    }
+      const idsToRemove = Array.from(selectedItems);
+      
+      for (const productId of idsToRemove) {
+        await supabase
+          .from("wishlist")
+          .delete()
+          .eq("user_id", user.id)
+          .eq("product_id", productId);
+      }
 
-    setProducts(products.filter(p => !selectedItems.has(p.id)));
-    // Sync with global wishlist store
-    setWishlistItems(wishlistStoreItems.filter(id => !selectedItems.has(id)));
-    setSelectedItems(new Set());
-    setIsSelectMode(false);
-    toast.success(`Removed ${idsToRemove.length} items from wishlist`);
+      setProducts(products.filter(p => !selectedItems.has(p.id)));
+      setWishlist(prev => prev.filter(w => !selectedItems.has(w.product_id)));
+      // Sync with global wishlist store
+      setWishlistItems(wishlistStoreItems.filter(id => !selectedItems.has(id)));
+      setSelectedItems(new Set());
+      setIsSelectMode(false);
+      toast.success(`Removed ${idsToRemove.length} items from wishlist`);
+      router.refresh();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const toggleSelectItem = (productId: string) => {

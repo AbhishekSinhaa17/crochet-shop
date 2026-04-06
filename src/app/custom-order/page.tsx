@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { drand } from "@/lib/drand";
-import { createClient } from "@/lib/supabase/client";
+import { supabase } from "@/lib/supabase/client";
 import { submitCustomOrderAction } from "@/actions/customOrder";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -70,7 +70,6 @@ export default function CustomOrderPage() {
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
-  const supabase = createClient();
 
   useEffect(() => {
     setIsLoaded(true);
