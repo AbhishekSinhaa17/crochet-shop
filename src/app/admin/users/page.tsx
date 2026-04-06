@@ -1,4 +1,4 @@
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { ProfileService } from "@/services/profile-service";
 import { formatDate } from "@/lib/utils";
 import { User, Users, Shield, Crown, Phone } from "lucide-react";
 
@@ -24,14 +24,11 @@ const avatarGradients = [
 ];
 
 export default async function AdminUsersPage() {
-  const supabase = await createServerSupabaseClient();
-  const { data: profiles } = await supabase
-    .from("profiles")
-    .select("*")
-    .order("created_at", { ascending: false });
+  const profileService = new ProfileService(true);
+  const { data: profiles } = await profileService.getProfiles({ limit: 1000 });
 
   const total = (profiles || []).length;
-  const admins = (profiles || []).filter((p) => p.role === "admin").length;
+  const admins = (profiles || []).filter((p: any) => p.role === "admin").length;
 
   return (
     <div className="relative">
@@ -80,7 +77,7 @@ export default async function AdminUsersPage() {
               </tr>
             </thead>
             <tbody>
-              {(profiles || []).map((profile, index) => {
+              {(profiles || []).map((profile: any, index: number) => {
                 const gradient =
                   avatarGradients[
                     profile.id.charCodeAt(0) % avatarGradients.length
@@ -168,7 +165,7 @@ export default async function AdminUsersPage() {
             {total !== 1 && "s"}
           </p>
           <div className="flex -space-x-2">
-            {(profiles || []).slice(0, 5).map((p) => (
+            {(profiles || []).slice(0, 5).map((p: any) => (
               <div
                 key={p.id}
                 className={`w-6 h-6 rounded-full bg-linear-to-br ${

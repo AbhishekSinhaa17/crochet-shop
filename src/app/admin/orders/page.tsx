@@ -34,6 +34,11 @@ const STATUS_OPTIONS = [
 
 const FILTER_OPTIONS = ["all", ...STATUS_OPTIONS] as const;
 
+import { 
+  getAdminOrdersAction, 
+  updateOrderStatusAction 
+} from "@/actions/admin_orders";
+
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -41,7 +46,6 @@ export default function AdminOrdersPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [updatingId, setUpdatingId] = useState<string | null>(null);
-  const supabase = createClient();
 
   useEffect(() => {
     fetchOrders();
@@ -49,13 +53,8 @@ export default function AdminOrdersPage() {
 
   const fetchOrders = async () => {
     try {
-      const { data, error } = await supabase
-        .from("orders")
-        .select("*")
-        .order("created_at", { ascending: false });
-        
-      if (error) throw error;
-      if (data) setOrders(data);
+      const response = await getAdminOrdersAction();
+      if (response.data) setOrders(response.data);
     } catch (error: any) {
       console.error("Error fetching orders:", error);
       toast.error("Failed to load orders");
@@ -74,13 +73,10 @@ export default function AdminOrdersPage() {
     if (!orderId) return;
     setUpdatingId(orderId);
     try {
-      const { error } = await supabase
-        .from("orders")
-        .update({ status })
-        .eq("id", orderId);
+      const response = await updateOrderStatusAction(orderId, status);
 
-      if (error) {
-        throw error;
+      if (response.error) {
+        throw new Error(response.error);
       }
       toast.success("Order status updated!");
       await fetchOrders();
@@ -91,6 +87,7 @@ export default function AdminOrdersPage() {
       setUpdatingId(null);
     }
   };
+
 
   // Filter & search
   const filteredOrders = orders.filter((order) => {

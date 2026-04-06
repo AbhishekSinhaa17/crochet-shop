@@ -134,6 +134,12 @@ const allStatuses = [
   "cancelled",
 ];
 
+import { 
+  getAdminCustomOrdersAction, 
+  updateCustomOrderStatusAction, 
+  sendAdminOrderReplyAction 
+} from "@/actions/admin_custom_orders";
+
 export default function AdminCustomOrdersPage() {
   const [orders, setOrders] = useState<CustomOrder[]>([]);
   const [loading, setLoading] = useState(true);
@@ -146,7 +152,6 @@ export default function AdminCustomOrdersPage() {
   const [replyText, setReplyText] = useState("");
   const [isSendingReply, setIsSendingReply] = useState(false);
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
-  const supabase = createClient();
 
   useEffect(() => {
     fetchOrders();
@@ -154,13 +159,8 @@ export default function AdminCustomOrdersPage() {
 
   const fetchOrders = async () => {
     try {
-      const { data, error } = await supabase
-        .from("custom_orders")
-        .select("*")
-        .order("created_at", { ascending: false });
-        
-      if (error) throw error;
-      if (data) setOrders(data);
+      const response = await getAdminCustomOrdersAction();
+      if (response.data) setOrders(response.data);
     } catch (error: any) {
       console.error("Error fetching custom orders:", error);
       toast.error("Failed to load custom orders");
@@ -179,11 +179,8 @@ export default function AdminCustomOrdersPage() {
   const updateStatus = async (id: string, status: string) => {
     setUpdatingId(id);
     try {
-      const { error } = await supabase
-        .from("custom_orders")
-        .update({ status })
-        .eq("id", id);
-      if (error) toast.error(error.message);
+      const response = await updateCustomOrderStatusAction(id, status);
+      if (response.error) toast.error(response.error);
       else {
         toast.success("Status updated!");
         fetchOrders();
@@ -206,59 +203,9 @@ export default function AdminCustomOrdersPage() {
     setIsSendingReply(true);
 
     try {
-      // 1. Get current admin user
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
-
-      // 2. Find or create conversation
-      let convId = "";
-      const { data: existingConv } = await supabase
-        .from("conversations")
-        .select("id")
-        .eq("customer_id", replyingOrder.user_id)
-        .eq("subject", "Custom Order Inquiry")
-        .single();
-
-      if (existingConv) {
-        convId = existingConv.id;
-      } else {
-        const { data: newConv, error: convError } = await supabase
-          .from("conversations")
-          .insert({
-            customer_id: replyingOrder.user_id,
-            subject: "Custom Order Inquiry",
-            last_message: replyText.trim(),
-            last_message_at: new Date().toISOString(),
-          })
-          .select()
-          .single();
-
-        if (convError) throw convError;
-        convId = newConv.id;
-      }
-
-      // 3. Insert message
-      const { error: msgError } = await supabase.from("messages").insert({
-        conversation_id: convId,
-        sender_id: user.id,
-        content: replyText.trim(),
-        message_type: "text",
-      });
-
-      if (msgError) throw msgError;
-
-      // 4. Update conversation timestamp if it already existed
-      if (existingConv) {
-        await supabase
-          .from("conversations")
-          .update({
-            last_message: replyText.trim(),
-            last_message_at: new Date().toISOString(),
-          })
-          .eq("id", convId);
-      }
+      const response = await sendAdminOrderReplyAction(replyingOrder.user_id, replyText.trim());
+      
+      if (response.error) throw new Error(response.error);
 
       toast.success("Message sent to customer!");
       setReplyingOrder(null);
@@ -269,6 +216,7 @@ export default function AdminCustomOrdersPage() {
       setIsSendingReply(false);
     }
   };
+
 
   const filteredOrders = orders.filter((order) => {
     const matchesSearch =
@@ -307,7 +255,7 @@ export default function AdminCustomOrdersPage() {
           <div className="absolute -bottom-32 right-1/4 w-[450px] h-[450px] bg-linear-to-br from-amber-900/20 via-orange-900/20 to-rose-900/20 rounded-full blur-3xl animate-blob animation-delay-4000" />
         </div>
         {/* Grid pattern */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.02)_1px,transparent_1px)] dark:bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:60px_60px]" />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.02)_1px,transparent_1px)] dark:bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-size-[60px_60px]" />
       </div>
 
       {/* Header Section */}
@@ -590,7 +538,7 @@ export default function AdminCustomOrdersPage() {
 
                 {/* Animated shine effect */}
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
-                  <div className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 bg-linear-to-r from-transparent via-white/10 to-transparent" />
+                  <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-linear-to-r from-transparent via-white/10 to-transparent" />
                 </div>
 
                 <div className="relative p-6 pl-8">
@@ -727,7 +675,7 @@ export default function AdminCustomOrdersPage() {
 
                   {/* Description */}
                   <div className="flex items-start gap-3 mb-5 p-4 bg-gray-50/50 dark:bg-gray-900/30 rounded-xl border border-gray-100/50 dark:border-gray-700/30">
-                    <MessageSquare className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
+                    <MessageSquare className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" />
                     <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
                       {order.description}
                     </p>
@@ -775,7 +723,7 @@ export default function AdminCustomOrdersPage() {
                           (img: string, i: number) => (
                             <div
                               key={i}
-                              className="flex-shrink-0 relative group/img animate-fade-in-up"
+                              className="shrink-0 relative group/img animate-fade-in-up"
                               style={{ animationDelay: `${i * 80}ms` }}
                             >
                               <div className="absolute inset-0 bg-linear-to-br from-violet-500/20 to-purple-500/20 rounded-2xl blur-xl opacity-0 group-hover/img:opacity-100 transition-opacity duration-300" />

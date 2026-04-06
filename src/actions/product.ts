@@ -1,52 +1,43 @@
-"use server";
-
-import { createClient } from "@supabase/supabase-js";
+import { ProductService } from "@/services/product-service";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+
+async function verifyAdmin() {
+  const supabase = await createServerSupabaseClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Unauthorized");
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if (profile?.role !== "admin") throw new Error("Forbidden: Admin access required");
+  return user;
+}
 
 export async function createProductAction(productData: any): Promise<{ success?: boolean; error?: string }> {
   try {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-    
-    // We use the service role key to bypass client-side RLS blocking and Next.js hanging bugs
-    // Security check: Since this is an admin panel action, in a full prod app we should 
-    // also verify the user session has an admin role here before proceeding.
-    // For now we will insert.
-    const supabase = createClient(url, serviceRoleKey);
-
-    const { error } = await supabase.from("products").insert([productData]);
-
-    if (error) {
-      console.error("Database Insert Error:", error);
-      return { error: error.message };
-    }
+    await verifyAdmin();
+    const productService = new ProductService(true); // true for admin access
+    await productService.createProduct(productData);
 
     revalidatePath("/admin/products");
     revalidatePath("/");
     revalidatePath("/products");
     return { success: true };
   } catch (e: any) {
-    console.error("Server Action Exception:", e);
-    return { error: e.message || "Unknown database error" };
+    console.error("createProductAction Error:", e);
+    return { error: e.message || "Failed to create product" };
   }
 }
 
 export async function updateProductAction(id: string, productData: any): Promise<{ success?: boolean; error?: string }> {
   try {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-    
-    const supabase = createClient(url, serviceRoleKey);
-
-    const { error } = await supabase
-      .from("products")
-      .update(productData)
-      .eq("id", id);
-
-    if (error) {
-      console.error("Database Update Error:", error);
-      return { error: error.message };
-    }
+    await verifyAdmin();
+    const productService = new ProductService(true);
+    await productService.updateProduct(id, productData);
 
     revalidatePath("/admin/products");
     revalidatePath(`/products/${id}`);
@@ -55,7 +46,25 @@ export async function updateProductAction(id: string, productData: any): Promise
     
     return { success: true };
   } catch (e: any) {
-    console.error("Server Action Exception:", e);
-    return { error: e.message || "Unknown database error" };
+    console.error("updateProductAction Error:", e);
+    return { error: e.message || "Failed to update product" };
   }
 }
+
+export async function deleteProductAction(id: string): Promise<{ success?: boolean; error?: string }> {
+  try {
+    await verifyAdmin();
+    const productService = new ProductService(true);
+    await productService.deleteProduct(id);
+
+    revalidatePath("/admin/products");
+    revalidatePath("/");
+    revalidatePath("/products");
+    
+    return { success: true };
+  } catch (e: any) {
+    console.error("deleteProductAction Error:", e);
+    return { error: e.message || "Failed to delete product" };
+  }
+}
+

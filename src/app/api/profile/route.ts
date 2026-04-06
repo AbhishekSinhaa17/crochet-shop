@@ -1,39 +1,25 @@
 import { NextResponse } from "next/server";
-export const dynamic = "force-dynamic";
-import { createClient } from "@supabase/supabase-js";
+import { ProfileService } from "@/services/profile-service";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
-// Use service role key to bypass all RLS
-const adminSupabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    // Get the current user from the session cookie
     const supabase = await createServerSupabaseClient();
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser();
 
-    if (userError || !user) {
+    if (!user) {
       return NextResponse.json({ profile: null }, { status: 200 });
     }
 
-    // Use admin key to bypass RLS completely
-    const { data: profile, error: profileError } = await adminSupabase
-      .from("profiles")
-      .select("*")
-      .eq("id", user.id)
-      .maybeSingle();
+    const profileService = new ProfileService(true); // Using admin service to ensure profile is fetched even if RLS is tight
+    const profile = await profileService.getProfile(user.id);
 
-    if (profileError) {
-      console.error("Profile fetch error:", profileError.message);
-      return NextResponse.json({ profile: null, error: profileError.message }, { status: 200 });
-    }
-
-    return NextResponse.json({ profile }, { status: 200 });
-  } catch (err) {
-    console.error("API error:", err);
-    return NextResponse.json({ profile: null }, { status: 500 });
+    return NextResponse.json({ success: true, profile }, { status: 200 });
+  } catch (err: any) {
+    console.error("Profile API Error:", err);
+    return NextResponse.json({ success: false, error: "Internal Server Error" }, { status: 500 });
   }
 }
+
