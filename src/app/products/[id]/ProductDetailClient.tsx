@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { supabase } from "@/lib/supabase/client";
+import { useWishlistStore } from "@/store/wishlistStore";
 
 interface Props {
   product: Product;
@@ -52,10 +53,12 @@ export default function ProductDetailClient({
   const [addedToCart, setAddedToCart] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const addItem = useCartStore((s) => s.addItem);
+  const { toggleWishlist, isInWishlist } = useWishlistStore();
   const router = useRouter();
 
   useEffect(() => {
     setIsLoaded(true);
+    setIsWishlisted(isInWishlist(product.id));
     const fetchAdminStatus = async () => {
       try {
         const res = await fetch("/api/profile");
@@ -86,7 +89,7 @@ export default function ProductDetailClient({
     }
     
     try {
-      addItem(product, quantity, supabase);
+      addItem(product, quantity);
       setAddedToCart(true);
       toast.success(`${product.name} added to cart!`);
       setTimeout(() => setAddedToCart(false), 2000);
@@ -99,35 +102,18 @@ export default function ProductDetailClient({
     if (isAdmin) return;
     
     try {
-      await supabase.auth.refreshSession();
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      // Use centralized store logic
+      await toggleWishlist(product);
       
-      if (authError || !user) {
-        toast.error("Session expired. Please login again.");
-        return;
-      }
-
-      // Check if item already exists to prevent duplicates
-      const { data: existing } = await supabase
-        .from("wishlist")
-        .select("*")
-        .eq("user_id", user.id)
-        .eq("product_id", product.id);
-
-      if (existing && existing.length > 0) {
-        toast.error("Already in wishlist");
-        setIsWishlisted(true);
-        return;
-      }
-
-      await supabase
-        .from("wishlist")
-        .insert({ user_id: user.id, product_id: product.id });
-      setIsWishlisted(true);
-      toast.success("Added to wishlist!");
+      // Update local state to reflect store change
+      // isInWishlist is a helper from the store
+      const currentlyInWishlist = isInWishlist(product.id);
+      setIsWishlisted(currentlyInWishlist);
+      
       router.refresh();
     } catch (err) {
       console.error(err);
+      toast.error("Failed to update wishlist");
     }
   };
 

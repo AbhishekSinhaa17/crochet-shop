@@ -27,8 +27,9 @@ export default function ProductCard({ product, className }: Props) {
     setMounted(true);
   }, []);
   const addItem = useCartStore((s) => s.addItem);
-  const { toggleWishlist, isInWishlist } = useWishlistStore();
-  const isWishlisted = isInWishlist(product.id);
+  const toggleWishlist = useWishlistStore((s) => s.toggleWishlist);
+  const isInWishlist = useWishlistStore((s) => s.isInWishlist);
+  const isProcessing = useWishlistStore((s) => s.isProcessing);
 
   const hasDiscount = product.compare_price && product.compare_price > product.price;
   const discountPercent = hasDiscount ? getDiscountPercent(product.price, product.compare_price!) : 0;
@@ -46,7 +47,7 @@ export default function ProductCard({ product, className }: Props) {
     
     try {
       setIsAddingToCart(true);
-      addItem(product, 1, supabase);
+      addItem(product, 1);
       toast.success(`${product.name} added to cart!`);
     } catch (err) {
       console.error(err);
@@ -58,20 +59,15 @@ export default function ProductCard({ product, className }: Props) {
   const handleWishlist = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
-    try {
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-      
-      if (authError || !user) {
-        toast.error("Please sign in to add to wishlist");
-        return;
-      }
 
-      const wasWishlisted = isWishlisted;
-      await toggleWishlist(product, supabase);
-      toast.success(wasWishlisted ? "Removed from wishlist" : "Added to wishlist!");
+    console.log("CLICKED WISHLIST:", product.id);
+
+    if (isProcessing) return;
+
+    try {
+      await toggleWishlist(product);
     } catch (err) {
-      console.error(err);
+      console.error("Wishlist error:", err);
     }
   };
 
@@ -155,12 +151,12 @@ export default function ProductCard({ product, className }: Props) {
             onClick={handleWishlist}
             className={cn(
               "p-2.5 rounded-xl backdrop-blur-md transition-all duration-300 shadow-lg",
-              (mounted && isWishlisted)
+              (mounted && isInWishlist(product.id))
                 ? "bg-red-500 text-white"
                 : "bg-white/90 text-gray-600 hover:bg-red-500 hover:text-white"
             )}
           >
-            <Heart className={cn("w-4 h-4", (mounted && isWishlisted) && "fill-current")} />
+            <Heart className={cn("w-4 h-4", (mounted && isInWishlist(product.id)) && "fill-current")} />
           </button>
 
         </div>

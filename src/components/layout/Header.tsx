@@ -7,20 +7,19 @@ import { useCartStore } from "@/store/cartStore";
 import { useRouter, usePathname } from "next/navigation";
 import { ShoppingBag, Heart, User, Menu, X, Search, LogOut, Package, MessageCircle, LayoutDashboard, ChevronDown, Sparkles, Crown, ArrowRight, Flower2, Star, Gift, Zap, TrendingUp, Clock, ChevronRight, Scissors } from "lucide-react";
 import { useWishlistStore } from "@/store/wishlistStore";
+import { useAuthStore } from "@/store/authStore";
 import { cn } from "@/lib/utils";
-import type { Profile } from "@/types";
 import ThemeToggle from "./ThemeToggle";
 
 export default function Header() {
-  const [user, setUser] = useState<any>(null);
-  const [profile, setProfile] = useState<Profile | null>(null);
+  const { user, profile, initialize: initializeAuth, signOut } = useAuthStore();
   const [mounted, setMounted] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [headerLoading, setHeaderLoading] = useState(false);
   const [hoveredNav, setHoveredNav] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navRef = useRef<HTMLDivElement>(null);
@@ -33,34 +32,12 @@ export default function Header() {
   const clearWishlist = useWishlistStore((s) => s.clearWishlist);
   const wishlistCount = useWishlistStore((s) => s.items.length);
 
-  const fetchProfile = async () => {
-    try {
-      const res = await fetch("/api/profile");
-      const json = await res.json();
-      if (json.profile) setProfile(json.profile);
-      else setProfile(null);
-    } catch (e) {
-      console.error("Profile Fetch Error:", e);
-      setProfile(null);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
     setMounted(true);
-  }, []);
+    initializeAuth();
+  }, [initializeAuth]);
 
   useEffect(() => {
-    const getUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      setUser(user);
-      if (user) await fetchProfile();
-    };
-    getUser();
-
     // Fetch individual cart for the user
     const fetchCart = async (userId: string) => {
       try {
@@ -106,23 +83,14 @@ export default function Header() {
       }
     };
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        await fetchProfile();
-        await fetchCart(session.user.id);
-        await fetchWishlist(session.user.id);
-      } else {
-        setProfile(null);
-        clearCart();
-        clearWishlist();
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
+    if (user) {
+      fetchCart(user.id);
+      fetchWishlist(user.id);
+    } else if (mounted) {
+      clearCart();
+      clearWishlist();
+    }
+  }, [user, mounted, setItems, setWishlistItems, clearCart, clearWishlist]);
 
   useEffect(() => {
     const handleFocus = async () => {
@@ -131,13 +99,8 @@ export default function Header() {
     };
 
     window.addEventListener("focus", handleFocus);
-
     return () => window.removeEventListener("focus", handleFocus);
   }, []);
-
-  useEffect(() => {
-    if (user && !profile) fetchProfile();
-  }, [user, profile]);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10);

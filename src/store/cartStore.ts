@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { Product } from "@/types";
 import { getProductImage } from "@/lib/utils";
+import { supabase } from "@/lib/supabase/client";
 
 
 export interface CartProduct {
@@ -16,11 +17,11 @@ export interface CartProduct {
 
 interface CartState {
   items: CartProduct[];
-  addItem: (product: Product, quantity?: number, supabase?: any) => void;
-  removeItem: (productId: string, supabase?: any) => void;
-  updateQuantity: (productId: string, quantity: number, supabase?: any) => void;
+  addItem: (product: Product, quantity?: number) => void;
+  removeItem: (productId: string) => void;
+  updateQuantity: (productId: string, quantity: number) => void;
   setItems: (items: CartProduct[]) => void;
-  clearCart: (supabase?: any) => void;
+  clearCart: () => void;
   getTotal: () => number;
   getItemCount: () => number;
 }
@@ -30,7 +31,7 @@ export const useCartStore = create<CartState>()(
     (set, get) => ({
       items: [],
 
-      addItem: async (product: Product, quantity = 1, supabase?: any) => {
+      addItem: async (product: Product, quantity = 1) => {
         set((state) => {
           const existing = state.items.find((i) => i.id === product.id);
           let newItems;
@@ -55,10 +56,11 @@ export const useCartStore = create<CartState>()(
             ];
           }
 
-          // Sync with Supabase if provided
+          // Sync with Supabase
           if (supabase) {
             const syncCart = async () => {
-              const { data: { user } } = await supabase.auth.getUser();
+              const { data: { session } } = await supabase.auth.getSession();
+              const user = session?.user;
               if (user) {
                 const item = newItems.find(i => i.id === product.id);
                 if (item) {
@@ -77,13 +79,14 @@ export const useCartStore = create<CartState>()(
         });
       },
 
-      removeItem: async (productId: string, supabase?: any) => {
+      removeItem: async (productId: string) => {
         set((state) => {
           const newItems = state.items.filter((i) => i.id !== productId);
           
           if (supabase) {
             const syncRemove = async () => {
-              const { data: { user } } = await supabase.auth.getUser();
+              const { data: { session } } = await supabase.auth.getSession();
+              const user = session?.user;
               if (user) {
                 await supabase.from("cart_items").delete().eq("user_id", user.id).eq("product_id", productId);
               }
@@ -95,9 +98,9 @@ export const useCartStore = create<CartState>()(
         });
       },
 
-      updateQuantity: async (productId: string, quantity: number, supabase?: any) => {
+      updateQuantity: async (productId: string, quantity: number) => {
         if (quantity <= 0) {
-          get().removeItem(productId, supabase);
+          get().removeItem(productId);
           return;
         }
         set((state) => {
@@ -107,7 +110,8 @@ export const useCartStore = create<CartState>()(
 
           if (supabase) {
             const syncUpdate = async () => {
-              const { data: { user } } = await supabase.auth.getUser();
+              const { data: { session } } = await supabase.auth.getSession();
+              const user = session?.user;
               if (user) {
                 await supabase.from("cart_items").update({ quantity }).eq("user_id", user.id).eq("product_id", productId);
               }
@@ -121,11 +125,12 @@ export const useCartStore = create<CartState>()(
 
       setItems: (items) => set({ items }),
 
-      clearCart: async (supabase?: any) => {
+      clearCart: async () => {
         set({ items: [] });
         if (supabase) {
           const syncClear = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
+            const { data: { session } } = await supabase.auth.getSession();
+            const user = session?.user;
             if (user) {
               await supabase.from("cart_items").delete().eq("user_id", user.id);
             }

@@ -68,7 +68,7 @@ export default function WishlistPageClient({ products: initialProducts, wishlist
   const router = useRouter();
   const addItem = useCartStore((s) => s.addItem);
   const setWishlistItems = useWishlistStore((s) => s.setItems);
-  const wishlistStoreItems = useWishlistStore((s) => s.items);
+  const toggleWishlist = useWishlistStore((s) => s.toggleWishlist);
 
   useEffect(() => {
     setIsLoaded(true);
@@ -96,36 +96,22 @@ export default function WishlistPageClient({ products: initialProducts, wishlist
   });
 
   const handleRemoveFromWishlist = async (productId: string) => {
+    console.log("HANDLER TRIGGERED", productId);
+    const product = products.find(p => p.id === productId);
+    if (!product) return;
+
     try {
       setLoading(true);
       setRemovingIds(prev => new Set([...prev, productId]));
       
-      await supabase.auth.refreshSession();
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      // Use centralized store logic
+      await toggleWishlist(product);
       
-      if (authError || !user) {
-        toast.error("Session expired. Please login again.");
-        router.push("/login");
-        return;
-      }
+      // Update local state to reflect removal
+      setProducts(prev => prev.filter(p => p.id !== productId));
+      setWishlist(prev => prev.filter(w => w.product_id !== productId));
       
-      console.log("Deleting:", user.id, productId);
-      const { error } = await supabase
-        .from("wishlist")
-        .delete()
-        .eq("user_id", user.id)
-        .eq("product_id", productId);
-
-      if (error) {
-        toast.error("Failed to remove item: " + error.message);
-      } else {
-        setProducts(prev => prev.filter(p => p.id !== productId));
-        setWishlist(prev => prev.filter(w => w.product_id !== productId));
-        // Sync with global wishlist store
-        setWishlistItems(wishlistStoreItems.filter(id => id !== productId));
-        toast.success("Removed from wishlist");
-        router.refresh();
-      }
+      router.refresh();
     } catch (err) {
       console.error(err);
       toast.error("Something went wrong. Please try again.");
@@ -150,7 +136,7 @@ export default function WishlistPageClient({ products: initialProducts, wishlist
     // Simulate a small delay for better UX
     await new Promise(resolve => setTimeout(resolve, 500));
     
-    addItem(product, 1, supabase);
+    addItem(product, 1);
     toast.success(`${product.name} added to cart!`);
     
     setAddingToCartIds(new Set([...addingToCartIds].filter(id => id !== product.id)));
@@ -165,7 +151,7 @@ export default function WishlistPageClient({ products: initialProducts, wishlist
     }
 
     for (const product of availableProducts) {
-      addItem(product, 1, supabase);
+      addItem(product, 1);
     }
     
     toast.success(`Added ${availableProducts.length} items to cart!`);
@@ -176,35 +162,24 @@ export default function WishlistPageClient({ products: initialProducts, wishlist
 
     try {
       setLoading(true);
-      await supabase.auth.refreshSession();
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-      
-      if (authError || !user) {
-        toast.error("Session expired. Please login again.");
-        router.push("/login");
-        return;
-      }
-
       const idsToRemove = Array.from(selectedItems);
       
       for (const productId of idsToRemove) {
-        await supabase
-          .from("wishlist")
-          .delete()
-          .eq("user_id", user.id)
-          .eq("product_id", productId);
+        console.log("HANDLER TRIGGERED", productId);
+        const product = products.find(p => p.id === productId);
+        if (product) {
+          await toggleWishlist(product);
+        }
       }
 
       setProducts(products.filter(p => !selectedItems.has(p.id)));
       setWishlist(prev => prev.filter(w => !selectedItems.has(w.product_id)));
-      // Sync with global wishlist store
-      setWishlistItems(wishlistStoreItems.filter(id => !selectedItems.has(id)));
       setSelectedItems(new Set());
       setIsSelectMode(false);
-      toast.success(`Removed ${idsToRemove.length} items from wishlist`);
       router.refresh();
     } catch (err) {
       console.error(err);
+      toast.error("Failed to remove some items");
     } finally {
       setLoading(false);
     }

@@ -139,7 +139,7 @@ export default function CheckoutPage() {
 
             if (error) throw error;
 
-            clearCart(supabase);
+            clearCart();
             toast.success("Order placed successfully!");
             router.push(`/orders/${order.id}`);
           } catch (err: any) {

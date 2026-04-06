@@ -2,92 +2,88 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import toast from "react-hot-toast";
 import { Product } from "@/types";
+import { supabase } from "@/lib/supabase/client";
 
 interface WishlistState {
-  items: string[]; // Array of product IDs
-  toggleWishlist: (product: Product, supabase: any) => Promise<void>;
+  items: string[];
+  isProcessing: boolean;
+  toggleWishlist: (product: Product) => Promise<void>;
   setItems: (productIds: string[]) => void;
-  isInWishlist: (productId: string) => boolean;
   clearWishlist: () => void;
+  isInWishlist: (productId: string) => boolean;
 }
 
 export const useWishlistStore = create<WishlistState>()(
   persist(
     (set, get) => ({
       items: [],
+      isProcessing: false,
 
-      toggleWishlist: async (product: Product, supabase: any) => {
+      toggleWishlist: async (product) => {
+        if (get().isProcessing) return;
+        
         try {
-          await supabase.auth.refreshSession();
-          const { data: { user }, error: authError } = await supabase.auth.getUser();
-          if (authError || !user) {
-            console.error("Auth error in toggleWishlist:", authError);
+          set({ isProcessing: true });
+          const {
+            data: { session },
+          } = await supabase.auth.getSession();
+          const user = session?.user;
+
+          if (!user) {
+            toast.error("Please sign in to manage wishlist");
             return;
           }
 
-          const isCurrentlyWishlisted = get().items.includes(product.id);
+          const { data: existing } = await supabase
+            .from("wishlist")
+            .select("id")
+            .eq("user_id", user.id)
+            .eq("product_id", product.id)
+            .maybeSingle();
 
-          if (isCurrentlyWishlisted) {
-            // Optimistic: remove from local state first
-            set((state) => ({
-              items: state.items.filter((id) => id !== product.id),
-            }));
-            // Sync with Supabase
+          if (existing) {
             const { error } = await supabase
               .from("wishlist")
               .delete()
               .eq("user_id", user.id)
               .eq("product_id", product.id);
-            
-            if (error) {
-              console.error("Failed to remove from wishlist:", error);
-              // Rollback on failure
-              set((state) => ({
-                items: [...state.items, product.id],
-              }));
-            }
-          } else {
-            // Check if item already exists to prevent duplicates
-            const { data: existing } = await supabase
-              .from("wishlist")
-              .select("*")
-              .eq("user_id", user.id)
-              .eq("product_id", product.id);
 
-            if (existing && existing.length > 0) {
-              toast.error("Already in wishlist");
-              return;
-            }
+            if (error) throw error;
 
-            // Optimistic: add to local state first
             set((state) => ({
-              items: [...state.items, product.id],
+              items: state.items.filter((id) => id !== product.id),
             }));
-            // Sync with Supabase
+            toast.success("Removed from wishlist");
+          } else {
             const { error } = await supabase.from("wishlist").insert({
               user_id: user.id,
               product_id: product.id,
             });
-            
-            if (error) {
-              console.error("Failed to add to wishlist:", error);
-              // Rollback on failure
-              set((state) => ({
-                items: state.items.filter((id) => id !== product.id),
-              }));
-            }
+
+            if (error) throw error;
+
+            set((state) => ({
+              items: [...state.items, product.id],
+            }));
+            toast.success("Added to wishlist");
           }
-        } catch (err) {
-          console.error("Unexpected error in toggleWishlist:", err);
+        } catch (err: any) {
+          console.error(err);
+          toast.error(err.message || "Something went wrong");
+        } finally {
+          set({ isProcessing: false });
         }
       },
 
       setItems: (productIds: string[]) => set({ items: productIds }),
 
-      isInWishlist: (productId: string) => get().items.includes(productId),
-
       clearWishlist: () => set({ items: [] }),
+
+      isInWishlist: (productId: string) => get().items.includes(productId),
     }),
-    { name: "crochet-wishlist" }
-  )
+    {
+      name: "crochet-wishlist",
+      partialize: (state) => ({ items: state.items }),
+    },
+  ),
 );
