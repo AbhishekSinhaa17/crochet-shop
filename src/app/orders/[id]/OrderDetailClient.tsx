@@ -282,7 +282,7 @@ export default function OrderDetailClient({ order }: Props) {
                     key={idx} 
                     className="p-4 md:p-6 flex gap-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
                   >
-                    <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800 flex-shrink-0">
+                    <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800 shrink-0">
                       <Image
                         src={item.image || "https://images.unsplash.com/photo-1615529151169-7b1ff50dc7f2?w=200"}
                         alt={item.name}

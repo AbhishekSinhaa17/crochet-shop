@@ -224,7 +224,7 @@ export default function AdminChatPage() {
                   <div className="flex items-start gap-3">
                     {/* Avatar */}
                     <div
-                      className={`relative flex-shrink-0 w-10 h-10 rounded-xl bg-linear-to-br ${gradient} flex items-center justify-center shadow-sm ${isSelected ? "shadow-md scale-105" : "group-hover/item:scale-105"} transition-all duration-300`}
+                      className={`relative shrink-0 w-10 h-10 rounded-xl bg-linear-to-br ${gradient} flex items-center justify-center shadow-sm ${isSelected ? "shadow-md scale-105" : "group-hover/item:scale-105"} transition-all duration-300`}
                     >
                       <span className="text-white font-bold text-xs">
                         {getInitials(name)}
@@ -247,7 +247,7 @@ export default function AdminChatPage() {
                         </p>
                         {timeAgo && (
                           <span
-                            className={`flex-shrink-0 text-[10px] font-medium ${
+                            className={`shrink-0 text-[10px] font-medium ${
                               isSelected ? "text-indigo-400" : "text-gray-400"
                             }`}
                           >
@@ -273,7 +273,7 @@ export default function AdminChatPage() {
 
                     {/* Chevron */}
                     <ChevronRight
-                      className={`w-4 h-4 flex-shrink-0 mt-1 transition-all duration-200 ${
+                      className={`w-4 h-4 shrink-0 mt-1 transition-all duration-200 ${
                         isSelected
                           ? "text-indigo-400 translate-x-0 opacity-100"
                           : "text-gray-300 -translate-x-1 opacity-0 group-hover/item:translate-x-0 group-hover/item:opacity-100"

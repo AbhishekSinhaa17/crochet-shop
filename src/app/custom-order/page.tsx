@@ -827,19 +827,19 @@ export default function CustomOrderPage() {
               <h3 className="font-bold text-lg mb-2">Why Custom Order?</h3>
               <ul className="space-y-2 text-sm text-white/90">
                 <li className="flex items-start gap-2">
-                  <Check className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <Check className="w-4 h-4 mt-0.5 shrink-0" />
                   <span>100% unique, made just for you</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <Check className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <Check className="w-4 h-4 mt-0.5 shrink-0" />
                   <span>Choose your colors & size</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <Check className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <Check className="w-4 h-4 mt-0.5 shrink-0" />
                   <span>Direct communication with artisan</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <Check className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <Check className="w-4 h-4 mt-0.5 shrink-0" />
                   <span>Quality craftsmanship guaranteed</span>
                 </li>
               </ul>

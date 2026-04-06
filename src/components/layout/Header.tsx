@@ -197,7 +197,7 @@ export default function Header() {
       {/* ========== FULL SCREEN SEARCH ========== */}
       <div
         className={cn(
-          "fixed inset-0 z-[100] transition-all duration-700",
+          "fixed inset-0 z-100 transition-all duration-700",
           searchOpen
             ? "opacity-100 pointer-events-auto"
             : "opacity-0 pointer-events-none",
@@ -352,7 +352,7 @@ export default function Header() {
                 {/* Icon Container */}
                 <div className="relative w-12 h-12 rounded-xl bg-linear-to-br from-[#C2185B] to-[#9C27B0] flex items-center justify-center shadow-xl shadow-purple-500/25 group-hover:shadow-purple-500/50 transition-all duration-500 group-hover:scale-105 overflow-hidden">
                   {/* Shine Effect */}
-                  <div className="absolute inset-0 bg-linear-to-tr from-white/0 via-white/30 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                  <div className="absolute inset-0 bg-linear-to-tr from-white/0 via-white/30 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
 
                   <Scissors className="w-6 h-6 text-white relative z-10" />
                 </div>
@@ -604,10 +604,10 @@ export default function Header() {
                   className="relative flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold text-white overflow-hidden group transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40"
                 >
                   {/* Animated Gradient Background */}
-                  <div className="absolute inset-0 bg-linear-to-r from-pink-500 via-purple-600 to-violet-600 bg-[length:200%_100%] animate-gradient-x" />
+                  <div className="absolute inset-0 bg-linear-to-r from-pink-500 via-purple-600 to-violet-600 bg-size-[200%_100%] animate-gradient-x" />
 
                   {/* Shine Effect */}
-                  <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/25 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                  <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
 
                   <Sparkles className="w-4 h-4 relative z-10" />
                   <span className="relative z-10">Sign In</span>

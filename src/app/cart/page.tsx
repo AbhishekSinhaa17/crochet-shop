@@ -97,19 +97,19 @@ export default function CartPage() {
     
     setUpdatingIds(new Set([...updatingIds, id]));
     await new Promise(resolve => setTimeout(resolve, 300));
-    updateQuantity(id, newQuantity, supabase);
+    updateQuantity(id, newQuantity);
     setUpdatingIds(new Set([...updatingIds].filter(i => i !== id)));
   };
 
   const handleRemoveItem = async (id: string, name: string) => {
     setRemovingIds(new Set([...removingIds, id]));
     await new Promise(resolve => setTimeout(resolve, 500));
-    removeItem(id, supabase);
+    removeItem(id);
     toast.success(`${name} removed from cart`);
   };
 
   const handleClearCart = () => {
-    clearCart(supabase);
+    clearCart();
     setAppliedPromo(null);
     toast.success("Cart cleared");
   };
@@ -623,7 +623,7 @@ function CartItemCard({
           {/* Product Image */}
           <Link
             href={`/products/${item.id}`}
-            className="relative w-24 h-24 sm:w-32 sm:h-32 rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800 flex-shrink-0 group/image"
+            className="relative w-24 h-24 sm:w-32 sm:h-32 rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800 shrink-0 group/image"
           >
             <Image
               src={productImage}

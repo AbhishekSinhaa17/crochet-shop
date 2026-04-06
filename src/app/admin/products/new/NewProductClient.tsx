@@ -769,7 +769,7 @@ export default function NewProductClient({ categories }: { categories: Category[
         >
           <Info
             className="w-4 h-4 text-amber-500 dark:text-amber-400 
-              flex-shrink-0 mt-0.5"
+              shrink-0 mt-0.5"
           />
           <div>
             <p className="text-xs font-semibold text-amber-700 dark:text-amber-400">

@@ -242,7 +242,7 @@ export default function ProductDetailClient({
                   <button
                     key={i}
                     onClick={() => setSelectedImage(i)}
-                    className={`relative w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 transition-all duration-300 ${
+                    className={`relative w-20 h-20 rounded-xl overflow-hidden shrink-0 transition-all duration-300 ${
                       selectedImage === i 
                         ? "ring-2 ring-amber-500 ring-offset-2 scale-105" 
                         : "opacity-60 hover:opacity-100 hover:scale-105"

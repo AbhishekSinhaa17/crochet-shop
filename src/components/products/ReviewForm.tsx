@@ -397,7 +397,7 @@ export default function ReviewForm({ productId, onSuccess }: ReviewFormProps) {
                 backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
               }}
               transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-              className="absolute inset-0 bg-linear-to-r from-purple-600 via-pink-600 to-purple-600 bg-[length:200%_100%]"
+              className="absolute inset-0 bg-linear-to-r from-purple-600 via-pink-600 to-purple-600 bg-size-[200%_100%]"
             />
 
             {/* Shimmer */}

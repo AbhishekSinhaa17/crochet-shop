@@ -247,7 +247,7 @@ export default function WishlistPageClient({ products: initialProducts, wishlist
           <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
             <div className="flex items-start gap-5">
               {/* Animated Heart Icon */}
-              <div className="relative flex-shrink-0">
+              <div className="relative shrink-0">
                 <div className="absolute inset-0 bg-linear-to-br from-rose-500 to-pink-600 rounded-2xl blur-xl opacity-40 animate-pulse" />
                 <div className="relative w-16 h-16 bg-linear-to-br from-rose-500 via-pink-500 to-fuchsia-500 rounded-2xl flex items-center justify-center shadow-2xl shadow-rose-500/30 dark:shadow-rose-500/20">
                   <Heart className="w-8 h-8 text-white fill-white animate-heartbeat" />
@@ -629,7 +629,7 @@ function WishlistProductCard({
           <button
             onClick={onSelect}
             className={cn(
-              "w-6 h-6 rounded-lg border-2 flex-shrink-0 flex items-center justify-center transition-all self-center",
+              "w-6 h-6 rounded-lg border-2 shrink-0 flex items-center justify-center transition-all self-center",
               isSelected
                 ? "bg-rose-500 border-rose-500 text-white"
                 : "border-gray-300 dark:border-gray-600 hover:border-rose-400"
@@ -642,7 +642,7 @@ function WishlistProductCard({
         {/* Image */}
         <Link 
           href={`/products/${product.slug || product.id}`}
-          className="relative block w-24 h-24 md:w-32 md:h-32 rounded-xl overflow-hidden flex-shrink-0"
+          className="relative block w-24 h-24 md:w-32 md:h-32 rounded-xl overflow-hidden shrink-0"
         >
           <Image
             src={productImage}

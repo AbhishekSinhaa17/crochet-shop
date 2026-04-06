@@ -253,7 +253,7 @@ export default function CheckoutPage() {
             <div className="space-y-3">
               {items.map((item) => (
                 <div key={item.id} className="flex items-center gap-3 py-2">
-                  <div className="w-12 h-12 rounded-lg bg-cream-100 overflow-hidden relative flex-shrink-0">
+                  <div className="w-12 h-12 rounded-lg bg-cream-100 overflow-hidden relative shrink-0">
                     <img
                       src={item.image || "https://images.unsplash.com/photo-1615529151169-7b1ff50dc7f2?w=100"}
                       alt={item.name}

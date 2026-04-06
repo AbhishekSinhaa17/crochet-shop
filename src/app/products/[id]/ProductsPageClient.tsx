@@ -617,7 +617,7 @@ function ProductListCard({ product, isAdmin = false }: { product: Product; isAdm
     }
 
     try {
-      addItem(product, 1, supabase);
+      addItem(product, 1);
       toast.success(`${product.name} added to cart!`);
     } catch (err) {
       console.error(err);
