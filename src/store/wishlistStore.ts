@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import toast from "react-hot-toast";
 import { Product } from "@/types";
 
 interface WishlistState {
@@ -45,12 +46,24 @@ export const useWishlistStore = create<WishlistState>()(
               }));
             }
           } else {
+            // Check if item already exists to prevent duplicates
+            const { data: existing } = await supabase
+              .from("wishlist")
+              .select("*")
+              .eq("user_id", user.id)
+              .eq("product_id", product.id);
+
+            if (existing && existing.length > 0) {
+              toast.error("Already in wishlist");
+              return;
+            }
+
             // Optimistic: add to local state first
             set((state) => ({
               items: [...state.items, product.id],
             }));
             // Sync with Supabase
-            const { error } = await supabase.from("wishlist").upsert({
+            const { error } = await supabase.from("wishlist").insert({
               user_id: user.id,
               product_id: product.id,
             });

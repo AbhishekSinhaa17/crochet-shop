@@ -108,6 +108,7 @@ export default function WishlistPageClient({ products: initialProducts, wishlist
         return;
       }
       
+      console.log("Deleting:", user.id, productId);
       const { error } = await supabase
         .from("wishlist")
         .delete()

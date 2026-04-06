@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Product, Review } from "@/types";
 import { useCartStore } from "@/store/cartStore";
 import { formatPrice, formatDate, getDiscountPercent, getProductImages } from "@/lib/utils";
@@ -51,6 +52,7 @@ export default function ProductDetailClient({
   const [addedToCart, setAddedToCart] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const addItem = useCartStore((s) => s.addItem);
+  const router = useRouter();
 
   useEffect(() => {
     setIsLoaded(true);
@@ -104,9 +106,22 @@ export default function ProductDetailClient({
         return;
       }
 
+      // Check if item already exists to prevent duplicates
+      const { data: existing } = await supabase
+        .from("wishlist")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("product_id", product.id);
+
+      if (existing && existing.length > 0) {
+        toast.error("Already in wishlist");
+        setIsWishlisted(true);
+        return;
+      }
+
       await supabase
         .from("wishlist")
-        .upsert({ user_id: user.id, product_id: product.id });
+        .insert({ user_id: user.id, product_id: product.id });
       setIsWishlisted(true);
       toast.success("Added to wishlist!");
       router.refresh();
