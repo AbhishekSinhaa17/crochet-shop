@@ -103,6 +103,7 @@ export default function ProductCard({ product, index = 0, isAdmin = false }: Pro
     e.stopPropagation();
     
     try {
+      await supabase.auth.refreshSession();
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       
       if (authError || !user) {

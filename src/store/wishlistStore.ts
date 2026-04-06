@@ -18,6 +18,7 @@ export const useWishlistStore = create<WishlistState>()(
 
       toggleWishlist: async (product: Product, supabase: any) => {
         try {
+          await supabase.auth.refreshSession();
           const { data: { user }, error: authError } = await supabase.auth.getUser();
           if (authError || !user) {
             console.error("Auth error in toggleWishlist:", authError);

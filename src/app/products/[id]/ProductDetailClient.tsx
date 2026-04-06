@@ -99,6 +99,7 @@ export default function ProductDetailClient({
     if (isAdmin) return;
     
     try {
+      await supabase.auth.refreshSession();
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       
       if (authError || !user) {

@@ -125,6 +125,17 @@ export default function Header() {
   }, []);
 
   useEffect(() => {
+    const handleFocus = async () => {
+      await supabase.auth.refreshSession();
+      console.log("Session refreshed on focus");
+    };
+
+    window.addEventListener("focus", handleFocus);
+
+    return () => window.removeEventListener("focus", handleFocus);
+  }, []);
+
+  useEffect(() => {
     if (user && !profile) fetchProfile();
   }, [user, profile]);
 

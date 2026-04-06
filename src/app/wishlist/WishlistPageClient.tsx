@@ -100,6 +100,7 @@ export default function WishlistPageClient({ products: initialProducts, wishlist
       setLoading(true);
       setRemovingIds(prev => new Set([...prev, productId]));
       
+      await supabase.auth.refreshSession();
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       
       if (authError || !user) {
@@ -175,6 +176,7 @@ export default function WishlistPageClient({ products: initialProducts, wishlist
 
     try {
       setLoading(true);
+      await supabase.auth.refreshSession();
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       
       if (authError || !user) {
