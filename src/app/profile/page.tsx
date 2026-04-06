@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/lib/supabase/client";
+import { useAuthStore } from "@/store/useAuthStore";
 import { Profile } from "@/types";
 import Link from "next/link";
 import Image from "next/image";
@@ -52,6 +53,7 @@ interface ProfileStats {
 }
 
 export default function ProfilePage() {
+  const { user: authUser, profile: authProfile, loading: authLoading } = useAuthStore();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(true);
@@ -82,35 +84,29 @@ export default function ProfilePage() {
   const router = useRouter();
 
   useEffect(() => {
-    const loadProfile = async () => {
-      setLoading(true);
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        router.push("/auth/login?redirect=/profile");
-        return;
-      }
+    if (authLoading) return;
+    
+    if (!authUser) {
+      router.push("/auth/login?redirect=/profile");
+      return;
+    }
 
-      setEmail(user.email || "");
+    const loadProfileData = async () => {
+      setLoading(true);
+      setEmail(authUser.email || "");
       
-      const { data: profileData } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", user.id)
-        .single();
-        
-      if (profileData) {
-        setProfile(profileData);
-        if (profileData.avatar_url) {
-          setAvatarPreview(profileData.avatar_url);
+      if (authProfile) {
+        setProfile(authProfile);
+        if (authProfile.avatar_url) {
+          setAvatarPreview(authProfile.avatar_url);
         }
       }
 
       // Load stats
       const [ordersRes, wishlistRes, reviewsRes] = await Promise.all([
-        supabase.from("orders").select("total").eq("user_id", user.id),
-        supabase.from("wishlist").select("id").eq("user_id", user.id),
-        supabase.from("reviews").select("id").eq("user_id", user.id),
+        supabase.from("orders").select("total").eq("user_id", authUser.id),
+        supabase.from("wishlist").select("id").eq("user_id", authUser.id),
+        supabase.from("reviews").select("id").eq("user_id", authUser.id),
       ]);
 
       setStats({
@@ -124,8 +120,8 @@ export default function ProfilePage() {
       setTimeout(() => setIsLoaded(true), 100);
     };
     
-    loadProfile();
-  }, []);
+    loadProfileData();
+  }, [authUser, authProfile, authLoading, router]);
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {

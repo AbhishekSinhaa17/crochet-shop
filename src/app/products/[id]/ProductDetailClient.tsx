@@ -30,6 +30,7 @@ import {
 import toast from "react-hot-toast";
 import { supabase } from "@/lib/supabase/client";
 import { useWishlistStore } from "@/store/wishlistStore";
+import { useAuthStore } from "@/store/useAuthStore";
 
 interface Props {
   product: Product;
@@ -49,16 +50,17 @@ export default function ProductDetailClient({
   const [imgErrors, setImgErrors] = useState<Set<number>>(new Set());
   const [isImageZoomed, setIsImageZoomed] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [isWishlisted, setIsWishlisted] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const { user } = useAuthStore();
   const addItem = useCartStore((s) => s.addItem);
-  const { toggleWishlist, isInWishlist } = useWishlistStore();
+  const { toggleWishlist, items, processingIds } = useWishlistStore();
+  const isInWishlist = items.includes(product.id);
+  const isProcessing = processingIds.includes(product.id);
   const router = useRouter();
 
   useEffect(() => {
     setIsLoaded(true);
-    setIsWishlisted(isInWishlist(product.id));
     const fetchAdminStatus = async () => {
       try {
         const res = await fetch("/api/profile");
@@ -99,21 +101,12 @@ export default function ProductDetailClient({
   };
 
   const handleWishlist = async () => {
-    if (isAdmin) return;
+    if (isAdmin || isProcessing) return;
     
     try {
-      // Use centralized store logic
-      await toggleWishlist(product);
-      
-      // Update local state to reflect store change
-      // isInWishlist is a helper from the store
-      const currentlyInWishlist = isInWishlist(product.id);
-      setIsWishlisted(currentlyInWishlist);
-      
-      router.refresh();
+      await toggleWishlist(product, user?.id);
     } catch (err) {
       console.error(err);
-      toast.error("Failed to update wishlist");
     }
   };
 
@@ -219,13 +212,14 @@ export default function ProductDetailClient({
                   <div className="absolute top-4 right-4 flex flex-col gap-2 z-20 opacity-0 group-hover:opacity-100 translate-x-4 group-hover:translate-x-0 transition-all duration-300">
                     <button
                       onClick={handleWishlist}
+                      disabled={isProcessing}
                       className={`p-3 rounded-full backdrop-blur-md transition-all duration-300 ${
-                        isWishlisted 
+                        isInWishlist 
                           ? "bg-red-500 text-white" 
                           : "bg-white/80 dark:bg-gray-800/80 text-gray-700 dark:text-gray-200 hover:bg-red-500 hover:text-white dark:hover:bg-red-500"
-                      }`}
+                      } ${isProcessing ? "opacity-50 cursor-not-allowed" : ""}`}
                     >
-                      <Heart className={`w-5 h-5 ${isWishlisted ? "fill-current" : ""}`} />
+                      <Heart className={`w-5 h-5 ${isInWishlist ? "fill-current" : ""}`} />
                     </button>
                     <button className="p-3 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md rounded-full text-gray-700 dark:text-gray-200 hover:bg-amber-500 hover:text-white transition-all duration-300">
                       <Share2 className="w-5 h-5" />
@@ -399,13 +393,14 @@ export default function ProductDetailClient({
 
                   <button
                     onClick={handleWishlist}
+                    disabled={isProcessing}
                     className={`p-4 rounded-xl border-2 transition-all duration-300 ${
-                      isWishlisted
+                      isInWishlist
                         ? "bg-red-500 border-red-500 text-white"
                         : "border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-red-200 dark:hover:border-red-900/50 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-500"
-                    }`}
+                    } ${isProcessing ? "opacity-50 cursor-not-allowed" : ""}`}
                   >
-                    <Heart className={`w-6 h-6 ${isWishlisted ? "fill-current animate-pulse" : ""}`} />
+                    <Heart className={`w-6 h-6 ${isInWishlist ? "fill-current animate-pulse" : ""}`} />
                   </button>
                 </div>
               </div>

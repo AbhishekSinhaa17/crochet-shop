@@ -37,6 +37,7 @@ import { cn } from "@/lib/utils";
 import toast from "react-hot-toast";
 import { useCartStore } from "@/store/cartStore";
 import { useWishlistStore } from "@/store/wishlistStore";
+import { useAuthStore } from "@/store/useAuthStore";
 
 interface WishlistItem {
   id: string;
@@ -60,15 +61,14 @@ export default function WishlistPageClient({ products: initialProducts, wishlist
   const [loading, setLoading] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [sortBy, setSortBy] = useState<SortOption>("newest");
-  const [removingIds, setRemovingIds] = useState<Set<string>>(new Set());
+  const [isSelectMode, setIsSelectMode] = useState(false);
   const [addingToCartIds, setAddingToCartIds] = useState<Set<string>>(new Set());
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
-  const [isSelectMode, setIsSelectMode] = useState(false);
   
   const router = useRouter();
   const addItem = useCartStore((s) => s.addItem);
-  const setWishlistItems = useWishlistStore((s) => s.setItems);
-  const toggleWishlist = useWishlistStore((s) => s.toggleWishlist);
+  const { user } = useAuthStore();
+  const { items, toggleWishlist, processingIds } = useWishlistStore();
 
   useEffect(() => {
     setIsLoaded(true);
@@ -96,31 +96,23 @@ export default function WishlistPageClient({ products: initialProducts, wishlist
   });
 
   const handleRemoveFromWishlist = async (productId: string) => {
-    console.log("HANDLER TRIGGERED", productId);
     const product = products.find(p => p.id === productId);
     if (!product) return;
 
+    if (processingIds.includes(productId)) return;
+
     try {
       setLoading(true);
-      setRemovingIds(prev => new Set([...prev, productId]));
+      await toggleWishlist(product, user?.id);
       
-      // Use centralized store logic
-      await toggleWishlist(product);
-      
-      // Update local state to reflect removal
+      // Update local state for immediate visual removal from the list
       setProducts(prev => prev.filter(p => p.id !== productId));
       setWishlist(prev => prev.filter(w => w.product_id !== productId));
       
       router.refresh();
     } catch (err) {
-      console.error(err);
-      toast.error("Something went wrong. Please try again.");
+      console.error(`Remove from wishlist error [${productId}]:`, err);
     } finally {
-      setRemovingIds(prev => {
-        const next = new Set(prev);
-        next.delete(productId);
-        return next;
-      });
       setLoading(false);
     }
   };
@@ -150,11 +142,15 @@ export default function WishlistPageClient({ products: initialProducts, wishlist
       return;
     }
 
-    for (const product of availableProducts) {
-      addItem(product, 1);
+    try {
+      for (const product of availableProducts) {
+        addItem(product, 1);
+      }
+      toast.success(`Added ${availableProducts.length} items to cart!`);
+    } catch (err) {
+      console.error("Add all to cart error:", err);
+      toast.error("Failed to add some items to cart");
     }
-    
-    toast.success(`Added ${availableProducts.length} items to cart!`);
   };
 
   const handleRemoveSelected = async () => {
@@ -164,13 +160,14 @@ export default function WishlistPageClient({ products: initialProducts, wishlist
       setLoading(true);
       const idsToRemove = Array.from(selectedItems);
       
-      for (const productId of idsToRemove) {
-        console.log("HANDLER TRIGGERED", productId);
+      // Process removals sequentially or in parallel? 
+      // toggleWishlist handles internal concurrency per product via processingIds.
+      await Promise.all(idsToRemove.map(async (productId) => {
         const product = products.find(p => p.id === productId);
         if (product) {
-          await toggleWishlist(product);
+          await toggleWishlist(product, user?.id);
         }
-      }
+      }));
 
       setProducts(products.filter(p => !selectedItems.has(p.id)));
       setWishlist(prev => prev.filter(w => !selectedItems.has(w.product_id)));
@@ -178,7 +175,7 @@ export default function WishlistPageClient({ products: initialProducts, wishlist
       setIsSelectMode(false);
       router.refresh();
     } catch (err) {
-      console.error(err);
+      console.error("Remove selected items error:", err);
       toast.error("Failed to remove some items");
     } finally {
       setLoading(false);
@@ -493,7 +490,7 @@ export default function WishlistPageClient({ products: initialProducts, wishlist
                   viewMode={viewMode}
                   isSelectMode={isSelectMode}
                   isSelected={selectedItems.has(product.id)}
-                  isRemoving={removingIds.has(product.id)}
+                  isRemoving={processingIds.includes(product.id)}
                   isAddingToCart={addingToCartIds.has(product.id)}
                   onRemove={() => handleRemoveFromWishlist(product.id)}
                   onAddToCart={() => handleAddToCart(product)}

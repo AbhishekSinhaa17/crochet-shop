@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useCartStore } from "@/store/cartStore";
 import { supabase } from "@/lib/supabase/client";
+import { useAuthStore } from "@/store/useAuthStore";
 import { useRouter } from "next/navigation";
 import { formatPrice } from "@/lib/utils";
 import { ShieldCheck, Lock } from "lucide-react";
@@ -15,6 +16,7 @@ declare global {
 }
 
 export default function CheckoutPage() {
+  const { user, profile, loading: authLoading } = useAuthStore();
   const { items, getTotal, clearCart } = useCartStore();
   const [loading, setLoading] = useState(false);
   const [address, setAddress] = useState({
@@ -48,23 +50,14 @@ export default function CheckoutPage() {
   }, []);
 
   useEffect(() => {
-    const loadProfile = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", user.id)
-          .single();
-
-        if (profile?.address && typeof profile.address === "object") {
-          setAddress((prev) => ({ ...prev, ...profile.address }));
-        }
-        if (profile?.phone) setPhone(profile.phone);
+    if (authLoading) return;
+    if (user && profile) {
+      if (profile.address && typeof profile.address === "object") {
+        setAddress((prev) => ({ ...prev, ...profile.address }));
       }
-    };
-    loadProfile();
-  }, []);
+      if (profile.phone) setPhone(profile.phone);
+    }
+  }, [user, profile, authLoading]);
 
   const handlePayment = async () => {
     if (!address.line1 || !address.city || !address.state || !address.pincode || !phone) {
@@ -83,8 +76,8 @@ export default function CheckoutPage() {
       const data = await res.json();
       if (!data.orderId) throw new Error("Failed to create order");
 
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
+      const currentUser = useAuthStore.getState().user;
+      if (!currentUser) throw new Error("Not authenticated");
 
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
@@ -147,7 +140,7 @@ export default function CheckoutPage() {
           }
         },
 
-        prefill: { email: user.email, contact: phone },
+        prefill: { email: useAuthStore.getState().user?.email, contact: phone },
         theme: { color: "#db2777" },
       };
 

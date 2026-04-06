@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Product } from "@/types";
 import { useCartStore } from "@/store/cartStore";
 import { useWishlistStore } from "@/store/wishlistStore";
+import { useAuthStore } from "@/store/useAuthStore";
 import { supabase } from "@/lib/supabase/client";
 import { formatPrice, getProductImage, getDiscountPercent } from "@/lib/utils";
 import { Heart, ShoppingBag, Star, Sparkles, Zap } from "lucide-react";
@@ -27,9 +28,12 @@ export default function ProductCard({ product, className }: Props) {
     setMounted(true);
   }, []);
   const addItem = useCartStore((s) => s.addItem);
+  const { user } = useAuthStore();
   const toggleWishlist = useWishlistStore((s) => s.toggleWishlist);
-  const isInWishlist = useWishlistStore((s) => s.isInWishlist);
-  const isProcessing = useWishlistStore((s) => s.isProcessing);
+  const items = useWishlistStore((s) => s.items);
+  const isInWishlist = items.includes(product.id);
+  const processingIds = useWishlistStore((s) => s.processingIds);
+  const isProcessing = processingIds.includes(product.id);
 
   const hasDiscount = product.compare_price && product.compare_price > product.price;
   const discountPercent = hasDiscount ? getDiscountPercent(product.price, product.compare_price!) : 0;
@@ -65,7 +69,7 @@ export default function ProductCard({ product, className }: Props) {
     if (isProcessing) return;
 
     try {
-      await toggleWishlist(product);
+      await toggleWishlist(product, user?.id);
     } catch (err) {
       console.error("Wishlist error:", err);
     }
@@ -149,14 +153,16 @@ export default function ProductCard({ product, className }: Props) {
         >
           <button
             onClick={handleWishlist}
+            disabled={isProcessing}
             className={cn(
               "p-2.5 rounded-xl backdrop-blur-md transition-all duration-300 shadow-lg",
-              (mounted && isInWishlist(product.id))
+              (mounted && isInWishlist)
                 ? "bg-red-500 text-white"
-                : "bg-white/90 text-gray-600 hover:bg-red-500 hover:text-white"
+                : "bg-white/90 text-gray-600 hover:bg-red-500 hover:text-white",
+              isProcessing && "opacity-50 cursor-not-allowed"
             )}
           >
-            <Heart className={cn("w-4 h-4", (mounted && isInWishlist(product.id)) && "fill-current")} />
+            <Heart className={cn("w-4 h-4", (mounted && isInWishlist) && "fill-current")} />
           </button>
 
         </div>

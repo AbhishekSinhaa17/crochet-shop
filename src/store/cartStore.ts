@@ -3,6 +3,7 @@ import { persist } from "zustand/middleware";
 import { Product } from "@/types";
 import { getProductImage } from "@/lib/utils";
 import { supabase } from "@/lib/supabase/client";
+import { useAuthStore } from "./useAuthStore";
 
 
 export interface CartProduct {
@@ -59,8 +60,7 @@ export const useCartStore = create<CartState>()(
           // Sync with Supabase
           if (supabase) {
             const syncCart = async () => {
-              const { data: { session } } = await supabase.auth.getSession();
-              const user = session?.user;
+              const user = useAuthStore.getState().user;
               if (user) {
                 const item = newItems.find(i => i.id === product.id);
                 if (item) {
@@ -85,8 +85,7 @@ export const useCartStore = create<CartState>()(
           
           if (supabase) {
             const syncRemove = async () => {
-              const { data: { session } } = await supabase.auth.getSession();
-              const user = session?.user;
+              const user = useAuthStore.getState().user;
               if (user) {
                 await supabase.from("cart_items").delete().eq("user_id", user.id).eq("product_id", productId);
               }
@@ -110,8 +109,7 @@ export const useCartStore = create<CartState>()(
 
           if (supabase) {
             const syncUpdate = async () => {
-              const { data: { session } } = await supabase.auth.getSession();
-              const user = session?.user;
+              const user = useAuthStore.getState().user;
               if (user) {
                 await supabase.from("cart_items").update({ quantity }).eq("user_id", user.id).eq("product_id", productId);
               }
@@ -129,8 +127,7 @@ export const useCartStore = create<CartState>()(
         set({ items: [] });
         if (shouldSync && supabase) {
           const syncClear = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            const user = session?.user;
+            const user = useAuthStore.getState().user;
             if (user) {
               await supabase.from("cart_items").delete().eq("user_id", user.id);
             }

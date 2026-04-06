@@ -6,8 +6,9 @@ import { supabase } from "@/lib/supabase/client";
 
 interface WishlistState {
   items: string[];
-  isProcessing: boolean;
-  toggleWishlist: (product: Product) => Promise<void>;
+  processingIds: string[];
+  toggleWishlist: (product: Product, userId: string) => Promise<void>;
+  fetchWishlist: (userId: string) => Promise<void>;
   setItems: (productIds: string[]) => void;
   clearWishlist: () => void;
   isInWishlist: (productId: string) => boolean;
@@ -17,67 +18,90 @@ export const useWishlistStore = create<WishlistState>()(
   persist(
     (set, get) => ({
       items: [],
-      isProcessing: false,
+      processingIds: [],
 
-      toggleWishlist: async (product) => {
-        if (get().isProcessing) return;
+      toggleWishlist: async (product, userId) => {
+        if (!userId) {
+          toast.error("Please sign in to manage wishlist");
+          return;
+        }
+
+        const { items, processingIds } = get();
         
+        // 🚫 Prevent spam clicks for the SAME product
+        if (processingIds.includes(product.id)) return;
+        
+        const alreadyExists = items.includes(product.id);
+        
+        // ⚡ Optimistic Update
+        const updatedItems = alreadyExists
+          ? items.filter((id) => id !== product.id)
+          : [...items, product.id];
+          
+        set((state) => ({ 
+          items: updatedItems,
+          processingIds: [...state.processingIds, product.id]
+        }));
+
         try {
-          set({ isProcessing: true });
-          const {
-            data: { session },
-          } = await supabase.auth.getSession();
-          const user = session?.user;
-
-          if (!user) {
-            toast.error("Please sign in to manage wishlist");
-            return;
-          }
-
-          const { data: existing } = await supabase
-            .from("wishlist")
-            .select("id")
-            .eq("user_id", user.id)
-            .eq("product_id", product.id)
-            .maybeSingle();
-
-          if (existing) {
+          if (alreadyExists) {
             const { error } = await supabase
               .from("wishlist")
               .delete()
-              .eq("user_id", user.id)
+              .eq("user_id", userId)
               .eq("product_id", product.id);
 
             if (error) throw error;
-
-            set((state) => ({
-              items: state.items.filter((id) => id !== product.id),
-            }));
-            toast.success("Removed from wishlist");
           } else {
-            const { error } = await supabase.from("wishlist").insert({
-              user_id: user.id,
-              product_id: product.id,
-            });
+            const { error } = await supabase
+              .from("wishlist")
+              .insert({
+                user_id: userId,
+                product_id: product.id,
+              });
 
-            if (error) throw error;
-
-            set((state) => ({
-              items: [...state.items, product.id],
-            }));
-            toast.success("Added to wishlist");
+            // Handle unique constraint violation (23505) safely
+            if (error && error.code !== "23505") throw error;
           }
+
+          toast.success(alreadyExists ? "Removed from wishlist" : "Added to wishlist");
         } catch (err: any) {
-          console.error(err);
-          toast.error(err.message || "Something went wrong");
+          console.error(`Wishlist error [${product.id}]:`, err);
+          
+          // 🔁 Rollback on failure
+          set({ items });
+          toast.error("Failed to update wishlist");
         } finally {
-          set({ isProcessing: false });
+          set((state) => ({
+            processingIds: state.processingIds.filter(id => id !== product.id)
+          }));
+        }
+      },
+
+      fetchWishlist: async (userId) => {
+        if (!userId) {
+          set({ items: [] });
+          return;
+        }
+
+        try {
+          const { data, error } = await supabase
+            .from("wishlist")
+            .select("product_id")
+            .eq("user_id", userId);
+
+          if (error) throw error;
+          if (data) {
+            set({ items: data.map((item) => item.product_id) });
+          }
+        } catch (err) {
+          console.error("Error fetching wishlist:", err);
         }
       },
 
       setItems: (productIds: string[]) => set({ items: productIds }),
 
-      clearWishlist: () => set({ items: [] }),
+      clearWishlist: () => set({ items: [], processingIds: [] }),
 
       isInWishlist: (productId: string) => get().items.includes(productId),
     }),

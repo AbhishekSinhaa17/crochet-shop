@@ -2,12 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
+import { useAuthStore } from "@/store/useAuthStore";
 import ChatWindow from "@/components/chat/ChatWindow";
 import { MessageCircle, Plus, Sparkles, X, Send, MessageSquare, Clock, ChevronRight, ArrowLeft } from "lucide-react";
 import { Conversation } from "@/types";
 import { formatDateTime } from "@/lib/utils";
 
 export default function ChatPage() {
+  const { user, loading: authLoading } = useAuthStore();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConv, setSelectedConv] = useState<string | null>(null);
   const [userId, setUserId] = useState<string>("");
@@ -16,10 +18,11 @@ export default function ChatPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const load = async () => {
+    if (authLoading) return;
+    if (!user) return;
+    
+    const loadConversations = async () => {
       setIsLoading(true);
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
       setUserId(user.id);
 
       const { data } = await supabase
@@ -34,8 +37,8 @@ export default function ChatPage() {
       }
       setIsLoading(false);
     };
-    load();
-  }, []);
+    loadConversations();
+  }, [user, authLoading]);
 
   const createConversation = async () => {
     if (!newSubject.trim()) return;

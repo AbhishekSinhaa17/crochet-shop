@@ -7,12 +7,12 @@ import { useCartStore } from "@/store/cartStore";
 import { useRouter, usePathname } from "next/navigation";
 import { ShoppingBag, Heart, User, Menu, X, Search, LogOut, Package, MessageCircle, LayoutDashboard, ChevronDown, Sparkles, Crown, ArrowRight, Flower2, Star, Gift, Zap, TrendingUp, Clock, ChevronRight, Scissors } from "lucide-react";
 import { useWishlistStore } from "@/store/wishlistStore";
-import { useAuthStore } from "@/store/authStore";
+import { useAuthStore } from "@/store/useAuthStore";
 import { cn } from "@/lib/utils";
 import ThemeToggle from "./ThemeToggle";
 
 export default function Header() {
-  const { user, profile, initialize: initializeAuth, signOut } = useAuthStore();
+  const { user, profile, signOut } = useAuthStore();
   const [mounted, setMounted] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -34,8 +34,7 @@ export default function Header() {
 
   useEffect(() => {
     setMounted(true);
-    initializeAuth();
-  }, [initializeAuth]);
+  }, []);
 
   useEffect(() => {
     // Fetch individual cart for the user

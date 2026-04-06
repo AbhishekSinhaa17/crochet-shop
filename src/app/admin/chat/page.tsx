@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
+import { useAuthStore } from "@/store/useAuthStore";
 import ChatWindow from "@/components/chat/ChatWindow";
 import { Conversation } from "@/types";
 import { formatDateTime } from "@/lib/utils";
@@ -55,6 +56,7 @@ function getTimeAgo(dateStr: string | null): string {
 }
 
 export default function AdminChatPage() {
+  const { user, loading: authLoading } = useAuthStore();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConv, setSelectedConv] = useState<string | null>(null);
   const [userId, setUserId] = useState("");
@@ -62,15 +64,14 @@ export default function AdminChatPage() {
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    const load = async () => {
+    if (authLoading) return;
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
+    const loadConversations = async () => {
       try {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-        if (!user) {
-          setLoading(false);
-          return;
-        }
         setUserId(user.id);
 
         const { data, error } = await supabase
@@ -89,8 +90,8 @@ export default function AdminChatPage() {
         setLoading(false);
       }
     };
-    load();
-  }, []);
+    loadConversations();
+  }, [user, authLoading]);
 
   const filteredConversations = conversations.filter((conv) => {
     if (!searchQuery.trim()) return true;

@@ -7,6 +7,7 @@ import { Product } from "@/types";
 import { formatPrice, getDiscountPercent, getProductImage } from "@/lib/utils";
 import { useCartStore } from "@/store/cartStore";
 import { useWishlistStore } from "@/store/wishlistStore";
+import { useAuthStore } from "@/store/useAuthStore";
 import { supabase } from "@/lib/supabase/client";
 import { useState, useRef, useEffect } from "react";
 import toast from "react-hot-toast";
@@ -30,11 +31,12 @@ export default function ProductCard({
   isAdmin = false,
 }: ProductCardProps) {
   const addItem = useCartStore((s) => s.addItem);
+  const { user } = useAuthStore();
   const toggleWishlist = useWishlistStore((s) => s.toggleWishlist);
-  const isInWishlist = useWishlistStore((s) => s.isInWishlist);
   const items = useWishlistStore((s) => s.items);
-  const isCurrentlyWishlisted = items.includes(product.id);
-  const isProcessing = useWishlistStore((s) => s.isProcessing);
+  const isInWishlist = items.includes(product.id);
+  const processingIds = useWishlistStore((s) => s.processingIds);
+  const isProcessing = processingIds.includes(product.id);
   const [loading, setLoading] = useState(false);
   const [imgError, setImgError] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -123,7 +125,7 @@ export default function ProductCard({
     if (isProcessing) return;
 
     try {
-      await toggleWishlist(product);
+      await toggleWishlist(product, user?.id);
     } catch (err) {
       console.error("Wishlist error:", err);
     }
@@ -322,7 +324,7 @@ export default function ProductCard({
                 className="relative w-10 h-10 rounded-full flex items-center justify-center overflow-hidden group/btn"
                 style={{
                   background:
-                    mounted && items.includes(product.id)
+                    mounted && isInWishlist
                       ? "rgba(244, 63, 94, 0.9)"
                       : "rgba(255, 255, 255, 0.9)",
                   backdropFilter: "blur(10px)",
@@ -333,20 +335,20 @@ export default function ProductCard({
                   <>
                     <motion.div
                       animate={
-                        items.includes(product.id) ? { scale: [1, 1.3, 1] } : {}
+                        isInWishlist ? { scale: [1, 1.3, 1] } : {}
                       }
                       transition={{ duration: 0.3 }}
                     >
                       <Heart
                         className={`w-4 h-4 transition-all duration-300 ${
-                          items.includes(product.id)
+                          isInWishlist
                             ? "fill-white text-white"
                             : "text-gray-600 group-hover/btn:text-rose-500"
                         }`}
                       />
                     </motion.div>
                     {/* Ripple effect */}
-                    {items.includes(product.id) && (
+                    {isInWishlist && (
                       <motion.div
                         initial={{ scale: 0, opacity: 0.5 }}
                         animate={{ scale: 2.5, opacity: 0 }}

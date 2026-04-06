@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Star, Send, Sparkles, PenLine, MessageSquare, CheckCircle } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
+import { useAuthStore } from "@/store/useAuthStore";
 import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -12,6 +13,7 @@ interface ReviewFormProps {
 }
 
 export default function ReviewForm({ productId, onSuccess }: ReviewFormProps) {
+  const { user, isAdmin } = useAuthStore();
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [title, setTitle] = useState("");
@@ -28,7 +30,6 @@ export default function ReviewForm({ productId, onSuccess }: ReviewFormProps) {
     }
 
     setLoading(true);
-    const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
       toast.error("Please sign in to leave a review");
@@ -36,14 +37,7 @@ export default function ReviewForm({ productId, onSuccess }: ReviewFormProps) {
       return;
     }
 
-    // Check if user is admin
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .single();
-
-    if (profile?.role?.toLowerCase()?.trim() === "admin") {
+    if (isAdmin) {
       toast.error("Administrators are not allowed to leave reviews.");
       setLoading(false);
       return;
