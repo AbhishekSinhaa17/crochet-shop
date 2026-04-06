@@ -77,7 +77,8 @@ export class OrderRepository {
     
     let query = supabase
       .from("orders")
-      .select("*, profiles!user_id(full_name, avatar_url)", { count: "exact" });
+      .select("*", { count: "exact" });
+
 
     if (status) {
       query = query.eq("status", status);
@@ -159,7 +160,8 @@ export class OrderRepository {
     
     let query = supabase
       .from("custom_orders")
-      .select("*, profiles!user_id(full_name, avatar_url)", { count: "exact" });
+      .select("*", { count: "exact" });
+
 
     if (status) {
       query = query.eq("status", status);
