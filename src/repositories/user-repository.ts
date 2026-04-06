@@ -63,8 +63,15 @@ export class UserRepository {
       .range(from, to);
 
     if (error) throw error;
-    return { data, count };
+
+    return {
+      data,
+      count: count || 0,
+      totalPages: Math.ceil((count || 0) / limit),
+      currentPage: page
+    };
   }
+
 
   async deleteProfile(userId: string) {
     // Note: auth side delete needs admin client

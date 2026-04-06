@@ -1,4 +1,5 @@
-import { NextResponse } from "next/server";
+import { Response } from "@/lib/api-response";
+import { Logger } from "@/lib/logger";
 import { ProfileService } from "@/services/profile-service";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
@@ -10,16 +11,18 @@ export async function GET() {
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
-      return NextResponse.json({ profile: null }, { status: 200 });
+      Logger.info("Profile fetch: no user session");
+      return Response.success({ profile: null });
     }
 
-    const profileService = new ProfileService(true); // Using admin service to ensure profile is fetched even if RLS is tight
+    const profileService = new ProfileService(true);
     const profile = await profileService.getProfile(user.id);
 
-    return NextResponse.json({ success: true, profile }, { status: 200 });
+    return Response.success({ profile });
   } catch (err: any) {
-    console.error("Profile API Error:", err);
-    return NextResponse.json({ success: false, error: "Internal Server Error" }, { status: 500 });
+    Logger.error("Profile API Error", err);
+    return Response.internalError();
   }
 }
+
 

@@ -26,6 +26,23 @@ export class OrderRepository {
     return data;
   }
 
+  async placeOrderAtomic(params: {
+    p_user_id: string;
+    p_order_number: string;
+    p_total: number;
+    p_subtotal: number;
+    p_shipping_address: any;
+    p_items: any[];
+    p_payment_method?: string;
+  }) {
+    const supabase = await this.getClient();
+    const { data, error } = await supabase.rpc("place_order_atomic", params);
+
+    if (error) throw error;
+    return data;
+  }
+
+
   async getOrderById(id: string) {
     const supabase = await this.getClient();
     const { data, error } = await supabase
@@ -74,8 +91,15 @@ export class OrderRepository {
       .range(from, to);
 
     if (error) throw error;
-    return { data, count };
+    
+    return {
+      data,
+      count: count || 0,
+      totalPages: Math.ceil((count || 0) / limit),
+      currentPage: page
+    };
   }
+
 
   async updateOrderStatus(id: string, status: string, note?: string) {
     const supabase = await this.getClient();
@@ -149,8 +173,15 @@ export class OrderRepository {
       .range(from, to);
 
     if (error) throw error;
-    return { data, count };
+    
+    return {
+      data,
+      count: count || 0,
+      totalPages: Math.ceil((count || 0) / limit),
+      currentPage: page
+    };
   }
+
 
   async updateCustomOrderStatus(id: string, status: string, admin_notes?: string, quoted_price?: number) {
     const supabase = await this.getClient();

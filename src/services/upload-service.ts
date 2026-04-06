@@ -1,8 +1,8 @@
+import { Logger } from "@/lib/logger";
 import { supabaseAdmin } from "@/lib/supabase/admin";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
+const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png"];
 
 export class UploadService {
   private bucket: string;
@@ -12,47 +12,59 @@ export class UploadService {
   }
 
   async uploadFile(file: File, folder: string = "general") {
-    // 1. Validation
-    if (!file || file.size === 0) {
-      throw new Error("Invalid file content.");
+    try {
+      // 1. Validation
+      if (!file || file.size === 0) {
+        throw new Error("Invalid file content.");
+      }
+
+      if (file.size > MAX_FILE_SIZE) {
+        throw new Error(`File size exceeds limit of 2MB.`);
+      }
+
+      if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+        throw new Error(`File type ${file.type} is not allowed. Only JPEG and PNG are permitted.`);
+      }
+
+      // 2. Prepare path
+      const ext = file.name ? file.name.split('.').pop() || 'jpg' : 'jpg';
+      const timestamp = Date.now();
+      const random = Math.random().toString(36).substring(2, 7);
+      
+      // Slugify filename to be safe
+      const safeName = (file.name || 'image')
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, '-')
+        .replace(/-+/g, '-')
+        .substring(0, 50);
+
+      const path = `${folder}/${timestamp}-${random}-${safeName}.${ext}`;
+
+      // 3. Upload
+      const buffer = Buffer.from(await file.arrayBuffer());
+      
+      const { error: uploadError } = await supabaseAdmin.storage
+        .from(this.bucket)
+        .upload(path, buffer, {
+          contentType: file.type,
+          upsert: false
+        });
+
+      if (uploadError) {
+        throw new Error(`Failed to upload file: ${uploadError.message}`);
+      }
+
+      // 4. Get public URL
+      const { data } = supabaseAdmin.storage.from(this.bucket).getPublicUrl(path);
+      
+      return {
+        path,
+        url: data.publicUrl
+      };
+    } catch (error: any) {
+      Logger.error("Upload error", error);
+      throw error;
     }
-
-    if (file.size > MAX_FILE_SIZE) {
-      throw new Error(`File size exceeds limit of ${MAX_FILE_SIZE / (1024 * 1024)}MB.`);
-    }
-
-    if (!ALLOWED_MIME_TYPES.includes(file.type)) {
-      throw new Error(`File type ${file.type} is not allowed.`);
-    }
-
-    // 2. Prepare path
-    const ext = file.name ? file.name.split('.').pop() || 'jpg' : 'jpg';
-    const timestamp = Date.now();
-    const random = Math.random().toString(36).substring(2, 7);
-    const path = `${folder}/${timestamp}-${random}.${ext}`;
-
-    // 3. Upload (use admin client for storage usually, but we could use user client if RLS allows)
-    const buffer = Buffer.from(await file.arrayBuffer());
-    
-    const { error: uploadError } = await supabaseAdmin.storage
-      .from(this.bucket)
-      .upload(path, buffer, {
-        contentType: file.type,
-        upsert: false
-      });
-
-    if (uploadError) {
-      console.error(`Upload error for bucket ${this.bucket}:`, uploadError);
-      throw new Error(`Failed to upload file: ${uploadError.message}`);
-    }
-
-    // 4. Get public URL
-    const { data } = supabaseAdmin.storage.from(this.bucket).getPublicUrl(path);
-    
-    return {
-      path,
-      url: data.publicUrl
-    };
   }
 
   async uploadMultiple(files: File[], folder: string = "general") {
@@ -75,11 +87,17 @@ export class UploadService {
   }
 
   async deleteFile(path: string) {
-    const { error } = await supabaseAdmin.storage
-      .from(this.bucket)
-      .remove([path]);
+    try {
+      const { error } = await supabaseAdmin.storage
+        .from(this.bucket)
+        .remove([path]);
 
-    if (error) throw error;
-    return true;
+      if (error) throw error;
+      return true;
+    } catch (error: any) {
+      Logger.error("Delete file error", error);
+      throw error;
+    }
   }
 }
+

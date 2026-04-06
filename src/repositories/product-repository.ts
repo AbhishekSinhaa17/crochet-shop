@@ -61,8 +61,15 @@ export class ProductRepository {
       .range(from, to);
 
     if (error) throw error;
-    return { data, count };
+    
+    return {
+      data,
+      count: count || 0,
+      totalPages: Math.ceil((count || 0) / limit),
+      currentPage: page
+    };
   }
+
 
   async getById(id: string) {
     const supabase = await this.getClient();

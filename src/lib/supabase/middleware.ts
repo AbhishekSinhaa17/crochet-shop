@@ -3,31 +3,37 @@ import { NextResponse, type NextRequest } from "next/server";
 
 // Basic Rate Limiting Structure (In-memory is not persistent across middleware runs, 
 // so this is more of a structural hint or using a real store if needed)
-const ipCache = new Map<string, { count: number, reset: number }>();
-const RATE_LIMIT = 100; // requests
-const WINDOW_MS = 60 * 1000; // 1 minute
+import { checkRateLimit, AUTH_LIMIT, PUBLIC_LIMIT } from "@/lib/ratelimit";
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
-  // 1. Basic Rate Limiting Check (Simplified)
-  const ip = request.ip || 'anonymous';
-  const now = Date.now();
-  const userData = ipCache.get(ip) || { count: 0, reset: now + WINDOW_MS };
+  // 1. Route Definitions
+  const pathname = request.nextUrl.pathname;
+  const authRoutes = ["/auth/login", "/auth/register", "/api/auth"];
+  const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
 
-  if (now > userData.reset) {
-    userData.count = 0;
-    userData.reset = now + WINDOW_MS;
+  // 2. Rate Limiting Check
+  const ip = request.ip || request.headers.get("x-forwarded-for") || "anonymous";
+  const limitConfig = isAuthRoute ? AUTH_LIMIT : PUBLIC_LIMIT;
+  
+  const { success, limit, remaining, reset } = await checkRateLimit(
+    `ip:${ip}:${pathname}`, 
+    limitConfig
+  );
+
+  if (!success) {
+    return new NextResponse("Too Many Requests", { 
+      status: 429,
+      headers: {
+        "X-RateLimit-Limit": limit.toString(),
+        "X-RateLimit-Remaining": remaining.toString(),
+        "X-RateLimit-Reset": reset.toString(),
+      }
+    });
   }
 
-  userData.count++;
-  ipCache.set(ip, userData);
-
-  if (userData.count > RATE_LIMIT) {
-    return new NextResponse('Too Many Requests', { status: 429 });
-  }
-
-  // 2. Supabase Client Setup
+  // 3. Supabase Client Setup
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -49,16 +55,12 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  const pathname = request.nextUrl.pathname;
-
-  // 3. Define route protection
+  // 4. Define route protection
   const protectedRoutes = ["/profile", "/orders", "/wishlist", "/cart", "/checkout", "/chat", "/custom-order"];
   const adminRoutes = ["/admin"];
-  const authRoutes = ["/auth/login", "/auth/register"];
 
   const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route));
   const isAdminRoute = adminRoutes.some((route) => pathname.startsWith(route));
-  const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
 
   // Determine if this route needs an authentication/authorization check
   const needsAuthCheck = isProtectedRoute || isAdminRoute || isAuthRoute;
@@ -71,7 +73,7 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // 4. Authentication Logic
+  // 5. Authentication Logic
   if (!user) {
     if (isProtectedRoute || isAdminRoute) {
       const url = request.nextUrl.clone();
@@ -87,7 +89,7 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
-  // 5. Authorization Logic (RBAC)
+  // 6. Authorization Logic (RBAC)
   if (isAdminRoute) {
     // Only admins can access admin routes
     const { data: profile } = await supabase
@@ -105,9 +107,10 @@ export async function updateSession(request: NextRequest) {
   }
 
   // Add rate limit headers to response
-  supabaseResponse.headers.set('X-RateLimit-Limit', RATE_LIMIT.toString());
-  supabaseResponse.headers.set('X-RateLimit-Remaining', Math.max(0, RATE_LIMIT - userData.count).toString());
-  supabaseResponse.headers.set('X-RateLimit-Reset', userData.reset.toString());
+  supabaseResponse.headers.set('X-RateLimit-Limit', limit.toString());
+  supabaseResponse.headers.set('X-RateLimit-Remaining', remaining.toString());
+  supabaseResponse.headers.set('X-RateLimit-Reset', reset.toString());
 
   return supabaseResponse;
-}
+}
+

@@ -1,8 +1,10 @@
 import { OrderRepository } from "@/repositories/order-repository";
-import { orderCreateSchema, customOrderSchema, OrderCreateInput, CustomOrderInput } from "@/validators/order";
 import { ProductRepository } from "@/repositories/product-repository";
+import { orderCreateSchema, customOrderSchema } from "@/validators/order";
+import { Logger } from "@/lib/logger";
 
 export class OrderService {
+
   private repository: OrderRepository;
   private productRepository: ProductRepository;
 
@@ -12,49 +14,54 @@ export class OrderService {
   }
 
   async placeOrder(userId: string, data: any) {
-    // 1. Validate
-    const validated = orderCreateSchema.parse(data);
-    
-    // 2. Fetch products and calculate total
-    let subtotal = 0;
-    const itemsWithDetails = await Promise.all(validated.items.map(async (item) => {
-      const product = await this.productRepository.getById(item.product_id);
-      if (!product || product.stock < item.quantity) {
-        throw new Error(`Product ${product?.name || item.product_id} is out of stock or insufficient.`);
-      }
-      subtotal += Number(product.price) * item.quantity;
-      return {
-        ...item,
-        price: Number(product.price),
-        name: product.name
-      };
-    }));
+    try {
+      // 1. Validate
+      const validated = orderCreateSchema.parse(data);
+      
+      // 2. Fetch products and calculate total
+      let subtotal = 0;
+      const itemsWithDetails = await Promise.all(validated.items.map(async (item: any) => {
+        const product = await this.productRepository.getById(item.product_id);
+        if (!product || product.stock < item.quantity) {
+          throw new Error(`Product ${product?.name || item.product_id} is out of stock or insufficient.`);
+        }
+        subtotal += Number(product.price) * item.quantity;
+        return {
+          ...item,
+          price: Number(product.price),
+          name: product.name
+        };
+      }));
 
-    const total = subtotal; // Add shipping fee etc here
+      const total = subtotal; // Add shipping fee etc here
 
-    // 3. Generate order number
-    const orderNumber = `CC-${Date.now()}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+      // 3. Generate order number
+      const orderNumber = `CC-${Date.now()}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
 
-    // 4. Create order
-    const order = await this.repository.createOrder({
-      ...validated,
-      user_id: userId,
-      order_number: orderNumber,
-      total,
-      subtotal,
-      items: itemsWithDetails as any
-    });
-
-    // 5. Update stock (decrement)
-    await Promise.all(itemsWithDetails.map(async (item) => {
-      const product = await this.productRepository.getById(item.product_id);
-      await this.productRepository.update(item.product_id, {
-        stock: product.stock - item.quantity
+      // 4. Create order ATOMICALLY via RPC
+      const result = await this.repository.placeOrderAtomic({
+        p_user_id: userId,
+        p_order_number: orderNumber,
+        p_total: total,
+        p_subtotal: subtotal,
+        p_shipping_address: validated.shipping_address,
+        p_items: itemsWithDetails.map((item: any) => ({
+          product_id: item.product_id,
+          quantity: item.quantity,
+          price: item.price,
+          name: item.name
+        })),
+        p_payment_method: validated.payment_method || 'razorpay'
       });
-    }));
 
-    return order;
+      Logger.info("Order placed successfully", { userId, orderNumber, orderId: result.id });
+      return result;
+    } catch (error: any) {
+      Logger.error("Failed to place order", error);
+      throw error;
+    }
   }
+
 
   async getMyOrders(userId: string) {
     return await this.repository.getOrdersByUser(userId);
