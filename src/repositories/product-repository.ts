@@ -21,9 +21,10 @@ export class ProductRepository {
     search?: string;
     page?: number;
     limit?: number;
+    include_deleted?: boolean;
   }) {
     const supabase = await this.getClient();
-    const { category_slug, is_active, is_featured, search, page = 1, limit = 12 } = options || {};
+    const { category_slug, is_active, is_featured, search, page = 1, limit = 12, include_deleted = false } = options || {};
     
     let query = supabase
       .from("products")
@@ -34,6 +35,10 @@ export class ProductRepository {
           slug
         )
       `, { count: "exact" });
+
+    if (!include_deleted) {
+      query = query.eq("is_deleted", false);
+    }
 
     if (category_slug) {
       // Need to handle nested filtering or join
@@ -70,25 +75,35 @@ export class ProductRepository {
   }
 
 
-  async getById(id: string) {
+  async getById(id: string, include_deleted = false) {
     const supabase = await this.getClient();
-    const { data, error } = await supabase
+    let query = supabase
       .from("products")
       .select("*, categories!category_id(*)")
-      .eq("id", id)
-      .single();
+      .eq("id", id);
+    
+    if (!include_deleted) {
+      query = query.eq("is_deleted", false);
+    }
+
+    const { data, error } = await query.single();
 
     if (error) throw error;
     return data;
   }
 
-  async getBySlug(slug: string) {
+  async getBySlug(slug: string, include_deleted = false) {
     const supabase = await this.getClient();
-    const { data, error } = await supabase
+    let query = supabase
       .from("products")
       .select("*, categories!category_id(*)")
-      .eq("slug", slug)
-      .single();
+      .eq("slug", slug);
+
+    if (!include_deleted) {
+      query = query.eq("is_deleted", false);
+    }
+
+    const { data, error } = await query.single();
 
     if (error) throw error;
     return data;
@@ -121,9 +136,14 @@ export class ProductRepository {
 
   async delete(id: string) {
     const supabase = await this.getClient();
+    // 🛡️ Soft Delete Implementation (Logical Delete)
     const { error } = await supabase
       .from("products")
-      .delete()
+      .update({ 
+        is_deleted: true, 
+        is_active: false,
+        updated_at: new Date().toISOString() 
+      })
       .eq("id", id);
 
     if (error) throw error;

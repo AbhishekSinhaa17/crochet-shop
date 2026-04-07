@@ -35,13 +35,14 @@ export default function ProductCard({
   const toggleWishlist = useWishlistStore((s) => s.toggleWishlist);
   const items = useWishlistStore((s) => s.items);
   const isInWishlist = items.includes(product.id);
-  const processingIds = useWishlistStore((s) => s.processingIds);
-  const isProcessing = processingIds.includes(product.id);
-  const [loading, setLoading] = useState(false);
+  const processingWishlistIds = useWishlistStore((s) => s.processingIds);
+  const isWishlistProcessing = processingWishlistIds.includes(product.id);
+  
+  const isCartProcessing = useCartStore((s) => s.isProcessing(product.id));
+  const isInCart = useCartStore((s) => s.items.some(i => i.id === product.id));
+  
   const [imgError, setImgError] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-  const [isAddingToCart, setIsAddingToCart] = useState(false);
-  const [addedToCart, setAddedToCart] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -90,16 +91,10 @@ export default function ProductCard({
       return;
     }
 
+    if (isCartProcessing) return;
+
     try {
-      setIsAddingToCart(true);
-
-      // Simulate a small delay for better UX
-      await new Promise((resolve) => setTimeout(resolve, 600));
-
-      addItem(product, 1);
-      setIsAddingToCart(false);
-      setAddedToCart(true);
-
+      await addItem(product, 1);
       toast.success(
         <div className="flex items-center gap-2">
           <Check className="w-4 h-4 text-green-500" />
@@ -108,11 +103,8 @@ export default function ProductCard({
           </span>
         </div>,
       );
-
-      setTimeout(() => setAddedToCart(false), 2000);
     } catch (err) {
       console.error(err);
-      setIsAddingToCart(false);
     }
   };
 
@@ -120,12 +112,10 @@ export default function ProductCard({
     e.preventDefault();
     e.stopPropagation();
 
-    console.log("CLICKED WISHLIST:", product.id);
-
-    if (isProcessing) return;
+    if (isWishlistProcessing) return;
 
     try {
-      await toggleWishlist(product, user?.id);
+      await toggleWishlist(product, user?.id || "");
     } catch (err) {
       console.error("Wishlist error:", err);
     }
@@ -235,7 +225,10 @@ export default function ProductCard({
               className={`object-cover transition-all duration-700 ${
                 imageLoaded ? "opacity-100" : "opacity-0"
               }`}
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
+              priority={index < 4}
+              placeholder="blur"
+              blurDataURL="data:image/webp;base64,UklGRmAAAABXRUJQVlA4WAoAAAAQAAAABwAABwAAQUxQSAIAAAAAAFZQOCAYAAAAMAEAnQEqCAAIAAVAtJQpAAAnAA/v/e0AAA=="
               onError={() => setImgError(true)}
               onLoad={() => setImageLoaded(true)}
             />
@@ -388,7 +381,7 @@ export default function ProductCard({
             >
               <motion.button
                 onClick={handleAddToCart}
-                disabled={product.stock <= 0 || isAddingToCart}
+                disabled={product.stock <= 0 || isCartProcessing}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 className={`
@@ -397,7 +390,7 @@ export default function ProductCard({
                   transition-all duration-300
                   disabled:opacity-50 disabled:cursor-not-allowed
                   ${
-                    addedToCart
+                    isInCart
                       ? "bg-green-500 text-white"
                       : "bg-white text-gray-900 hover:bg-gray-50"
                   }
@@ -408,7 +401,7 @@ export default function ProductCard({
                 }}
               >
                 <AnimatePresence mode="wait">
-                  {isAddingToCart ? (
+                  {isCartProcessing ? (
                     <motion.div
                       key="loading"
                       initial={{ opacity: 0, scale: 0.8 }}
@@ -432,9 +425,9 @@ export default function ProductCard({
                           d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                         />
                       </svg>
-                      Adding...
+                      Updating...
                     </motion.div>
-                  ) : addedToCart ? (
+                  ) : isInCart ? (
                     <motion.div
                       key="added"
                       initial={{ opacity: 0, scale: 0.8 }}
@@ -443,7 +436,7 @@ export default function ProductCard({
                       className="flex items-center gap-2"
                     >
                       <Check className="w-4 h-4" />
-                      Added to Cart!
+                      In Your Cart
                     </motion.div>
                   ) : (
                     <motion.div

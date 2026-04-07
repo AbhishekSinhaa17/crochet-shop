@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import ProductGrid from "@/components/products/ProductGrid";
 import { drand } from "@/lib/drand";
+import { useAuthStore } from "@/store/useAuthStore";
 
 interface FeaturedProductsSectionProps {
   products: any[];
@@ -13,24 +14,10 @@ interface FeaturedProductsSectionProps {
 
 export default function FeaturedProductsSection({ products }: FeaturedProductsSectionProps) {
   const [isLoaded, setIsLoaded] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const isAdmin = useAuthStore((s) => s.isAdmin);
 
   useEffect(() => {
     const t = setTimeout(() => setIsLoaded(true), 120);
-    
-    const fetchAdminStatus = async () => {
-      try {
-        const res = await fetch("/api/profile");
-        const json = await res.json();
-        if (json.profile?.role?.toLowerCase()?.trim() === "admin") {
-          setIsAdmin(true);
-        }
-      } catch (e) {
-        console.error("Error fetching admin status:", e);
-      }
-    };
-    fetchAdminStatus();
-
     return () => clearTimeout(t);
   }, []);
 

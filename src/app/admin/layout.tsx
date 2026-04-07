@@ -17,9 +17,11 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabase/client";
 import toast from "react-hot-toast";
 import ThemeToggle from "@/components/layout/ThemeToggle";
+import AdminGuard from "@/components/admin/AdminGuard";
+import { useAuthStore } from "@/store/useAuthStore";
 
 const navItems = [
-  { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/products", label: "Products", icon: Package },
   { href: "/admin/orders", label: "Orders", icon: ShoppingCart },
   { href: "/admin/users", label: "Users", icon: Users },
@@ -30,12 +32,14 @@ const navItems = [
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
-  const handleLogout = () => {
-    const form = document.createElement("form");
-    form.method = "POST";
-    form.action = "/auth/signout";
-    document.body.appendChild(form);
-    form.submit();
+  const handleLogout = async () => {
+    try {
+      await useAuthStore.getState().signOut();
+      toast.success("Logged out successfully");
+      window.location.href = "/";
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
@@ -88,7 +92,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       {/* Main Content */}
       <div className="flex-1 lg:ml-64">
-        <div className="p-6 lg:p-8">{children}</div>
+        <AdminGuard>
+          <div className="p-6 lg:p-8">{children}</div>
+        </AdminGuard>
       </div>
     </div>
   );

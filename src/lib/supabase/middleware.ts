@@ -61,14 +61,16 @@ export async function updateSession(request: NextRequest) {
 
   const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route));
   const isAdminRoute = adminRoutes.some((route) => pathname.startsWith(route));
+  const isAuthPage = authRoutes.some((route) => pathname.startsWith(route));
 
   // Determine if this route needs an authentication/authorization check
-  const needsAuthCheck = isProtectedRoute || isAdminRoute || isAuthRoute;
+  const needsAuthCheck = isProtectedRoute || isAdminRoute || isAuthPage;
 
   if (!needsAuthCheck) {
     return supabaseResponse;
   }
 
+  // 🛡️ Security Best Practice: Use getUser() on the server to verify the JWT
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -76,6 +78,7 @@ export async function updateSession(request: NextRequest) {
   // 5. Authentication Logic
   if (!user) {
     if (isProtectedRoute || isAdminRoute) {
+      console.log(`[Middleware] Unauthorized access to ${pathname} - Redirecting to login`);
       const url = request.nextUrl.clone();
       url.pathname = "/auth/login";
       url.searchParams.set("redirect", pathname);
@@ -84,24 +87,27 @@ export async function updateSession(request: NextRequest) {
     return supabaseResponse;
   }
 
-  // If user is logged in and tries to access /auth pages, redirect to home
-  if (isAuthRoute) {
+  // If user is already logged in and tries to access /auth pages, redirect to home
+  if (isAuthPage) {
+    console.log(`[Middleware] Authenticated user on auth page - Redirecting home`);
     return NextResponse.redirect(new URL("/", request.url));
   }
 
   // 6. Authorization Logic (RBAC)
   if (isAdminRoute) {
     // Only admins can access admin routes
-    const { data: profile } = await supabase
+    // 🛡️ Explicit DB check for role to prevent JWT spoofing (Production-Grade)
+    const { data: profile, error: roleError } = await supabase
       .from("profiles")
       .select("role")
       .eq("id", user.id)
       .maybeSingle();
 
-    const role = profile?.role?.toLowerCase()?.trim();
+    const currentRole = profile?.role?.toLowerCase()?.trim() || 'user';
 
-    if (role !== "admin") {
-      // Not an admin, redirect home with error or to a forbidden page
+    if (roleError || currentRole !== "admin") {
+      console.warn(`[Middleware] Forbidden admin access attempt by ${user.email} (Role: ${currentRole})`);
+      // Not an admin, redirect home
       return NextResponse.redirect(new URL("/", request.url));
     }
   }

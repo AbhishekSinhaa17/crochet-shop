@@ -7,6 +7,7 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { getProductImages } from "@/lib/utils";
+import { deleteProductAction } from "@/actions/product-actions";
 
 interface AdminProductActionsProps {
   product: {
@@ -27,39 +28,13 @@ export default function AdminProductActions({ product }: AdminProductActionsProp
 
     setIsDeleting(true);
     try {
-      // 1. Delete images from Supabase Storage
-      const images = getProductImages(product.images);
-      if (images.length > 0) {
-        // Extract paths from public URLs
-        // URL format: https://[PROJECT_ID].supabase.co/storage/v1/object/public/product-images/[FILENAME]
-        const paths = images.map(url => {
-          const parts = url.split("product-images/");
-          return parts.length > 1 ? parts[1] : null;
-        }).filter(Boolean) as string[];
+      const result = await deleteProductAction(product.id);
 
-        if (paths.length > 0) {
-          console.log("Deleting images from storage:", paths);
-          const { error: storageError } = await supabase.storage
-            .from("product-images")
-            .remove(paths);
-          
-          if (storageError) {
-            console.error("Error deleting images:", storageError);
-            // We continue even if image deletion fails, 
-            // as we want the product row removed.
-          }
-        }
+      if (!result.success) {
+        throw new Error(result.error);
       }
 
-      // 2. Delete product from database
-      const { error } = await supabase
-        .from("products")
-        .delete()
-        .eq("id", product.id);
-
-      if (error) throw error;
-
-      toast.success("Product deleted successfully");
+      toast.success("Product deleted successfully (Soft Delete)");
       router.refresh();
     } catch (err: any) {
       console.error("Delete Error:", err);

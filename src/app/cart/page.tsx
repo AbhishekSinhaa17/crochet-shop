@@ -36,6 +36,7 @@ import ProductCard from "@/components/products/ProductCard";
 import { Product } from "@/types";
 import { formatPrice, getProductImage } from "@/lib/utils";
 import { cn } from "@/lib/utils";
+import { EmptyState } from "@/components/common/EmptyStates";
 import toast from "react-hot-toast";
 
 interface PromoCode {
@@ -51,10 +52,8 @@ const validPromoCodes: PromoCode[] = [
 ];
 
 export default function CartPage() {
-  const { items, updateQuantity, removeItem, getTotal, clearCart } = useCartStore();
+  const { items, updateQuantity, removeItem, getTotal, clearCart, processingIds } = useCartStore();
   const [isLoaded, setIsLoaded] = useState(false);
-  const [removingIds, setRemovingIds] = useState<Set<string>>(new Set());
-  const [updatingIds, setUpdatingIds] = useState<Set<string>>(new Set());
   const [promoCode, setPromoCode] = useState("");
   const [appliedPromo, setAppliedPromo] = useState<PromoCode | null>(null);
   const [applyingPromo, setApplyingPromo] = useState(false);
@@ -94,16 +93,10 @@ export default function CartPage() {
 
   const handleUpdateQuantity = async (id: string, newQuantity: number) => {
     if (newQuantity < 1) return;
-    
-    setUpdatingIds(new Set([...updatingIds, id]));
-    await new Promise(resolve => setTimeout(resolve, 300));
     updateQuantity(id, newQuantity);
-    setUpdatingIds(new Set([...updatingIds].filter(i => i !== id)));
   };
 
   const handleRemoveItem = async (id: string, name: string) => {
-    setRemovingIds(new Set([...removingIds, id]));
-    await new Promise(resolve => setTimeout(resolve, 500));
     removeItem(id);
     toast.success(`${name} removed from cart`);
   };
@@ -163,11 +156,32 @@ export default function CartPage() {
 
   if (items.length === 0) {
     return (
-      <EmptyCart 
-        isLoaded={isLoaded} 
-        recommendedProducts={recommendedProducts}
-        isLoadingRecommended={isLoadingRecommended}
-      />
+      <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-amber-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-amber-950/20 py-20 px-4">
+        <div className="max-w-7xl mx-auto">
+          <EmptyState variant="cart" />
+          
+          {/* Recommendations in Empty State */}
+          <div className="mt-20">
+             <div className="flex items-center gap-3 mb-8">
+               <Sparkles className="w-6 h-6 text-amber-500" />
+               <h2 className="text-2xl font-display font-bold text-gray-900 dark:text-white">
+                 Popular Hits
+               </h2>
+             </div>
+             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-6">
+               {isLoadingRecommended ? (
+                 [1, 2, 3, 4].map((i) => (
+                   <div key={i} className="h-64 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse" />
+                 ))
+               ) : (
+                 recommendedProducts.map((product, idx) => (
+                   <ProductCard key={`rec-empty-${product.id}`} product={product} index={idx} />
+                 ))
+               )}
+             </div>
+          </div>
+        </div>
+      </div>
     );
   }
 
@@ -286,8 +300,8 @@ export default function CartPage() {
               <CartItemCard
                 key={`${item.id}-${idx}`}
                 item={item}
-                isRemoving={removingIds.has(item.id)}
-                isUpdating={updatingIds.has(item.id)}
+                isRemoving={processingIds.includes(item.id)}
+                isUpdating={processingIds.includes(item.id)}
                 onUpdateQuantity={(qty) => handleUpdateQuantity(item.id, qty)}
                 onRemove={() => handleRemoveItem(item.id, item.name)}
                 delay={idx * 100}
@@ -737,193 +751,6 @@ function CartItemCard({
           Save for Later
         </button>
       </div>
-    </div>
-  );
-}
-
-// Empty Cart Component
-function EmptyCart({ 
-  isLoaded, 
-  recommendedProducts, 
-  isLoadingRecommended 
-}: { 
-  isLoaded: boolean;
-  recommendedProducts: Product[];
-  isLoadingRecommended: boolean;
-}) {
-  return (
-    <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-amber-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-amber-950/20 transition-colors duration-500">
-      {/* Animated Background */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 -left-20 w-96 h-96 bg-linear-to-r from-amber-200/30 to-orange-200/30 dark:from-amber-900/20 dark:to-orange-900/20 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-20 -right-20 w-96 h-96 bg-linear-to-r from-purple-200/30 to-pink-200/30 dark:from-purple-900/20 dark:to-pink-900/20 rounded-full blur-3xl animate-pulse" />
-      </div>
-
-      <div className="relative max-w-lg mx-auto px-4 py-20">
-        <div 
-          className={`transition-all duration-700 ${
-            isLoaded ? "opacity-100 scale-100" : "opacity-0 scale-95"
-          }`}
-        >
-          {/* Glow Effect */}
-          <div className="absolute -inset-4 rounded-3xl bg-linear-to-r from-amber-200 via-orange-200 to-amber-200 dark:from-amber-900/30 dark:via-orange-900/30 dark:to-amber-900/30 opacity-50 blur-2xl" />
-
-          {/* Card */}
-          <div className="relative overflow-hidden rounded-3xl border border-white/60 dark:border-white/10 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl shadow-2xl">
-            {/* Gradient Bar */}
-            <div className="h-1.5 bg-linear-to-r from-amber-400 via-orange-500 to-amber-400" />
-
-            <div className="px-8 py-16 text-center">
-              {/* Animated Icon */}
-              <div className="relative mx-auto mb-8 w-32 h-32">
-                {/* Outer Ring */}
-                <div className="absolute inset-0 rounded-full border-2 border-dashed border-amber-200 dark:border-amber-800/50 animate-spin-slow" />
-                {/* Inner Circle */}
-                <div className="absolute inset-6 rounded-full bg-linear-to-br from-amber-100 to-orange-100 dark:from-amber-900/50 dark:to-orange-900/50 flex items-center justify-center">
-                  <ShoppingBag className="w-12 h-12 text-amber-500 dark:text-amber-400" />
-                </div>
-                
-                {/* Floating Elements */}
-                <Sparkles className="absolute -top-2 -right-2 w-6 h-6 text-amber-400 animate-bounce" />
-                <Package className="absolute -bottom-1 -left-3 w-5 h-5 text-orange-400 animate-bounce animation-delay-500" />
-              </div>
-
-              <h1 className="text-2xl md:text-3xl font-display font-bold text-gray-900 dark:text-white mb-4">
-                Your cart is empty
-              </h1>
-              <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-sm mx-auto leading-relaxed">
-                Looks like you haven't added anything to your cart yet. Start exploring our collection!
-              </p>
-
-              {/* CTA Button */}
-              <Link
-                href="/products"
-                className="group relative inline-flex items-center gap-2.5 overflow-hidden rounded-full bg-linear-to-r from-amber-500 via-orange-500 to-amber-500 px-8 py-4 text-sm font-semibold text-white shadow-lg shadow-amber-500/25 dark:shadow-amber-500/15 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
-              >
-                {/* Shimmer Effect */}
-                <span className="absolute inset-0 -translate-x-full animate-shimmer bg-linear-to-r from-transparent via-white/20 to-transparent" />
-                <ShoppingBag className="w-5 h-5" />
-                <span>Start Shopping</span>
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Link>
-
-              {/* Decorative Dots */}
-              <div className="flex justify-center gap-2 mt-12">
-                {[0, 1, 2, 3, 4].map((i) => (
-                  <div
-                    key={i}
-                    className="w-2 h-2 rounded-full bg-amber-200 dark:bg-amber-800/60 animate-dot-bounce"
-                    style={{ animationDelay: `${i * 0.15}s` }}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Feature Cards */}
-          <div className="grid grid-cols-2 gap-4 mt-8">
-            {[
-              { icon: Truck, label: "Free Shipping", desc: "Over ₹999" },
-              { icon: Shield, label: "Secure Pay", desc: "100% Safe" },
-            ].map((feature, idx) => (
-              <div
-                key={feature.label}
-                className="bg-white dark:bg-gray-900 rounded-xl p-4 text-center border border-gray-100 dark:border-gray-800"
-                style={{ animationDelay: `${idx * 100}ms` }}
-              >
-                <feature.icon className="w-6 h-6 text-amber-500 mx-auto mb-2" />
-                <p className="text-xs font-medium text-gray-900 dark:text-white">{feature.label}</p>
-                <p className="text-[10px] text-gray-400 dark:text-gray-500">{feature.desc}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* Recommendations in Empty Cart */}
-          <div 
-            className={`mt-16 transition-all duration-700 delay-500 px-4 sm:px-0 ${
-              isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-            }`}
-          >
-            <div className="flex items-center gap-3 mb-8">
-              <Sparkles className="w-6 h-6 text-amber-500" />
-              <h2 className="text-2xl font-display font-bold text-gray-900 dark:text-white">
-                You might also like
-              </h2>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
-              {isLoadingRecommended ? (
-                [1, 2, 3, 4].map((i) => (
-                  <div 
-                    key={i}
-                    className="bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 overflow-hidden hover:shadow-lg transition-shadow group"
-                  >
-                    <div className="aspect-square bg-linear-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 relative overflow-hidden">
-                      <div className="absolute inset-0 flex items-center justify-center text-gray-400 dark:text-gray-500">
-                        <Package className="w-12 h-12" />
-                      </div>
-                    </div>
-                    <div className="p-4">
-                      <div className="h-4 w-3/4 bg-gray-200 dark:bg-gray-800 rounded animate-pulse" />
-                      <div className="h-6 w-1/2 bg-gray-200 dark:bg-gray-800 rounded mt-2 animate-pulse" />
-                    </div>
-                  </div>
-                ))
-              ) : (
-                recommendedProducts.map((product, idx) => (
-                  <ProductCard key={product.id} product={product} index={idx} />
-                ))
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <style jsx>{`
-        @keyframes spin-slow {
-          from {
-            transform: rotate(0deg);
-          }
-          to {
-            transform: rotate(360deg);
-          }
-        }
-        
-        .animate-spin-slow {
-          animation: spin-slow 20s linear infinite;
-        }
-        
-        @keyframes shimmer {
-          0% {
-            transform: translateX(-100%);
-          }
-          50%, 100% {
-            transform: translateX(100%);
-          }
-        }
-        
-        .animate-shimmer {
-          animation: shimmer 3s ease-in-out infinite;
-        }
-        
-        @keyframes dot-bounce {
-          0%, 100% {
-            transform: translateY(0);
-            opacity: 0.4;
-          }
-          50% {
-            transform: translateY(-6px);
-            opacity: 1;
-          }
-        }
-        
-        .animate-dot-bounce {
-          animation: dot-bounce 2s ease-in-out infinite;
-        }
-        
-        .animation-delay-500 {
-          animation-delay: 0.5s;
-        }
-      `}</style>
     </div>
   );
 }

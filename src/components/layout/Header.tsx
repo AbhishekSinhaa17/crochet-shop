@@ -569,7 +569,7 @@ export default function Header() {
                           {isAdmin && (
                             <div className="py-2 border-b border-white/5">
                               <Link
-                                href="/admin"
+                                href="/admin/dashboard"
                                 onClick={() => setUserMenuOpen(false)}
                                 className="flex items-center justify-between px-5 py-3 text-purple-400 hover:text-purple-300 hover:bg-white/5 transition-all duration-200"
                               >

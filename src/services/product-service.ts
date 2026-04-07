@@ -10,7 +10,15 @@ export class ProductService {
     this.repository = new ProductRepository(useAdmin);
   }
 
-  async getProducts(options?: any) {
+  async getProducts(options?: {
+    category_slug?: string;
+    is_active?: boolean;
+    is_featured?: boolean;
+    search?: string;
+    page?: number;
+    limit?: number;
+    include_deleted?: boolean;
+  }) {
     try {
       // We use a cache key based on options to ensure correct data is returned
       const cacheKey = `products-${JSON.stringify(options)}`;
@@ -28,12 +36,12 @@ export class ProductService {
     }
   }
 
-  async getProduct(idOrSlug: string, isSlug = false) {
+  async getProduct(idOrSlug: string, isSlug = false, include_deleted = false) {
     try {
       if (isSlug) {
-        return await this.repository.getBySlug(idOrSlug);
+        return await this.repository.getBySlug(idOrSlug, include_deleted);
       }
-      return await this.repository.getById(idOrSlug);
+      return await this.repository.getById(idOrSlug, include_deleted);
     } catch (error: any) {
       Logger.error("Failed to fetch product", error);
       throw error;
@@ -90,4 +98,3 @@ export class ProductService {
     }
   }
 }
-

@@ -1,12 +1,17 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useTransition } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Product, Category } from "@/types";
 import ProductCard from "@/components/products/ProductCard";
 import { useCartStore } from "@/store/cartStore";
+import { useAuthStore } from "@/store/useAuthStore";
+import { useWishlistStore } from "@/store/wishlistStore";
+import { useDebounce } from "@/hooks/useDebounce";
+import { ProductCardSkeleton, ProductGridSkeleton } from "@/components/common/Skeletons";
+import { EmptyState } from "@/components/common/EmptyStates";
 import toast from "react-hot-toast";
 import {
   Search,
@@ -60,6 +65,7 @@ export default function ProductsPageClient({
 }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [isPending, startTransition] = useTransition();
   const [isLoaded, setIsLoaded] = useState(false);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
@@ -67,7 +73,7 @@ export default function ProductsPageClient({
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000]);
   const [showOnlyInStock, setShowOnlyInStock] = useState(false);
   const [showOnlyOnSale, setShowOnlyOnSale] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const isAdmin = useAuthStore((s) => s.isAdmin);
 
   useEffect(() => {
     setIsLoaded(true);
@@ -76,19 +82,6 @@ export default function ProductsPageClient({
     if (savedView === "grid" || savedView === "list") {
       setViewMode(savedView);
     }
-
-    const fetchAdminStatus = async () => {
-      try {
-        const res = await fetch("/api/profile");
-        const json = await res.json();
-        if (json.profile?.role?.toLowerCase()?.trim() === "admin") {
-          setIsAdmin(true);
-        }
-      } catch (e) {
-        console.error("Error fetching admin status:", e);
-      }
-    };
-    fetchAdminStatus();
   }, []);
 
   const handleViewChange = (mode: "grid" | "list") => {
@@ -127,18 +120,32 @@ export default function ProductsPageClient({
     return `/products?${current.toString()}`;
   };
 
+  // Debounced search sync with URL
+  const debouncedSearch = useDebounce(searchInput, 400);
+
+  useEffect(() => {
+    if (debouncedSearch !== (searchQuery || "")) {
+      startTransition(() => {
+        router.push(buildUrl({ search: debouncedSearch.trim() || null }));
+      });
+    }
+  }, [debouncedSearch]);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchInput.trim()) {
-      router.push(buildUrl({ search: searchInput.trim() }));
-    } else {
-      router.push(buildUrl({ search: null }));
+    // Immediate search on enter
+    if (searchInput.trim() !== (searchQuery || "")) {
+       startTransition(() => {
+          router.push(buildUrl({ search: searchInput.trim() || null }));
+       });
     }
   };
 
   const clearSearch = () => {
     setSearchInput("");
-    router.push(buildUrl({ search: null }));
+    startTransition(() => {
+       router.push(buildUrl({ search: null }));
+    });
   };
 
   const activeFiltersCount = [
@@ -451,67 +458,54 @@ export default function ProductsPageClient({
                 </p>
               </div>
 
-              {/* Empty State */}
-              {filteredProducts.length === 0 ? (
-                <div className="text-center py-20 bg-white/60 dark:bg-gray-900/50 backdrop-blur-xl rounded-[2.5rem] border border-white dark:border-gray-800 shadow-xl shadow-amber-100/20 dark:shadow-black/20 animate-fade-in">
-                  <div className="relative inline-block mb-6">
-                    <div className="absolute inset-0 bg-amber-500/20 blur-2xl rounded-full animate-pulse" />
-                    <div className="relative w-24 h-24 bg-linear-to-br from-amber-100 to-orange-100 dark:from-amber-900/40 dark:to-orange-900/40 rounded-full flex items-center justify-center">
-                      <Sparkles className="w-12 h-12 text-amber-500" />
-                    </div>
+              {/* Results Grid / Loading State */}
+              <div className={cn(
+                "relative transition-opacity duration-300",
+                isPending ? "opacity-50 pointer-events-none" : "opacity-100"
+              )}>
+                {filteredProducts.length === 0 ? (
+                  <EmptyState 
+                    variant={searchQuery ? "search" : "products"} 
+                    onAction={clearSearch}
+                  />
+                ) : (
+                  <div 
+                    className={cn(
+                      "transition-all duration-700 delay-300",
+                      isLoaded ? "opacity-100" : "opacity-0",
+                      viewMode === "grid"
+                        ? "grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"
+                        : "space-y-4"
+                    )}
+                  >
+                    {filteredProducts.map((product, idx) => (
+                      <div
+                        key={`${product.id}-${idx}`}
+                        className={cn(
+                          "transform transition-all duration-500",
+                          isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+                        )}
+                        style={{ 
+                          transitionDelay: `${Math.min(idx * 50, 500)}ms` 
+                        }}
+                      >
+                        {viewMode === "grid" ? (
+                          <ProductCard 
+                            product={product} 
+                            index={idx}
+                            isAdmin={isAdmin} 
+                          />
+                        ) : (
+                          <ProductListCard 
+                            product={product} 
+                            isAdmin={isAdmin} 
+                          />
+                        )}
+                      </div>
+                    ))}
                   </div>
-                  <h3 className="text-2xl font-display font-bold text-gray-900 dark:text-white mb-2">No products found</h3>
-                  <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-sm mx-auto">
-                    Try adjusting your search or filters to find what you're looking for.
-                  </p>
-                  <div className="flex flex-wrap justify-center gap-3">
-                    <Link
-                      href="/products"
-                      scroll={false}
-                      className="inline-flex items-center gap-2 px-6 py-3 bg-linear-to-r from-amber-500 to-orange-500 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-amber-500/30 transition-all duration-300"
-                    >
-                      <Grid3X3 className="w-5 h-5" />
-                      View All Products
-                    </Link>
-                    <button
-                      onClick={clearSearch}
-                      className="inline-flex items-center gap-2 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition-colors"
-                    >
-                      <X className="w-5 h-5" />
-                      Clear Filters
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div 
-                  className={cn(
-                    "transition-all duration-700 delay-300",
-                    isLoaded ? "opacity-100" : "opacity-0",
-                    viewMode === "grid"
-                      ? "grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6"
-                      : "space-y-4"
-                  )}
-                >
-                  {filteredProducts.map((product, idx) => (
-                    <div
-                      key={`${product.id}-${idx}`}
-                      className={cn(
-                        "transform transition-all duration-500",
-                        isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-                      )}
-                      style={{ 
-                        transitionDelay: `${Math.min(idx * 50, 500)}ms` 
-                      }}
-                    >
-                      {viewMode === "grid" ? (
-                        <ProductCard product={product} isAdmin={isAdmin} />
-                      ) : (
-                        <ProductListCard product={product} isAdmin={isAdmin} />
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
         </div>

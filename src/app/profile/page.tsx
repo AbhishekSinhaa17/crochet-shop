@@ -223,7 +223,7 @@ export default function ProfilePage() {
 
   const handleLogout = async () => {
     try {
-      await supabase.auth.signOut();
+      await useAuthStore.getState().signOut();
       router.push("/");
       toast.success("Logged out successfully!");
     } catch (err) {

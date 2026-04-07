@@ -38,6 +38,7 @@ import toast from "react-hot-toast";
 import { useCartStore } from "@/store/cartStore";
 import { useWishlistStore } from "@/store/wishlistStore";
 import { useAuthStore } from "@/store/useAuthStore";
+import { EmptyState } from "@/components/common/EmptyStates";
 
 interface WishlistItem {
   id: string;
@@ -58,11 +59,9 @@ export default function WishlistPageClient({ products: initialProducts, wishlist
   const [products, setProducts] = useState(initialProducts);
   const [wishlist, setWishlist] = useState(wishlistData);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [sortBy, setSortBy] = useState<SortOption>("newest");
   const [isSelectMode, setIsSelectMode] = useState(false);
-  const [addingToCartIds, setAddingToCartIds] = useState<Set<string>>(new Set());
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   
   const router = useRouter();
@@ -102,18 +101,15 @@ export default function WishlistPageClient({ products: initialProducts, wishlist
     if (processingIds.includes(productId)) return;
 
     try {
-      setLoading(true);
-      await toggleWishlist(product, user?.id);
+      await toggleWishlist(product, user?.id || "");
       
-      // Update local state for immediate visual removal from the list
+      // Update local state for immediate visual removal
       setProducts(prev => prev.filter(p => p.id !== productId));
       setWishlist(prev => prev.filter(w => w.product_id !== productId));
       
       router.refresh();
     } catch (err) {
       console.error(`Remove from wishlist error [${productId}]:`, err);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -123,15 +119,8 @@ export default function WishlistPageClient({ products: initialProducts, wishlist
       return;
     }
 
-    setAddingToCartIds(new Set([...addingToCartIds, product.id]));
-    
-    // Simulate a small delay for better UX
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
     addItem(product, 1);
     toast.success(`${product.name} added to cart!`);
-    
-    setAddingToCartIds(new Set([...addingToCartIds].filter(id => id !== product.id)));
   };
 
   const handleAddAllToCart = async () => {
@@ -157,7 +146,6 @@ export default function WishlistPageClient({ products: initialProducts, wishlist
     if (selectedItems.size === 0) return;
 
     try {
-      setLoading(true);
       const idsToRemove = Array.from(selectedItems);
       
       // Process removals sequentially or in parallel? 
@@ -177,8 +165,6 @@ export default function WishlistPageClient({ products: initialProducts, wishlist
     } catch (err) {
       console.error("Remove selected items error:", err);
       toast.error("Failed to remove some items");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -364,7 +350,9 @@ export default function WishlistPageClient({ products: initialProducts, wishlist
 
         {/* Content */}
         {sortedProducts.length === 0 ? (
-          <EmptyWishlist isLoaded={isLoaded} />
+          <div className="py-20">
+            <EmptyState variant="wishlist" />
+          </div>
         ) : (
           <div 
             className={`transition-all duration-700 delay-200 ${
@@ -491,7 +479,6 @@ export default function WishlistPageClient({ products: initialProducts, wishlist
                   isSelectMode={isSelectMode}
                   isSelected={selectedItems.has(product.id)}
                   isRemoving={processingIds.includes(product.id)}
-                  isAddingToCart={addingToCartIds.has(product.id)}
                   onRemove={() => handleRemoveFromWishlist(product.id)}
                   onAddToCart={() => handleAddToCart(product)}
                   onSelect={() => toggleSelectItem(product.id)}
@@ -593,12 +580,12 @@ function WishlistProductCard({
   isSelectMode,
   isSelected,
   isRemoving,
-  isAddingToCart,
   onRemove,
   onAddToCart,
   onSelect,
   delay,
-}: ProductCardProps) {
+}: Omit<ProductCardProps, 'isAddingToCart'>) {
+  const isAddingToCart = useCartStore((s) => s.processingIds.includes(product.id));
   const [isHovered, setIsHovered] = useState(false);
   const [imageError, setImageError] = useState(false);
   
