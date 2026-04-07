@@ -13,6 +13,9 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
   const [mounted, setMounted] = useState(false);
   const [storesHydrated, setStoresHydrated] = useState(false);
   
+  // 🛡️ Track if guest state has been merged for the CURRENT user session
+  const mergedUserIds = useRef<Set<string>>(new Set());
+
   // ⏱️ Focus Refetch Throttling (2 minutes)
   const lastFocusRefetch = useRef<number>(0);
   const REFETCH_THROTTLE_MS = 2 * 60 * 1000;
@@ -47,17 +50,29 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
         await setUser(user);
         
         switch (event) {
+          case 'INITIAL_SESSION':
           case 'SIGNED_IN':
           case 'USER_UPDATED':
             if (user?.id) {
-              // 🔄 Sync features from DB and merge with current local state
-              void useCartStore.getState().syncWithDatabase(user.id);
+              const hasMerged = mergedUserIds.current.has(user.id);
+              
+              // 🔄 Sync logic
+              // 1. If it's a new SIGNED_IN event and we haven't merged this user yet, DO merge.
+              // 2. Otherwise, just do a normal sync (isMergingGuest: false) to prevent doubling.
+              const shouldMerge = event === 'SIGNED_IN' && !hasMerged;
+              
+              if (shouldMerge) {
+                mergedUserIds.current.add(user.id);
+              }
+
+              void useCartStore.getState().syncWithDatabase(user.id, shouldMerge);
               void useWishlistStore.getState().syncWithDatabase(user.id);
             }
             break;
             
           case 'SIGNED_OUT':
             // 🧹 Clear user-specific state while keeping structure for guest
+            mergedUserIds.current.clear();
             useCartStore.getState().clearCart(false);
             useWishlistStore.getState().clearWishlist();
             break;
@@ -76,7 +91,8 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
       ) {
         lastFocusRefetch.current = now;
         Logger.debug("Refetching data on window focus", { module: "sync" });
-        void useCartStore.getState().syncWithDatabase(currentUser.id);
+        // Always false for focus refetch to prevent quantity doubling
+        void useCartStore.getState().syncWithDatabase(currentUser.id, false);
         void useWishlistStore.getState().syncWithDatabase(currentUser.id);
       }
     };

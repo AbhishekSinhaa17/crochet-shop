@@ -25,7 +25,7 @@ interface CartState {
   removeItem: (productId: string) => Promise<void>;
   updateQuantity: (productId: string, quantity: number) => Promise<void>;
   setItems: (items: CartProduct[]) => void;
-  syncWithDatabase: (userId: string) => Promise<void>;
+  syncWithDatabase: (userId: string, isMergingGuest?: boolean) => Promise<void>;
   clearCart: (shouldSync?: boolean) => Promise<void>;
   getTotal: () => number;
   getItemCount: () => number;
@@ -35,23 +35,39 @@ interface CartState {
 /**
  * 🛒 Deterministic Merge Strategy
  * Uses a Map to ensure O(n) complexity and handle duplicates safely.
+ * 
+ * @param local Current items in the local store (guest state)
+ * @param db Current items in the database (user history)
+ * @param isMergingGuest If true, sum the quantities (Guest transition).
+ *                       If false, prefer the DB quantity (Session restore/refresh).
  */
-const mergeCart = (local: CartProduct[], db: CartProduct[]): CartProduct[] => {
+const mergeCart = (
+  local: CartProduct[], 
+  db: CartProduct[], 
+  isMergingGuest: boolean = false
+): CartProduct[] => {
   const map = new Map<string, CartProduct>();
 
-  // Add DB items first (preferred source of truth for base state)
+  // Use DB as initial source of truth
   db.forEach(item => map.set(item.id, { ...item }));
 
-  // Merge local items
+  // Reconcile local items
   local.forEach(item => {
     const existing = map.get(item.id);
     if (existing) {
-      // Merge: sum quantities, but cap at stock if available
-      map.set(item.id, {
-        ...existing,
-        quantity: Math.min(existing.quantity + item.quantity, existing.stock)
-      });
+      if (isMergingGuest) {
+        // Mode 1: Transitioning guest. Add their guest items to the DB account.
+        map.set(item.id, {
+          ...existing,
+          quantity: Math.min(existing.quantity + item.quantity, existing.stock)
+        });
+      } else {
+        // Mode 2: Restoring existing session. The DB is always the source of truth
+        // for previously synced items. Overwrite local with DB.
+        map.set(item.id, { ...existing });
+      }
     } else {
+      // Missing from DB entirely? It's a new guest item, add it.
       map.set(item.id, { ...item });
     }
   });
@@ -99,8 +115,8 @@ export const useCartStore = create<CartState>()(
         });
 
         try {
-          const { data: { user } } = await resilientCall(() => supabase.auth.getUser());
-          const userId = user?.id;
+          const { data: authData } = await resilientCall(() => supabase.auth.getUser()) as { data: { user: any } };
+          const userId = authData.user?.id;
           
           if (userId) {
             // 💪 Resilient API Call with Timeout + Retry
@@ -140,8 +156,8 @@ export const useCartStore = create<CartState>()(
         });
 
         try {
-          const { data: { user } } = await resilientCall(() => supabase.auth.getUser());
-          const userId = user?.id;
+          const { data: authData } = await resilientCall(() => supabase.auth.getUser()) as { data: { user: any } };
+          const userId = authData.user?.id;
           
           if (userId) {
             const { error } = await resilientCall(async () => 
@@ -187,8 +203,8 @@ export const useCartStore = create<CartState>()(
         });
 
         try {
-          const { data: { user } } = await resilientCall(() => supabase.auth.getUser());
-          const userId = user?.id;
+          const { data: authData } = await resilientCall(() => supabase.auth.getUser()) as { data: { user: any } };
+          const userId = authData.user?.id;
           
           if (userId) {
             const { error } = await resilientCall(async () => 
@@ -211,7 +227,7 @@ export const useCartStore = create<CartState>()(
         }
       },
 
-      syncWithDatabase: async (userId: string) => {
+      syncWithDatabase: async (userId: string, isMergingGuest: boolean = false) => {
         if (!userId) return;
 
         try {
@@ -237,14 +253,14 @@ export const useCartStore = create<CartState>()(
               quantity: item.quantity
             }));
 
-          // 2. Deterministic Merge
+          // 2. Deterministic Merge Logic (fixes quantity doubling)
           const localItems = get().items;
-          const mergedItems = mergeCart(localItems, mappedDbItems);
+          const mergedItems = mergeCart(localItems, mappedDbItems, isMergingGuest);
 
-          // 3. Optimistic Store Update
+          // 3. Store Update
           set({ items: mergedItems });
 
-          // 4. Sync merged result back to DB
+          // 4. Sync merged result back to DB to keep source of truth consistent
           const syncPromises = mergedItems.map(item => 
             resilientCall(async () => 
               await supabase.from("cart_items").upsert({
@@ -256,10 +272,10 @@ export const useCartStore = create<CartState>()(
           );
 
           await Promise.all(syncPromises);
-          Logger.info("Cart sync complete", { module: "cart", userId });
+          Logger.info("Cart sync complete", { module: "cart", userId, isMergingGuest });
         } catch (err) {
           Logger.storeError("cart", "syncWithDatabase", err);
-          toast.error("Sync failed. Using local cart.");
+          toast.error("Sync failed. Check connection.");
         }
       },
 
@@ -282,7 +298,7 @@ export const useCartStore = create<CartState>()(
           } catch (err) {
             Logger.storeError("cart", "clearCart", err);
             set({ items: prevItems });
-            toast.error("Failed to clear cloud cart.");
+            toast.error("Cloud cart error.");
           }
         }
       },
@@ -293,7 +309,7 @@ export const useCartStore = create<CartState>()(
     }),
     { 
       name: "crochet-cart",
-      skipHydration: true, // 🛡️ Fix Next.js SSR hydration mismatches
+      skipHydration: true, 
       partialize: (state) => ({ items: state.items })
     }
   )

@@ -47,24 +47,33 @@ export const useWishlistStore = create<WishlistState>()(
         }));
 
         try {
-          const { data: authData } = await resilientCall(() => supabase.auth.getUser());
-          const userId = authData.user?.id;
-          
-          if (userId) {
+          if (alreadyExists) {
             const { error } = await resilientCall(async () => 
               await supabase
                 .from("wishlist")
                 .delete()
                 .eq("user_id", userId)
                 .eq("product_id", product.id)
-            );
+            ) as { error: any };
             if (error) throw error;
             Analytics.removeFromWishlist(product.id, userId);
+          } else {
+            // 🛡️ Use Upsert to prevent 409 Conflict if already in DB
+            const { error } = await resilientCall(async () => 
+              await supabase.from("wishlist").upsert({ 
+                user_id: userId, 
+                product_id: product.id 
+              }, { onConflict: 'user_id,product_id' })
+            ) as { error: any };
+            if (error) throw error;
+            Analytics.addToWishlist(product.id, userId);
           }
+
+          toast.success(alreadyExists ? "Removed from wishlist" : "Added to wishlist");
         } catch (err: any) {
           Logger.storeError("wishlist", "toggleWishlist", err);
           set({ items: prevItems }); // 🔁 Rollback
-          toast.error("Cloud sync failed. Updated locally.");
+          toast.error("Error syncing wishlist.");
         } finally {
           set((state) => ({
             processingIds: state.processingIds.filter(id => id !== product.id)
@@ -76,7 +85,7 @@ export const useWishlistStore = create<WishlistState>()(
         if (!userId) return;
 
         try {
-          // 1. Fetch current wishlist from DB with resilience
+          // 1. Fetch current wishlist from DB
           const { data, error } = await resilientCall(async () => 
             await supabase
               .from("wishlist")
@@ -92,15 +101,18 @@ export const useWishlistStore = create<WishlistState>()(
           // 2. Deterministic Merge: Unique Set
           const mergedItemIds = Array.from(new Set([...dbItemIds, ...localItemIds]));
 
-          // 3. Update store
+          // 3. Store Update
           set({ items: mergedItemIds });
 
-          // 4. Sync new items back to DB
+          // 4. Sync new items back to DB using UPSERT to avoid 409s
           const newLocalItems = localItemIds.filter(id => !dbItemIds.includes(id));
           if (newLocalItems.length > 0) {
             const syncPromises = newLocalItems.map(id => 
               resilientCall(async () => 
-                await supabase.from("wishlist").insert({ user_id: userId, product_id: id })
+                await supabase.from("wishlist").upsert({ 
+                  user_id: userId, 
+                  product_id: id 
+                }, { onConflict: 'user_id,product_id' })
               )
             );
             await Promise.all(syncPromises);
@@ -139,7 +151,7 @@ export const useWishlistStore = create<WishlistState>()(
     }),
     {
       name: "crochet-wishlist",
-      skipHydration: true, // 🛡️ Fix Next.js SSR hydration mismatches
+      skipHydration: true, 
       partialize: (state) => ({ items: state.items }),
     },
   ),
