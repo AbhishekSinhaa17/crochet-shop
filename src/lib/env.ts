@@ -12,6 +12,11 @@ const envSchema = z.object({
 
   // Features
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
+  NEXT_PUBLIC_SITE_URL: z.string().url().default("http://localhost:3000"),
+
+  // Razorpay
+  NEXT_PUBLIC_RAZORPAY_KEY_ID: z.string().min(1).optional(),
+  RAZORPAY_KEY_SECRET: z.string().min(1).optional(),
 });
 
 const parsed = envSchema.safeParse({
@@ -21,6 +26,9 @@ const parsed = envSchema.safeParse({
   UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
   UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,
   NODE_ENV: process.env.NODE_ENV,
+  NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
+  NEXT_PUBLIC_RAZORPAY_KEY_ID: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+  RAZORPAY_KEY_SECRET: process.env.RAZORPAY_KEY_SECRET,
 });
 
 if (!parsed.success) {
