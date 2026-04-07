@@ -1,8 +1,10 @@
+import { Logger } from "./logger";
+
 /**
  * ⚡ API Utility functions for production resilience.
  */
 
-const DEFAULT_TIMEOUT_MS = 20000; // 20 seconds (Production Cold-Start Safe)
+const DEFAULT_TIMEOUT_MS = 30000; // 30 seconds (Final Defensive Buffer)
 
 /**
  * ⏱️ Wraps a promise with a timeout.
@@ -10,19 +12,33 @@ const DEFAULT_TIMEOUT_MS = 20000; // 20 seconds (Production Cold-Start Safe)
  */
 export async function withTimeout<T>(
   promise: Promise<T>,
+  actionName: string,
   timeoutMs: number = DEFAULT_TIMEOUT_MS
 ): Promise<T> {
+  const startTime = Date.now();
   let timeoutId: NodeJS.Timeout;
   
   const timeoutPromise = new Promise<never>((_, reject) => {
     timeoutId = setTimeout(() => {
-      reject(new Error("Request Timeout"));
+      const duration = Date.now() - startTime;
+      Logger.error(`Request Timeout: ${actionName} failed after ${duration}ms`, undefined, {
+        module: "api-utils",
+        action: actionName,
+        durationMs: duration
+      });
+      reject(new Error(`Request Timeout: ${actionName}`));
     }, timeoutMs);
   });
 
   try {
     const result = await Promise.race([promise, timeoutPromise]);
     clearTimeout(timeoutId!);
+    const duration = Date.now() - startTime;
+    Logger.debug(`Request Success: ${actionName} finished in ${duration}ms`, {
+      module: "api-utils",
+      action: actionName,
+      durationMs: duration
+    });
     return result;
   } catch (error) {
     clearTimeout(timeoutId!);
@@ -35,6 +51,7 @@ export async function withTimeout<T>(
  */
 export async function retry<T>(
   fn: () => T | Promise<T>,
+  actionName: string,
   retries: number = 2,
   delayMs: number = 1000
 ): Promise<T> {
@@ -44,11 +61,17 @@ export async function retry<T>(
     if (retries <= 0) throw error;
     
     // 🛡️ Exponential Backoff: Each retry waits 1.5x longer
-    // This helps resolve temporary network congestion without hammering the service
-    const waitTime = delayMs * Math.pow(1.5, 3 - retries);
-    await new Promise((resolve) => setTimeout(resolve, waitTime));
+    const attempt = 3 - retries;
+    const waitTime = delayMs * Math.pow(1.5, attempt);
     
-    return retry(fn, retries - 1, delayMs);
+    Logger.warn(`Retrying request: ${actionName} (Attempt ${attempt}) after ${waitTime}ms`, {
+      module: "api-utils",
+      action: actionName,
+      attempt
+    });
+    
+    await new Promise((resolve) => setTimeout(resolve, waitTime));
+    return retry(fn, actionName, retries - 1, delayMs);
   }
 }
 
@@ -57,12 +80,14 @@ export async function retry<T>(
  */
 export async function resilientCall<T>(
   fn: () => Promise<T>,
+  actionName: string,
   options: { retries?: number; timeout?: number; delay?: number } = {}
 ): Promise<T> {
   const { retries = 2, timeout = DEFAULT_TIMEOUT_MS, delay = 1000 } = options;
   
   return retry(
-    () => withTimeout(fn(), timeout),
+    () => withTimeout(fn(), actionName, timeout),
+    actionName,
     retries,
     delay
   );

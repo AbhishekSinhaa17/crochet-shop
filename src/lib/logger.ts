@@ -30,6 +30,20 @@ function serializeError(error: unknown): Record<string, unknown> {
       stack: error.stack,
     };
   }
+  
+  // 🛡️ Handle Supabase / Postgrest Errors
+  if (error && typeof error === 'object') {
+    const err = error as any;
+    if (err.message || err.details || err.hint || err.code) {
+      return {
+        message: err.message || 'Unknown Supabase Error',
+        details: err.details,
+        hint: err.hint,
+        code: err.code
+      };
+    }
+  }
+
   return { raw: String(error) };
 }
 

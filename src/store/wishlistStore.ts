@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase/client";
 import { Logger } from "@/lib/logger";
 import { Analytics } from "@/lib/analytics";
 import { resilientCall } from "@/lib/api-utils";
+import { useAuthStore } from "./useAuthStore";
 
 interface WishlistState {
   items: string[];
@@ -55,7 +56,8 @@ export const useWishlistStore = create<WishlistState>()(
                 .from("wishlist")
                 .delete()
                 .eq("user_id", userId)
-                .eq("product_id", product.id)
+                .eq("product_id", product.id),
+              `wishlist/remove/${product.id}`
             ) as { error: any };
             if (error) throw error;
             Analytics.removeFromWishlist(product.id, userId);
@@ -65,7 +67,8 @@ export const useWishlistStore = create<WishlistState>()(
               await supabase.from("wishlist").upsert({ 
                 user_id: userId, 
                 product_id: product.id 
-              }, { onConflict: 'user_id,product_id' })
+              }, { onConflict: 'user_id,product_id' }),
+              `wishlist/add/${product.id}`
             ) as { error: any };
             if (error) throw error;
             Analytics.addToWishlist(product.id, userId);
@@ -75,7 +78,7 @@ export const useWishlistStore = create<WishlistState>()(
         } catch (err: any) {
           Logger.storeError("wishlist", "toggleWishlist", err);
           set({ items: prevItems }); // 🔁 Rollback
-          toast.error("Error syncing wishlist.");
+          toast.error("Wishlist sync issue.");
         } finally {
           set((state) => ({
             processingIds: state.processingIds.filter(id => id !== product.id)
@@ -86,9 +89,8 @@ export const useWishlistStore = create<WishlistState>()(
       syncWithDatabase: async (userId: string) => {
         if (!userId) return;
 
-        // 🛡️ Idempotent Sync Guard
         if (get().isSyncing) {
-            Logger.debug("Wishlist sync already in progress, skipping", { module: "wishlist", userId });
+            Logger.debug("Wishlist sync in progress, skipping", { module: "wishlist", userId });
             return;
         }
 
@@ -100,7 +102,8 @@ export const useWishlistStore = create<WishlistState>()(
             await supabase
               .from("wishlist")
               .select("product_id")
-              .eq("user_id", userId)
+              .eq("user_id", userId),
+            "wishlist/syncFetch"
           ) as { data: any[] | null; error: any };
 
           if (error) throw error;
@@ -114,21 +117,25 @@ export const useWishlistStore = create<WishlistState>()(
           // 3. Store Update
           set({ items: mergedItemIds });
 
-          // 4. Sync new items back to DB using UPSERT to avoid 409s
-          const newLocalItems = localItemIds.filter(id => !dbItemIds.includes(id));
-          if (newLocalItems.length > 0) {
-            const syncPromises = newLocalItems.map(id => 
-              resilientCall(async () => 
-                await supabase.from("wishlist").upsert({ 
-                  user_id: userId, 
-                  product_id: id 
-                }, { onConflict: 'user_id,product_id' })
-              )
-            );
-            await Promise.all(syncPromises);
+          // 🛡️ 4. BULK Upserts (Critical Optimization)
+          // Instead of firing N parallel requests, send ONE bulk push
+          if (mergedItemIds.length > 0) {
+            const upsertData = mergedItemIds.map(id => ({
+                user_id: userId,
+                product_id: id
+            }));
+
+            const { error: syncError } = await resilientCall(async () => 
+              await supabase
+                .from("wishlist")
+                .upsert(upsertData, { onConflict: 'user_id,product_id' }),
+              "wishlist/bulkSync"
+            ) as { error: any };
+
+            if (syncError) throw syncError;
           }
 
-          Logger.info("Wishlist sync complete", { module: "wishlist", userId });
+          Logger.info("Wishlist sync complete (Bulk)", { module: "wishlist", userId, count: mergedItemIds.length });
         } catch (err) {
           Logger.storeError("wishlist", "syncWithDatabase", err);
         } finally {
@@ -147,7 +154,8 @@ export const useWishlistStore = create<WishlistState>()(
             await supabase
               .from("wishlist")
               .select("product_id")
-              .eq("user_id", userId)
+              .eq("user_id", userId),
+            "wishlist/fetch"
           ) as { data: any[] | null; error: any };
 
           if (error) throw error;

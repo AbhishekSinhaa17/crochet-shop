@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase/client";
 import { Logger } from "@/lib/logger";
 import { Analytics } from "@/lib/analytics";
 import { resilientCall } from "@/lib/api-utils";
+import { useAuthStore } from "./useAuthStore";
 import toast from "react-hot-toast";
 
 export interface CartProduct {
@@ -99,8 +100,7 @@ export const useCartStore = create<CartState>()(
         });
 
         try {
-          const { data: authData } = await resilientCall(() => supabase.auth.getUser()) as { data: { user: any } };
-          const userId = authData.user?.id;
+          const userId = useAuthStore.getState().user?.id;
           
           if (userId) {
             const { error } = await resilientCall(async () => 
@@ -108,7 +108,8 @@ export const useCartStore = create<CartState>()(
                 user_id: userId,
                 product_id: product.id,
                 quantity: newQuantity
-              }, { onConflict: 'user_id,product_id' })
+              }, { onConflict: 'user_id,product_id' }),
+              `cart/addItem/${product.id}`
             ) as { error: any };
             if (error) throw error;
           }
@@ -117,7 +118,7 @@ export const useCartStore = create<CartState>()(
         } catch (err) {
           Logger.storeError("cart", "addItem", err);
           set({ items: prevItems });
-          toast.error("Cloud sync issue. Item saved locally.");
+          toast.error("Sync issue. Item saved locally.");
         } finally {
           set((state) => ({
             processingIds: state.processingIds.filter(id => id !== product.id)
@@ -138,8 +139,7 @@ export const useCartStore = create<CartState>()(
         });
 
         try {
-          const { data: authData } = await resilientCall(() => supabase.auth.getUser()) as { data: { user: any } };
-          const userId = authData.user?.id;
+          const userId = useAuthStore.getState().user?.id;
           
           if (userId) {
             const { error } = await resilientCall(async () => 
@@ -147,7 +147,8 @@ export const useCartStore = create<CartState>()(
                 .from("cart_items")
                 .delete()
                 .eq("user_id", userId)
-                .eq("product_id", productId)
+                .eq("product_id", productId),
+              `cart/removeItem/${productId}`
             ) as { error: any };
             if (error) throw error;
           }
@@ -155,7 +156,7 @@ export const useCartStore = create<CartState>()(
         } catch (err) {
           Logger.storeError("cart", "removeItem", err);
           set({ items: prevItems });
-          toast.error("Failed to remove item.");
+          toast.error("Failed to remove.");
         } finally {
           set((state) => ({
             processingIds: state.processingIds.filter(id => id !== productId)
@@ -184,8 +185,7 @@ export const useCartStore = create<CartState>()(
         });
 
         try {
-          const { data: authData } = await resilientCall(() => supabase.auth.getUser()) as { data: { user: any } };
-          const userId = authData.user?.id;
+          const userId = useAuthStore.getState().user?.id;
           
           if (userId) {
             const { error } = await resilientCall(async () => 
@@ -193,14 +193,15 @@ export const useCartStore = create<CartState>()(
                 .from("cart_items")
                 .update({ quantity: finalQuantity })
                 .eq("user_id", userId)
-                .eq("product_id", productId)
+                .eq("product_id", productId),
+              `cart/updateQuantity/${productId}`
             ) as { error: any };
             if (error) throw error;
           }
         } catch (err) {
           Logger.storeError("cart", "updateQuantity", err);
           set({ items: prevItems });
-          toast.error("Failed to update quantity.");
+          toast.error("Failed to update.");
         } finally {
           set((state) => ({
             processingIds: state.processingIds.filter(id => id !== productId)
@@ -211,10 +212,8 @@ export const useCartStore = create<CartState>()(
       syncWithDatabase: async (userId: string, isMergingGuest: boolean = false) => {
         if (!userId) return;
 
-        // 🛡️ Idempotent Sync Guard
-        // Prevents thundering herd of redundant sync calls during initialization/navigation/focus
         if (get().isSyncing) {
-            Logger.debug("Syncing already in progress, skipping redundant call", { module: "cart", userId });
+            Logger.debug("Syncing in progress, skipping", { module: "cart", userId });
             return;
         }
 
@@ -226,7 +225,8 @@ export const useCartStore = create<CartState>()(
             await supabase
               .from("cart_items")
               .select("*, product:products(*)")
-              .eq("user_id", userId)
+              .eq("user_id", userId),
+            "cart/syncFetch"
           ) as { data: any[] | null; error: any };
 
           if (error) throw error;
@@ -250,27 +250,33 @@ export const useCartStore = create<CartState>()(
           // 3. Store Update
           set({ items: mergedItems });
 
-          // 4. Sync merged result back to DB
-          const syncPromises = mergedItems.map(item => 
-            resilientCall(async () => 
-              await supabase.from("cart_items").upsert({
-                user_id: userId,
-                product_id: item.id,
-                quantity: item.quantity
-              }, { onConflict: 'user_id,product_id' })
-            )
-          );
+          // 🛡️ Phase 4: BULK SYNCHRONIZATION (The Critical Fix)
+          // Instead of firing 10 separate requests, send ONE bulk upsert.
+          // This reduces network overhead and prevents connection pool exhaustion.
+          if (mergedItems.length > 0) {
+              const upsertData = mergedItems.map(item => ({
+                  user_id: userId,
+                  product_id: item.id,
+                  quantity: item.quantity
+              }));
 
-          await Promise.all(syncPromises);
-          Logger.info("Cart sync complete", { module: "cart", userId, isMergingGuest });
+              const { error: syncError } = await resilientCall(async () => 
+                await supabase
+                  .from("cart_items")
+                  .upsert(upsertData, { onConflict: 'user_id,product_id' }),
+                "cart/bulkSync"
+              ) as { error: any };
+
+              if (syncError) throw syncError;
+          }
+
+          Logger.info("Cart sync complete (Bulk)", { module: "cart", userId, count: mergedItems.length });
         } catch (err) {
           Logger.storeError("cart", "syncWithDatabase", err);
-          // Only show error toast if it's not a background sync failure (like a focus re-sync)
           if (isMergingGuest) {
-            toast.error("Sync failed. Check connection.");
+            toast.error("Initial cart sync failed.");
           }
         } finally {
-          // 🛡️ Always reset syncing flag
           set({ isSyncing: false });
         }
       },
@@ -283,18 +289,18 @@ export const useCartStore = create<CartState>()(
 
         if (shouldSync) {
           try {
-            const { data: authData } = await resilientCall(() => supabase.auth.getUser()) as { data: { user: any } };
-            const userId = authData.user?.id;
+            const userId = useAuthStore.getState().user?.id;
             if (userId) {
               const { error } = await resilientCall(async () => 
-                await supabase.from("cart_items").delete().eq("user_id", userId)
+                await supabase.from("cart_items").delete().eq("user_id", userId),
+                "cart/clear"
               ) as { error: any };
               if (error) throw error;
             }
           } catch (err) {
             Logger.storeError("cart", "clearCart", err);
             set({ items: prevItems });
-            toast.error("Cloud cart issue.");
+            toast.error("Cleanup sync failed.");
           }
         }
       },
