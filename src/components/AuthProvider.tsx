@@ -33,7 +33,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
         setStoresHydrated(true);
       } catch (err) {
         Logger.error("Failed to rehydrate stores", err);
-        setStoresHydrated(true); // Proceed anyway to avoid permanent loader
+        setStoresHydrated(true); 
       }
     };
     
@@ -50,28 +50,30 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
         await setUser(user);
         
         switch (event) {
-          case 'INITIAL_SESSION':
+          // 🛡️ Deduplication: We ignore INITIAL_SESSION as it overlaps with 
+          // fetchUser() and mounting logic. We only sync on explicit events.
           case 'SIGNED_IN':
           case 'USER_UPDATED':
             if (user?.id) {
               const hasMerged = mergedUserIds.current.has(user.id);
-              
-              // 🔄 Sync logic
-              // 1. If it's a new SIGNED_IN event and we haven't merged this user yet, DO merge.
-              // 2. Otherwise, just do a normal sync (isMergingGuest: false) to prevent doubling.
               const shouldMerge = event === 'SIGNED_IN' && !hasMerged;
               
               if (shouldMerge) {
                 mergedUserIds.current.add(user.id);
               }
 
-              void useCartStore.getState().syncWithDatabase(user.id, shouldMerge);
-              void useWishlistStore.getState().syncWithDatabase(user.id);
+              // 🛡️ Staggered Sync Execution
+              // Reduces peak connection pressure on Vercel/Supabase pool
+              await useCartStore.getState().syncWithDatabase(user.id, shouldMerge);
+              
+              // Small delay between feature syncs
+              await new Promise(r => setTimeout(r, 300));
+              
+              await useWishlistStore.getState().syncWithDatabase(user.id);
             }
             break;
             
           case 'SIGNED_OUT':
-            // 🧹 Clear user-specific state while keeping structure for guest
             mergedUserIds.current.clear();
             useCartStore.getState().clearCart(false);
             useWishlistStore.getState().clearWishlist();
@@ -91,9 +93,13 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
       ) {
         lastFocusRefetch.current = now;
         Logger.debug("Refetching data on window focus", { module: "sync" });
-        // Always false for focus refetch to prevent quantity doubling
-        void useCartStore.getState().syncWithDatabase(currentUser.id, false);
-        void useWishlistStore.getState().syncWithDatabase(currentUser.id);
+        
+        // Staggered focus refetch
+        (async () => {
+            await useCartStore.getState().syncWithDatabase(currentUser.id, false);
+            await new Promise(r => setTimeout(r, 300));
+            await useWishlistStore.getState().syncWithDatabase(currentUser.id);
+        })();
       }
     };
 
@@ -106,7 +112,6 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
   }, [fetchUser, setUser]);
 
   // 🛡️ Global Loader: Prevent UI flickers & hydration mismatches
-  // Show loader while initial auth is being determined OR stores are hydrating
   if (!mounted || !storesHydrated || (loading && !initialized)) {
     return <GlobalAuthLoader />;
   }
@@ -116,7 +121,6 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
 
 /**
  * 🎨 Production-Grade Global Loader
- * Prevents "Login flicker" by showing a premium branded state
  */
 function GlobalAuthLoader() {
   return (

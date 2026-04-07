@@ -2,7 +2,7 @@
  * ⚡ API Utility functions for production resilience.
  */
 
-const DEFAULT_TIMEOUT_MS = 10000; // 10 seconds
+const DEFAULT_TIMEOUT_MS = 20000; // 20 seconds (Production Cold-Start Safe)
 
 /**
  * ⏱️ Wraps a promise with a timeout.
@@ -31,20 +31,22 @@ export async function withTimeout<T>(
 }
 
 /**
- * 🔁 Retries an async function with a delay between attempts.
+ * 🔁 Retries an async function with exponential backoff.
  */
 export async function retry<T>(
   fn: () => T | Promise<T>,
   retries: number = 2,
-  delayMs: number = 500
+  delayMs: number = 1000
 ): Promise<T> {
   try {
     return await fn();
   } catch (error) {
     if (retries <= 0) throw error;
     
-    // Wait for the specified delay before retrying
-    await new Promise((resolve) => setTimeout(resolve, delayMs));
+    // 🛡️ Exponential Backoff: Each retry waits 1.5x longer
+    // This helps resolve temporary network congestion without hammering the service
+    const waitTime = delayMs * Math.pow(1.5, 3 - retries);
+    await new Promise((resolve) => setTimeout(resolve, waitTime));
     
     return retry(fn, retries - 1, delayMs);
   }
@@ -57,7 +59,7 @@ export async function resilientCall<T>(
   fn: () => Promise<T>,
   options: { retries?: number; timeout?: number; delay?: number } = {}
 ): Promise<T> {
-  const { retries = 2, timeout = DEFAULT_TIMEOUT_MS, delay = 500 } = options;
+  const { retries = 2, timeout = DEFAULT_TIMEOUT_MS, delay = 1000 } = options;
   
   return retry(
     () => withTimeout(fn(), timeout),

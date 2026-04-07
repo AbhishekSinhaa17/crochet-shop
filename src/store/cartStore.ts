@@ -21,6 +21,7 @@ export interface CartProduct {
 interface CartState {
   items: CartProduct[];
   processingIds: string[];
+  isSyncing: boolean;
   addItem: (product: Product, quantity?: number) => Promise<void>;
   removeItem: (productId: string) => Promise<void>;
   updateQuantity: (productId: string, quantity: number) => Promise<void>;
@@ -34,12 +35,6 @@ interface CartState {
 
 /**
  * 🛒 Deterministic Merge Strategy
- * Uses a Map to ensure O(n) complexity and handle duplicates safely.
- * 
- * @param local Current items in the local store (guest state)
- * @param db Current items in the database (user history)
- * @param isMergingGuest If true, sum the quantities (Guest transition).
- *                       If false, prefer the DB quantity (Session restore/refresh).
  */
 const mergeCart = (
   local: CartProduct[], 
@@ -47,31 +42,22 @@ const mergeCart = (
   isMergingGuest: boolean = false
 ): CartProduct[] => {
   const map = new Map<string, CartProduct>();
-
-  // Use DB as initial source of truth
   db.forEach(item => map.set(item.id, { ...item }));
-
-  // Reconcile local items
   local.forEach(item => {
     const existing = map.get(item.id);
     if (existing) {
       if (isMergingGuest) {
-        // Mode 1: Transitioning guest. Add their guest items to the DB account.
         map.set(item.id, {
           ...existing,
           quantity: Math.min(existing.quantity + item.quantity, existing.stock)
         });
       } else {
-        // Mode 2: Restoring existing session. The DB is always the source of truth
-        // for previously synced items. Overwrite local with DB.
         map.set(item.id, { ...existing });
       }
     } else {
-      // Missing from DB entirely? It's a new guest item, add it.
       map.set(item.id, { ...item });
     }
   });
-
   return Array.from(map.values());
 };
 
@@ -80,6 +66,7 @@ export const useCartStore = create<CartState>()(
     (set, get) => ({
       items: [],
       processingIds: [],
+      isSyncing: false,
 
       addItem: async (product: Product, quantity = 1) => {
         const { items, processingIds } = get();
@@ -90,10 +77,7 @@ export const useCartStore = create<CartState>()(
           ? Math.min(existing.quantity + quantity, product.stock)
           : Math.min(quantity, product.stock);
 
-        // 🛡️ Snapshot for Rollback
         const prevItems = [...items];
-
-        // ⚡ Optimistic UI Update
         const newItems = existing
           ? items.map((i) => (i.id === product.id ? { ...i, quantity: newQuantity } : i))
           : [
@@ -119,7 +103,6 @@ export const useCartStore = create<CartState>()(
           const userId = authData.user?.id;
           
           if (userId) {
-            // 💪 Resilient API Call with Timeout + Retry
             const { error } = await resilientCall(async () => 
               await supabase.from("cart_items").upsert({
                 user_id: userId,
@@ -133,10 +116,9 @@ export const useCartStore = create<CartState>()(
           Analytics.addToCart(product.id, product.price, userId);
         } catch (err) {
           Logger.storeError("cart", "addItem", err);
-          set({ items: prevItems }); // 🔁 Rollback
-          toast.error("Cloud sync failed. Item saved locally.");
+          set({ items: prevItems });
+          toast.error("Cloud sync issue. Item saved locally.");
         } finally {
-          // 🛡️ Guaranteed Reset of processing state
           set((state) => ({
             processingIds: state.processingIds.filter(id => id !== product.id)
           }));
@@ -172,7 +154,7 @@ export const useCartStore = create<CartState>()(
           Analytics.removeFromCart(productId, userId);
         } catch (err) {
           Logger.storeError("cart", "removeItem", err);
-          set({ items: prevItems }); // 🔁 Rollback
+          set({ items: prevItems });
           toast.error("Failed to remove item.");
         } finally {
           set((state) => ({
@@ -192,7 +174,6 @@ export const useCartStore = create<CartState>()(
 
         const prevItems = [...items];
         const finalQuantity = Math.min(quantity, item.stock);
-
         const newItems = items.map((i) =>
           i.id === productId ? { ...i, quantity: finalQuantity } : i
         );
@@ -230,7 +211,16 @@ export const useCartStore = create<CartState>()(
       syncWithDatabase: async (userId: string, isMergingGuest: boolean = false) => {
         if (!userId) return;
 
+        // 🛡️ Idempotent Sync Guard
+        // Prevents thundering herd of redundant sync calls during initialization/navigation/focus
+        if (get().isSyncing) {
+            Logger.debug("Syncing already in progress, skipping redundant call", { module: "cart", userId });
+            return;
+        }
+
         try {
+          set({ isSyncing: true });
+
           // 1. Fetch DB items with resilience
           const { data: dbItems, error } = await resilientCall(async () => 
             await supabase
@@ -253,14 +243,14 @@ export const useCartStore = create<CartState>()(
               quantity: item.quantity
             }));
 
-          // 2. Deterministic Merge Logic (fixes quantity doubling)
+          // 2. Deterministic Merge Logic
           const localItems = get().items;
           const mergedItems = mergeCart(localItems, mappedDbItems, isMergingGuest);
 
           // 3. Store Update
           set({ items: mergedItems });
 
-          // 4. Sync merged result back to DB to keep source of truth consistent
+          // 4. Sync merged result back to DB
           const syncPromises = mergedItems.map(item => 
             resilientCall(async () => 
               await supabase.from("cart_items").upsert({
@@ -275,7 +265,13 @@ export const useCartStore = create<CartState>()(
           Logger.info("Cart sync complete", { module: "cart", userId, isMergingGuest });
         } catch (err) {
           Logger.storeError("cart", "syncWithDatabase", err);
-          toast.error("Sync failed. Check connection.");
+          // Only show error toast if it's not a background sync failure (like a focus re-sync)
+          if (isMergingGuest) {
+            toast.error("Sync failed. Check connection.");
+          }
+        } finally {
+          // 🛡️ Always reset syncing flag
+          set({ isSyncing: false });
         }
       },
 
@@ -298,7 +294,7 @@ export const useCartStore = create<CartState>()(
           } catch (err) {
             Logger.storeError("cart", "clearCart", err);
             set({ items: prevItems });
-            toast.error("Cloud cart error.");
+            toast.error("Cloud cart issue.");
           }
         }
       },

@@ -10,6 +10,7 @@ import { resilientCall } from "@/lib/api-utils";
 interface WishlistState {
   items: string[];
   processingIds: string[];
+  isSyncing: boolean;
   toggleWishlist: (product: Product, userId: string) => Promise<void>;
   syncWithDatabase: (userId: string) => Promise<void>;
   fetchWishlist: (userId: string) => Promise<void>;
@@ -23,6 +24,7 @@ export const useWishlistStore = create<WishlistState>()(
     (set, get) => ({
       items: [],
       processingIds: [],
+      isSyncing: false,
 
       toggleWishlist: async (product, userId) => {
         if (!userId) {
@@ -84,7 +86,15 @@ export const useWishlistStore = create<WishlistState>()(
       syncWithDatabase: async (userId: string) => {
         if (!userId) return;
 
+        // 🛡️ Idempotent Sync Guard
+        if (get().isSyncing) {
+            Logger.debug("Wishlist sync already in progress, skipping", { module: "wishlist", userId });
+            return;
+        }
+
         try {
+          set({ isSyncing: true });
+
           // 1. Fetch current wishlist from DB
           const { data, error } = await resilientCall(async () => 
             await supabase
@@ -121,6 +131,8 @@ export const useWishlistStore = create<WishlistState>()(
           Logger.info("Wishlist sync complete", { module: "wishlist", userId });
         } catch (err) {
           Logger.storeError("wishlist", "syncWithDatabase", err);
+        } finally {
+          set({ isSyncing: false });
         }
       },
 
