@@ -11,6 +11,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { supabase } from "@/lib/supabase/client";
 import { useState, useRef, useEffect } from "react";
 import toast from "react-hot-toast";
+import { Logger } from "@/lib/logger";
 import {
   motion,
   AnimatePresence,
@@ -104,7 +105,7 @@ export default function ProductCard({
         </div>,
       );
     } catch (err) {
-      console.error(err);
+      Logger.storeError("card", "addToCart", err);
     }
   };
 
@@ -117,7 +118,7 @@ export default function ProductCard({
     try {
       await toggleWishlist(product, user?.id || "");
     } catch (err) {
-      console.error("Wishlist error:", err);
+      Logger.storeError("card", "toggleWishlist", err);
     }
   };
 

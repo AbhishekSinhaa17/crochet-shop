@@ -26,11 +26,11 @@ export default function Header() {
   const navRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const pathname = usePathname();
-  const itemCount = useCartStore((s) => s.getItemCount());
+  const syncCart = useCartStore((s) => s.syncWithDatabase);
+  const syncWishlist = useWishlistStore((s) => s.syncWithDatabase);
   const clearCart = useCartStore((s) => s.clearCart);
-  const setItems = useCartStore((s) => s.setItems);
-  const setWishlistItems = useWishlistStore((s) => s.setItems);
   const clearWishlist = useWishlistStore((s) => s.clearWishlist);
+  const itemCount = useCartStore((s) => s.getItemCount());
   const wishlistCount = useWishlistStore((s) => s.items.length);
 
   useEffect(() => {
@@ -38,59 +38,14 @@ export default function Header() {
   }, []);
 
   useEffect(() => {
-    // Fetch individual cart for the user
-    const fetchCart = async (userId: string) => {
-      try {
-        const { data, error } = await supabase
-          .from("cart_items")
-          .select("*, product:products(*)")
-          .eq("user_id", userId);
-        
-        if (error) throw error;
-        
-        if (data) {
-          const cartProducts = data.map((item: any) => ({
-            id: item.product.id,
-            name: item.product.name,
-            price: item.product.price,
-            compare_price: item.product.compare_price,
-            image: item.product.images?.[0] || "",
-            stock: item.product.stock,
-            quantity: item.quantity,
-          }));
-          setItems(cartProducts);
-        }
-      } catch (err) {
-        Logger.storeError("header", "fetchCart", err);
-      }
-    };
-
-    // Fetch individual wishlist for the user
-    const fetchWishlist = async (userId: string) => {
-      try {
-        const { data, error } = await supabase
-          .from("wishlist")
-          .select("product_id")
-          .eq("user_id", userId);
-        
-        if (error) throw error;
-        
-        if (data) {
-          setWishlistItems(data.map((item: any) => item.product_id));
-        }
-      } catch (err) {
-        Logger.storeError("header", "fetchWishlist", err);
-      }
-    };
-
     if (user) {
-      fetchCart(user.id);
-      fetchWishlist(user.id);
+      syncCart(user.id);
+      syncWishlist(user.id);
     } else if (mounted) {
       clearCart(false); // Clear local items only, preserve DB
       clearWishlist();
     }
-  }, [user, mounted, setItems, setWishlistItems, clearCart, clearWishlist]);
+  }, [user, mounted, syncCart, syncWishlist, clearCart, clearWishlist]);
 
   useEffect(() => {
     const handleFocus = async () => {

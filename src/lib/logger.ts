@@ -7,6 +7,21 @@ interface LogContext {
   [key: string]: unknown;
 }
 
+/**
+ * 🔒 Safe Stringify — prevents circular reference crashes.
+ * Especially useful for complex Supabase/Network error objects.
+ */
+function safeStringify(obj: unknown): string {
+  const cache = new Set();
+  return JSON.stringify(obj, (key, value) => {
+    if (typeof value === "object" && value !== null) {
+      if (cache.has(value)) return "[Circular]";
+      cache.add(value);
+    }
+    return value;
+  });
+}
+
 function serializeError(error: unknown): Record<string, unknown> {
   if (error instanceof Error) {
     return {
@@ -21,7 +36,16 @@ function serializeError(error: unknown): Record<string, unknown> {
 export class Logger {
   private static format(level: LogLevel, message: string, context?: LogContext | unknown) {
     const timestamp = new Date().toISOString();
-    const env = typeof process !== "undefined" ? process.env.NODE_ENV : "unknown";
+    
+    // 🌐 Browser-safe environment check
+    let env = "unknown";
+    try {
+      if (typeof process !== "undefined" && process.env) {
+        env = process.env.NODE_ENV || "unknown";
+      }
+    } catch {
+      // In some environments, accessing process might throw
+    }
 
     // If context is an Error, serialize it
     const serializedContext =
@@ -33,7 +57,7 @@ export class Logger {
       env,
       message,
       ...(serializedContext && typeof serializedContext === "object"
-        ? serializedContext
+        ? (serializedContext as any)
         : serializedContext
         ? { context: serializedContext }
         : {}),
@@ -41,24 +65,33 @@ export class Logger {
   }
 
   static info(message: string, context?: LogContext) {
-    console.info(JSON.stringify(this.format("info", message, context)));
+    console.info(safeStringify(this.format("info", message, context)));
   }
 
   static warn(message: string, context?: LogContext) {
-    console.warn(JSON.stringify(this.format("warn", message, context)));
+    console.warn(safeStringify(this.format("warn", message, context)));
   }
 
   static error(message: string, error?: unknown, context?: LogContext) {
-    const payload = {
-      ...this.format("error", message, context),
-      ...(error ? { error: serializeError(error) } : {}),
-    };
-    console.error(JSON.stringify(payload));
+    try {
+      const payload = {
+        ...this.format("error", message, context),
+        ...(error ? { error: serializeError(error) } : {}),
+      };
+      console.error(safeStringify(payload));
+    } catch (e) {
+      // Emergency fallback if even safeStringify fails
+      console.error("Logger crash while logging error:", message);
+    }
   }
 
   static debug(message: string, context?: LogContext) {
-    if (process.env.NODE_ENV === "development") {
-      console.debug(JSON.stringify(this.format("debug", message, context)));
+    try {
+      if (typeof process !== "undefined" && process.env?.NODE_ENV === "development") {
+        console.debug(safeStringify(this.format("debug", message, context)));
+      }
+    } catch {
+      // Silent in production if process check fails
     }
   }
 

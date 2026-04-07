@@ -5,11 +5,13 @@ import { Product } from "@/types";
 import { supabase } from "@/lib/supabase/client";
 import { Logger } from "@/lib/logger";
 import { Analytics } from "@/lib/analytics";
+import { resilientCall } from "@/lib/api-utils";
 
 interface WishlistState {
   items: string[];
   processingIds: string[];
   toggleWishlist: (product: Product, userId: string) => Promise<void>;
+  syncWithDatabase: (userId: string) => Promise<void>;
   fetchWishlist: (userId: string) => Promise<void>;
   setItems: (productIds: string[]) => void;
   clearWishlist: () => void;
@@ -29,10 +31,9 @@ export const useWishlistStore = create<WishlistState>()(
         }
 
         const { items, processingIds } = get();
-        
-        // 🚫 Prevent spam clicks for the SAME product
         if (processingIds.includes(product.id)) return;
         
+        const prevItems = [...items];
         const alreadyExists = items.includes(product.id);
         
         // ⚡ Optimistic Update
@@ -46,39 +47,68 @@ export const useWishlistStore = create<WishlistState>()(
         }));
 
         try {
-          if (alreadyExists) {
-            const { error } = await supabase
-              .from("wishlist")
-              .delete()
-              .eq("user_id", userId)
-              .eq("product_id", product.id);
-
+          const { data: authData } = await resilientCall(() => supabase.auth.getUser());
+          const userId = authData.user?.id;
+          
+          if (userId) {
+            const { error } = await resilientCall(async () => 
+              await supabase
+                .from("wishlist")
+                .delete()
+                .eq("user_id", userId)
+                .eq("product_id", product.id)
+            );
             if (error) throw error;
             Analytics.removeFromWishlist(product.id, userId);
-          } else {
-            const { error } = await supabase
-              .from("wishlist")
-              .insert({
-                user_id: userId,
-                product_id: product.id,
-              });
-
-            // Handle unique constraint violation (23505) safely
-            if (error && error.code !== "23505") throw error;
-            Analytics.addToWishlist(product.id, userId);
           }
-
-          toast.success(alreadyExists ? "Removed from wishlist" : "Added to wishlist");
         } catch (err: any) {
           Logger.storeError("wishlist", "toggleWishlist", err);
-          
-          // 🔁 Rollback on failure
-          set({ items });
-          toast.error("Failed to update wishlist");
+          set({ items: prevItems }); // 🔁 Rollback
+          toast.error("Cloud sync failed. Updated locally.");
         } finally {
           set((state) => ({
             processingIds: state.processingIds.filter(id => id !== product.id)
           }));
+        }
+      },
+
+      syncWithDatabase: async (userId: string) => {
+        if (!userId) return;
+
+        try {
+          // 1. Fetch current wishlist from DB with resilience
+          const { data, error } = await resilientCall(async () => 
+            await supabase
+              .from("wishlist")
+              .select("product_id")
+              .eq("user_id", userId)
+          ) as { data: any[] | null; error: any };
+
+          if (error) throw error;
+
+          const dbItemIds = (data || []).map((item: any) => item.product_id);
+          const localItemIds = get().items;
+
+          // 2. Deterministic Merge: Unique Set
+          const mergedItemIds = Array.from(new Set([...dbItemIds, ...localItemIds]));
+
+          // 3. Update store
+          set({ items: mergedItemIds });
+
+          // 4. Sync new items back to DB
+          const newLocalItems = localItemIds.filter(id => !dbItemIds.includes(id));
+          if (newLocalItems.length > 0) {
+            const syncPromises = newLocalItems.map(id => 
+              resilientCall(async () => 
+                await supabase.from("wishlist").insert({ user_id: userId, product_id: id })
+              )
+            );
+            await Promise.all(syncPromises);
+          }
+
+          Logger.info("Wishlist sync complete", { module: "wishlist", userId });
+        } catch (err) {
+          Logger.storeError("wishlist", "syncWithDatabase", err);
         }
       },
 
@@ -89,28 +119,27 @@ export const useWishlistStore = create<WishlistState>()(
         }
 
         try {
-          const { data, error } = await supabase
-            .from("wishlist")
-            .select("product_id")
-            .eq("user_id", userId);
+          const { data, error } = await resilientCall(async () => 
+            await supabase
+              .from("wishlist")
+              .select("product_id")
+              .eq("user_id", userId)
+          ) as { data: any[] | null; error: any };
 
           if (error) throw error;
-          if (data) {
-            set({ items: data.map((item) => item.product_id) });
-          }
+          if (data) set({ items: data.map((item: any) => item.product_id) });
         } catch (err) {
           Logger.storeError("wishlist", "fetchWishlist", err);
         }
       },
 
       setItems: (productIds: string[]) => set({ items: productIds }),
-
       clearWishlist: () => set({ items: [], processingIds: [] }),
-
       isInWishlist: (productId: string) => get().items.includes(productId),
     }),
     {
       name: "crochet-wishlist",
+      skipHydration: true, // 🛡️ Fix Next.js SSR hydration mismatches
       partialize: (state) => ({ items: state.items }),
     },
   ),
