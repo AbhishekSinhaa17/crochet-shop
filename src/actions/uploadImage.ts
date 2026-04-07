@@ -1,7 +1,7 @@
 "use server";
 
 import { UploadService } from "@/services/upload-service";
-
+import { Logger } from "@/lib/logger";
 
 export async function uploadProductImage(formData: FormData): Promise<{ url?: string; error?: string }> {
   try {
@@ -15,8 +15,7 @@ export async function uploadProductImage(formData: FormData): Promise<{ url?: st
 
     return { url: result.url };
   } catch (e: any) {
-    console.error("uploadProductImage Error:", e);
+    Logger.error("uploadProductImage Error", e, { module: "upload", action: "uploadProductImage" });
     return { error: e.message || "Failed to upload image" };
   }
 }
-

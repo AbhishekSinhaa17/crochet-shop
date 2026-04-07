@@ -2,6 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { type NextRequest, NextResponse } from "next/server";
+import { Logger } from "@/lib/logger";
 
 export async function POST(req: NextRequest) {
   const cookieStore = await cookies();
@@ -26,7 +27,7 @@ export async function POST(req: NextRequest) {
   const { error } = await supabase.auth.signOut();
 
   if (error) {
-    console.error("SignOut Server Error:", error);
+    Logger.error("SignOut Server Error", error, { module: "auth", action: "signout" });
   }
 
   // Clear caches and redirect
@@ -37,3 +38,4 @@ export async function POST(req: NextRequest) {
     status: 302,
   });
 }
+

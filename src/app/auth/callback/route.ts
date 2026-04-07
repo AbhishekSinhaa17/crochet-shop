@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { Logger } from "@/lib/logger";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -36,10 +37,11 @@ export async function GET(request: Request) {
       response.cookies.delete("auth_redirect");
       return response;
     } else {
-      console.error("Auth callback error:", error.message);
+      Logger.error("Auth callback error", error, { module: "auth", action: "callback" });
     }
   }
 
   // Fallback if anything fails
   return NextResponse.redirect(`${origin}/auth/login?error=callback_failed`);
 }
+

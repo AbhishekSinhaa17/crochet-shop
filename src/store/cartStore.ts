@@ -4,6 +4,8 @@ import { Product } from "@/types";
 import { getProductImage } from "@/lib/utils";
 import { supabase } from "@/lib/supabase/client";
 import { useAuthStore } from "./useAuthStore";
+import { Logger } from "@/lib/logger";
+import { Analytics } from "@/lib/analytics";
 import toast from "react-hot-toast";
 
 export interface CartProduct {
@@ -76,8 +78,9 @@ export const useCartStore = create<CartState>()(
 
             if (error) throw error;
           }
+          Analytics.addToCart(product.id, product.price, useAuthStore.getState().user?.id);
         } catch (err) {
-          console.error("Cart add error:", err);
+          Logger.storeError("cart", "addItem", err);
           set({ items }); // 🔁 Rollback
           toast.error("Failed to update cart. Please try again.");
         } finally {
@@ -110,8 +113,9 @@ export const useCartStore = create<CartState>()(
 
             if (error) throw error;
           }
+          Analytics.removeFromCart(productId, useAuthStore.getState().user?.id);
         } catch (err) {
-          console.error("Cart remove error:", err);
+          Logger.storeError("cart", "removeItem", err);
           set({ items }); // 🔁 Rollback
           toast.error("Failed to remove item.");
         } finally {
@@ -156,7 +160,7 @@ export const useCartStore = create<CartState>()(
             if (error) throw error;
           }
         } catch (err) {
-          console.error("Cart update error:", err);
+          Logger.storeError("cart", "updateQuantity", err);
           set({ items }); // 🔁 Rollback
           toast.error("Failed to update quantity.");
         } finally {
@@ -180,7 +184,7 @@ export const useCartStore = create<CartState>()(
               if (error) throw error;
             }
           } catch (err) {
-            console.error("Cart clear error:", err);
+            Logger.storeError("cart", "clearCart", err);
             set({ items }); // 🔁 Rollback
             toast.error("Failed to clear cart sync.");
           }

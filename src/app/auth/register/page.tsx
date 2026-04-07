@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff, Mail, Lock, User, Sparkles, Heart, Check, X, ChevronLeft, Scissors } from "lucide-react";
 import toast from "react-hot-toast";
+import { Logger } from "@/lib/logger";
 import { motion, AnimatePresence } from "framer-motion";
 import { drand } from "@/lib/drand";
 
@@ -268,7 +269,7 @@ export default function RegisterPage() {
         router.push("/auth/login");
       }
     } catch (err: any) {
-      console.error("Registration Error:", err);
+      Logger.error("Registration Error", err, { module: "auth", action: "register" });
       toast.error("An unexpected error occurred");
       setLoading(false);
     }

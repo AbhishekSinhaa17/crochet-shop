@@ -4,6 +4,7 @@ import { OrderService } from "@/services/order-service";
 import { ChatService } from "@/services/chat-service";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { Logger } from "@/lib/logger";
 
 async function verifyAdmin() {
   const supabase = await createServerSupabaseClient();
@@ -16,7 +17,10 @@ async function verifyAdmin() {
     .eq("id", user.id)
     .single();
 
-  if (profile?.role !== "admin") throw new Error("Forbidden: Admin access required");
+  if (profile?.role !== "admin") {
+    Logger.authFailure("Forbidden admin access attempt", { userId: user.id });
+    throw new Error("Forbidden: Admin access required");
+  }
   return user;
 }
 
@@ -26,20 +30,21 @@ export async function getAdminCustomOrdersAction(options?: any) {
     const orderService = new OrderService(true);
     return await orderService.getAllCustomOrders(options);
   } catch (err: any) {
-    console.error("getAdminCustomOrdersAction Error:", err);
+    Logger.error("getAdminCustomOrdersAction Error", err, { module: "admin_custom_orders", action: "getAll" });
     throw err;
   }
 }
 
 export async function updateCustomOrderStatusAction(id: string, status: string, adminNotes?: string, quotedPrice?: number) {
   try {
-    await verifyAdmin();
+    const admin = await verifyAdmin();
     const orderService = new OrderService(true);
     const result = await orderService.updateCustomStatus(id, status, adminNotes, quotedPrice);
+    Logger.adminAction(admin.id, "update_custom_order_status", { orderId: id, status });
     revalidatePath("/admin/custom-orders");
     return { success: true, data: result };
   } catch (err: any) {
-    console.error("updateCustomOrderStatusAction Error:", err);
+    Logger.error("updateCustomOrderStatusAction Error", err, { module: "admin_custom_orders", action: "updateStatus" });
     return { success: false, error: err.message };
   }
 }
@@ -49,9 +54,10 @@ export async function sendAdminOrderReplyAction(customerId: string, content: str
     const admin = await verifyAdmin();
     const chatService = new ChatService(true);
     await chatService.sendAdminReply(customerId, admin.id, content, "Custom Order Inquiry");
+    Logger.adminAction(admin.id, "send_order_reply", { customerId });
     return { success: true };
   } catch (err: any) {
-    console.error("sendAdminOrderReplyAction Error:", err);
+    Logger.error("sendAdminOrderReplyAction Error", err, { module: "admin_custom_orders", action: "sendReply" });
     return { success: false, error: err.message };
   }
 }

@@ -3,6 +3,7 @@
 import { OrderService } from "@/services/order-service";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { Logger } from "@/lib/logger";
 
 async function verifyAdmin() {
   const supabase = await createServerSupabaseClient();
@@ -15,7 +16,10 @@ async function verifyAdmin() {
     .eq("id", user.id)
     .single();
 
-  if (profile?.role !== "admin") throw new Error("Forbidden: Admin access required");
+  if (profile?.role !== "admin") {
+    Logger.authFailure("Forbidden admin access attempt", { userId: user.id });
+    throw new Error("Forbidden: Admin access required");
+  }
   return user;
 }
 
@@ -25,20 +29,21 @@ export async function getAdminOrdersAction(options?: any) {
     const orderService = new OrderService(true);
     return await orderService.getAllOrders(options);
   } catch (err: any) {
-    console.error("getAdminOrdersAction Error:", err);
+    Logger.error("getAdminOrdersAction Error", err, { module: "admin_orders", action: "getAll" });
     throw err;
   }
 }
 
 export async function updateOrderStatusAction(orderId: string, status: string) {
   try {
-    await verifyAdmin();
+    const admin = await verifyAdmin();
     const orderService = new OrderService(true);
     const result = await orderService.updateStatus(orderId, status);
+    Logger.adminAction(admin.id, "update_order_status", { orderId, status });
     revalidatePath("/admin/orders");
     return { success: true, data: result };
   } catch (err: any) {
-    console.error("updateOrderStatusAction Error:", err);
+    Logger.error("updateOrderStatusAction Error", err, { module: "admin_orders", action: "updateStatus" });
     return { success: false, error: err.message };
   }
 }

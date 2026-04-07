@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { Logger } from "@/lib/logger";
 
 // Basic Rate Limiting Structure (In-memory is not persistent across middleware runs, 
 // so this is more of a structural hint or using a real store if needed)
@@ -78,7 +79,7 @@ export async function updateSession(request: NextRequest) {
   // 5. Authentication Logic
   if (!user) {
     if (isProtectedRoute || isAdminRoute) {
-      console.log(`[Middleware] Unauthorized access to ${pathname} - Redirecting to login`);
+      Logger.info("Unauthorized access attempt", { module: "middleware", action: "auth_redirect", pathname });
       const url = request.nextUrl.clone();
       url.pathname = "/auth/login";
       url.searchParams.set("redirect", pathname);
@@ -89,7 +90,7 @@ export async function updateSession(request: NextRequest) {
 
   // If user is already logged in and tries to access /auth pages, redirect to home
   if (isAuthPage) {
-    console.log(`[Middleware] Authenticated user on auth page - Redirecting home`);
+    Logger.debug("Authenticated user on auth page - Redirecting home", { module: "middleware" });
     return NextResponse.redirect(new URL("/", request.url));
   }
 
@@ -106,7 +107,7 @@ export async function updateSession(request: NextRequest) {
     const currentRole = profile?.role?.toLowerCase()?.trim() || 'user';
 
     if (roleError || currentRole !== "admin") {
-      console.warn(`[Middleware] Forbidden admin access attempt by ${user.email} (Role: ${currentRole})`);
+      Logger.warn(`Forbidden admin access attempt`, { module: "middleware", action: "admin_guard", userId: user.id, email: user.email, role: currentRole });
       // Not an admin, redirect home
       return NextResponse.redirect(new URL("/", request.url));
     }

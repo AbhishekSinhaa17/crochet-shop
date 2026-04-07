@@ -9,6 +9,7 @@ import { ShoppingBag, Heart, User, Menu, X, Search, LogOut, Package, MessageCirc
 import { useWishlistStore } from "@/store/wishlistStore";
 import { useAuthStore } from "@/store/useAuthStore";
 import { cn } from "@/lib/utils";
+import { Logger } from "@/lib/logger";
 import ThemeToggle from "./ThemeToggle";
 
 export default function Header() {
@@ -60,7 +61,7 @@ export default function Header() {
           setItems(cartProducts);
         }
       } catch (err) {
-        console.error("Cart Fetch Error:", err);
+        Logger.storeError("header", "fetchCart", err);
       }
     };
 
@@ -78,7 +79,7 @@ export default function Header() {
           setWishlistItems(data.map((item: any) => item.product_id));
         }
       } catch (err) {
-        console.error("Wishlist Fetch Error:", err);
+        Logger.storeError("header", "fetchWishlist", err);
       }
     };
 
@@ -94,7 +95,7 @@ export default function Header() {
   useEffect(() => {
     const handleFocus = async () => {
       await supabase.auth.refreshSession();
-      console.log("Session refreshed on focus");
+      Logger.debug("Session refreshed on focus", { module: "header" });
     };
 
     window.addEventListener("focus", handleFocus);

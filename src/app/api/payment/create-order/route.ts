@@ -1,16 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import Razorpay from "razorpay";
+import { Logger } from "@/lib/logger";
 
 export async function POST(request: NextRequest) {
   try {
+    const keyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+    const keySecret = process.env.RAZORPAY_KEY_SECRET;
+
+    if (!keyId || !keySecret) {
+      Logger.error("Razorpay credentials not configured", undefined, { module: "payment", action: "create-order" });
+      return NextResponse.json({ error: "Payment not configured" }, { status: 500 });
+    }
+
     const razorpay = new Razorpay({
-      key_id: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID!,
-      key_secret: process.env.RAZORPAY_KEY_SECRET!,
+      key_id: keyId,
+      key_secret: keySecret,
     });
 
     const { amount } = await request.json();
 
-    if (!amount || amount <= 0) {
+    if (!amount || typeof amount !== "number" || amount <= 0) {
       return NextResponse.json({ error: "Invalid amount" }, { status: 400 });
     }
 
@@ -22,7 +31,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ orderId: order.id, amount: order.amount });
   } catch (error: any) {
-    console.error("Razorpay error:", error);
+    Logger.apiError("/api/payment/create-order", error);
     return NextResponse.json(
       { error: error.message || "Failed to create order" },
       { status: 500 }

@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff, Mail, Lock, Sparkles, Heart, ChevronLeft, Scissors } from "lucide-react";
 import toast from "react-hot-toast";
+import { Logger } from "@/lib/logger";
 import { motion, AnimatePresence } from "framer-motion";
 import { drand } from "@/lib/drand";
 
@@ -145,7 +146,7 @@ export default function LoginPage() {
         setTimeout(() => router.refresh(), 100);
       }
     } catch (err: any) {
-      console.error("Login Error:", err);
+      Logger.error("Login Error", err, { module: "auth", action: "login" });
       toast.error("An unexpected error occurred");
       setLoading(false);
     }

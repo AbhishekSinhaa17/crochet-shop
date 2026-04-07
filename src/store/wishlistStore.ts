@@ -3,6 +3,8 @@ import { persist } from "zustand/middleware";
 import toast from "react-hot-toast";
 import { Product } from "@/types";
 import { supabase } from "@/lib/supabase/client";
+import { Logger } from "@/lib/logger";
+import { Analytics } from "@/lib/analytics";
 
 interface WishlistState {
   items: string[];
@@ -52,6 +54,7 @@ export const useWishlistStore = create<WishlistState>()(
               .eq("product_id", product.id);
 
             if (error) throw error;
+            Analytics.removeFromWishlist(product.id, userId);
           } else {
             const { error } = await supabase
               .from("wishlist")
@@ -62,11 +65,12 @@ export const useWishlistStore = create<WishlistState>()(
 
             // Handle unique constraint violation (23505) safely
             if (error && error.code !== "23505") throw error;
+            Analytics.addToWishlist(product.id, userId);
           }
 
           toast.success(alreadyExists ? "Removed from wishlist" : "Added to wishlist");
         } catch (err: any) {
-          console.error(`Wishlist error [${product.id}]:`, err);
+          Logger.storeError("wishlist", "toggleWishlist", err);
           
           // 🔁 Rollback on failure
           set({ items });
@@ -95,7 +99,7 @@ export const useWishlistStore = create<WishlistState>()(
             set({ items: data.map((item) => item.product_id) });
           }
         } catch (err) {
-          console.error("Error fetching wishlist:", err);
+          Logger.storeError("wishlist", "fetchWishlist", err);
         }
       },
 

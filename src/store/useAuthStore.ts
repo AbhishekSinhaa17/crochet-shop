@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { supabase } from "@/lib/supabase/client";
 import { Profile } from "@/types";
+import { Logger } from "@/lib/logger";
 
 interface AuthState {
   user: any | null;
@@ -62,7 +63,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         set({ loading: false, profile: null, role: null, isAdmin: false });
       }
     } catch (err) {
-      console.error("AuthStore: Error fetching profile", err);
+      Logger.storeError("auth", "fetchProfile", err);
       set({ loading: false });
     }
   },
@@ -95,7 +96,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
         await get().setUser(user);
       } catch (error) {
-        console.error("AuthStore: Error fetching user", error);
+        Logger.storeError("auth", "fetchUser", error);
         set({ user: null, profile: null, isAdmin: false, loading: false, initialized: true });
       } finally {
         initializationPromise = null;
@@ -119,7 +120,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         initialized: true 
       });
     } catch (error) {
-      console.error("AuthStore: Error signing out", error);
+      Logger.storeError("auth", "signOut", error);
     }
   },
 }));

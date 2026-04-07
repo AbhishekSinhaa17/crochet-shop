@@ -2,9 +2,9 @@
 
 import { OrderService } from "@/services/order-service";
 import { UploadService } from "@/services/upload-service";
-
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { Logger } from "@/lib/logger";
 
 export async function submitCustomOrderAction(formData: FormData): Promise<{ success?: boolean; error?: string }> {
   try {
@@ -16,7 +16,7 @@ export async function submitCustomOrderAction(formData: FormData): Promise<{ suc
     }
 
     const uploadService = new UploadService("custom-order-images");
-    const orderService = new OrderService(true); // Admin client used for db insert usually bypasses user-only RLS if needed
+    const orderService = new OrderService(true);
 
     // 1. Handle File Uploads
     const files = formData.getAll("images") as unknown as File[];
@@ -49,9 +49,7 @@ export async function submitCustomOrderAction(formData: FormData): Promise<{ suc
     revalidatePath("/orders");
     return { success: true };
   } catch (err: any) {
-    console.error("submitCustomOrderAction Error:", err);
+    Logger.error("submitCustomOrderAction Error", err, { module: "customOrder", action: "submit" });
     return { error: err.message || "An unexpected error occurred." };
   }
 }
-
-

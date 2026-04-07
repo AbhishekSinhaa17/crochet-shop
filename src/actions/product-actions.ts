@@ -3,7 +3,7 @@
 import { revalidateTag } from "next/cache";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { ProductService } from "@/services/product-service";
-import { productSchema, productUpdateSchema } from "@/validators/product";
+import { Logger } from "@/lib/logger";
 
 /**
  * 🛡️ Helper: Verify Admin Role on Server
@@ -22,6 +22,7 @@ async function verifyAdmin() {
     .single();
 
   if (!profile || profile.role !== "admin") {
+    Logger.authFailure("Unauthorized admin access attempt", { userId: user.id, email: user.email });
     throw new Error("Unauthorized: Admin access required");
   }
 
@@ -33,16 +34,17 @@ async function verifyAdmin() {
  */
 export async function createProductAction(formData: any) {
   try {
-    await verifyAdmin();
+    const admin = await verifyAdmin();
     
     const productService = new ProductService(true);
     const result = await productService.createProduct(formData);
     
+    Logger.adminAction(admin.id, "create_product", { productName: formData?.name });
     revalidateTag("products");
     return { success: true, data: result };
   } catch (error: any) {
-    console.error("[Action] Create Product Error:", error.message);
-    return { success: false, error: error.message };
+    Logger.error("[Action] Create Product Error", error, { module: "product-actions", action: "createProduct" });
+    return { success: false, error: error.message || "Failed to create product" };
   }
 }
 
@@ -51,17 +53,18 @@ export async function createProductAction(formData: any) {
  */
 export async function updateProductAction(id: string, formData: any) {
   try {
-    await verifyAdmin();
+    const admin = await verifyAdmin();
     
     const productService = new ProductService(true);
     const result = await productService.updateProduct(id, formData);
     
+    Logger.adminAction(admin.id, "update_product", { productId: id });
     revalidateTag("products");
     revalidateTag(`product-${id}`);
     return { success: true, data: result };
   } catch (error: any) {
-    console.error("[Action] Update Product Error:", error.message);
-    return { success: false, error: error.message };
+    Logger.error("[Action] Update Product Error", error, { module: "product-actions", action: "updateProduct" });
+    return { success: false, error: error.message || "Failed to update product" };
   }
 }
 
@@ -70,15 +73,16 @@ export async function updateProductAction(id: string, formData: any) {
  */
 export async function deleteProductAction(id: string) {
   try {
-    await verifyAdmin();
+    const admin = await verifyAdmin();
     
     const productService = new ProductService(true);
     await productService.deleteProduct(id);
     
+    Logger.adminAction(admin.id, "delete_product", { productId: id });
     revalidateTag("products");
     return { success: true };
   } catch (error: any) {
-    console.error("[Action] Delete Product Error:", error.message);
-    return { success: false, error: error.message };
+    Logger.error("[Action] Delete Product Error", error, { module: "product-actions", action: "deleteProduct" });
+    return { success: false, error: error.message || "Failed to delete product" };
   }
 }
