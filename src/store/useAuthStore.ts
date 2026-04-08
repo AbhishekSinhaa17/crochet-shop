@@ -2,6 +2,8 @@ import { create } from "zustand";
 import { supabase } from "@/lib/supabase/client";
 import { Profile } from "@/types";
 import { Logger } from "@/lib/logger";
+import { useCartStore } from "./cartStore";
+import { useWishlistStore } from "./wishlistStore";
 
 interface AuthState {
   user: any | null;
@@ -38,8 +40,16 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     
     if (user) {
       await get().fetchProfile(user.id);
+      try {
+        await useCartStore.getState().syncWithDatabase(user.id);
+        await useWishlistStore.getState().syncWithDatabase(user.id);
+      } catch (err) {
+        Logger.storeError("auth", "post-login-sync", err);
+      }
     } else {
       set({ profile: null, role: null, isAdmin: false, loading: false });
+      useCartStore.getState().clearCart(false);
+      useWishlistStore.getState().clearWishlist();
     }
   },
 

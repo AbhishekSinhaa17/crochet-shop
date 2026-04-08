@@ -48,16 +48,6 @@ export default function Header() {
   }, [user, mounted, syncCart, syncWishlist, clearCart, clearWishlist]);
 
   useEffect(() => {
-    const handleFocus = async () => {
-      await supabase.auth.refreshSession();
-      Logger.debug("Session refreshed on focus", { module: "header" });
-    };
-
-    window.addEventListener("focus", handleFocus);
-    return () => window.removeEventListener("focus", handleFocus);
-  }, []);
-
-  useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);

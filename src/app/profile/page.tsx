@@ -111,7 +111,7 @@ export default function ProfilePage() {
 
       setStats({
         totalOrders: ordersRes.data?.length || 0,
-        totalSpent: ordersRes.data?.reduce((sum, o) => sum + (o.total || 0), 0) || 0,
+        totalSpent: ordersRes.data?.reduce((sum: number, o: any) => sum + (o.total || 0), 0) || 0,
         wishlistItems: wishlistRes.data?.length || 0,
         reviewsGiven: reviewsRes.data?.length || 0,
       });

@@ -38,19 +38,29 @@ interface CartState {
  * 🛒 Deterministic Merge Strategy
  */
 const mergeCart = (
-  local: CartProduct[], 
-  db: CartProduct[], 
-  isMergingGuest: boolean = false
+  local: CartProduct[],
+  db: CartProduct[],
+  isMergingGuest: boolean = false,
+  processingIds: string[] = [],
 ): CartProduct[] => {
+  if (!isMergingGuest) {
+    // DB is SSOT, EXCEPT for items currently undergoing optimistic updates
+    const safeDbItems = db.filter((item) => !processingIds.includes(item.id));
+    const pendingLocalItems = local.filter((item) =>
+      processingIds.includes(item.id),
+    );
+    return [...safeDbItems, ...pendingLocalItems];
+  }
+
   const map = new Map<string, CartProduct>();
-  db.forEach(item => map.set(item.id, { ...item }));
-  local.forEach(item => {
+  db.forEach((item) => map.set(item.id, { ...item }));
+  local.forEach((item) => {
     const existing = map.get(item.id);
     if (existing) {
       if (isMergingGuest) {
         map.set(item.id, {
           ...existing,
-          quantity: Math.min(existing.quantity + item.quantity, existing.stock)
+          quantity: Math.min(existing.quantity + item.quantity, existing.stock),
         });
       } else {
         map.set(item.id, { ...existing });
@@ -74,54 +84,53 @@ export const useCartStore = create<CartState>()(
         if (processingIds.includes(product.id)) return;
 
         const existing = items.find((i) => i.id === product.id);
-        const newQuantity = existing 
+        const newQuantity = existing
           ? Math.min(existing.quantity + quantity, product.stock)
           : Math.min(quantity, product.stock);
 
-        const prevItems = [...items];
         const newItems = existing
-          ? items.map((i) => (i.id === product.id ? { ...i, quantity: newQuantity } : i))
+          ? items.map((i) =>
+              i.id === product.id ? { ...i, quantity: newQuantity } : i,
+            )
           : [
               ...items,
               {
-                id: product.id,
-                name: product.name,
-                price: product.price,
-                compare_price: product.compare_price,
+                ...product,
                 image: getProductImage(product.images),
-                stock: product.stock,
                 quantity: newQuantity,
               },
             ];
 
-        set({ 
+        set({
           items: newItems,
-          processingIds: [...processingIds, product.id]
+          processingIds: [...processingIds, product.id],
         });
 
         try {
           const userId = useAuthStore.getState().user?.id;
-          
           if (userId) {
-            const { error } = await resilientCall(async () => 
-              await supabase.from("cart_items").upsert({
-                user_id: userId,
-                product_id: product.id,
-                quantity: newQuantity
-              }, { onConflict: 'user_id,product_id' }),
-              `cart/addItem/${product.id}`
-            ) as { error: any };
-            if (error) throw error;
+            await resilientCall(
+              async () =>
+                await supabase.from("cart_items").upsert(
+                  {
+                    user_id: userId,
+                    product_id: product.id,
+                    quantity: newQuantity,
+                  },
+                  { onConflict: "user_id,product_id" },
+                ),
+              `cart/addItem/${product.id}`,
+              { timeout: 45000 },
+            );
           }
-          
-          Analytics.addToCart(product.id, product.price, userId);
         } catch (err) {
-          Logger.storeError("cart", "addItem", err);
-          set({ items: prevItems });
-          toast.error("Sync issue. Item saved locally.");
+          console.error("Sync failed, but item is in local cart", err);
+          toast.error("Slow connection: Saving to cloud...");
         } finally {
           set((state) => ({
-            processingIds: state.processingIds.filter(id => id !== product.id)
+            processingIds: state.processingIds.filter(
+              (id) => id !== product.id,
+            ),
           }));
         }
       },
@@ -132,24 +141,25 @@ export const useCartStore = create<CartState>()(
 
         const prevItems = [...items];
         const newItems = items.filter((i) => i.id !== productId);
-        
-        set({ 
+
+        set({
           items: newItems,
-          processingIds: [...processingIds, productId]
+          processingIds: [...processingIds, productId],
         });
 
         try {
           const userId = useAuthStore.getState().user?.id;
-          
+
           if (userId) {
-            const { error } = await resilientCall(async () => 
-              await supabase
-                .from("cart_items")
-                .delete()
-                .eq("user_id", userId)
-                .eq("product_id", productId),
-              `cart/removeItem/${productId}`
-            ) as { error: any };
+            const { error } = (await resilientCall(
+              async () =>
+                await supabase
+                  .from("cart_items")
+                  .delete()
+                  .eq("user_id", userId)
+                  .eq("product_id", productId),
+              `cart/removeItem/${productId}`,
+            )) as { error: any };
             if (error) throw error;
           }
           Analytics.removeFromCart(productId, userId);
@@ -159,7 +169,7 @@ export const useCartStore = create<CartState>()(
           toast.error("Failed to remove.");
         } finally {
           set((state) => ({
-            processingIds: state.processingIds.filter(id => id !== productId)
+            processingIds: state.processingIds.filter((id) => id !== productId),
           }));
         }
       },
@@ -170,32 +180,33 @@ export const useCartStore = create<CartState>()(
 
         if (quantity <= 0) return get().removeItem(productId);
 
-        const item = items.find(i => i.id === productId);
+        const item = items.find((i) => i.id === productId);
         if (!item) return;
 
         const prevItems = [...items];
         const finalQuantity = Math.min(quantity, item.stock);
         const newItems = items.map((i) =>
-          i.id === productId ? { ...i, quantity: finalQuantity } : i
+          i.id === productId ? { ...i, quantity: finalQuantity } : i,
         );
 
-        set({ 
+        set({
           items: newItems,
-          processingIds: [...processingIds, productId]
+          processingIds: [...processingIds, productId],
         });
 
         try {
           const userId = useAuthStore.getState().user?.id;
-          
+
           if (userId) {
-            const { error } = await resilientCall(async () => 
-              await supabase
-                .from("cart_items")
-                .update({ quantity: finalQuantity })
-                .eq("user_id", userId)
-                .eq("product_id", productId),
-              `cart/updateQuantity/${productId}`
-            ) as { error: any };
+            const { error } = (await resilientCall(
+              async () =>
+                await supabase
+                  .from("cart_items")
+                  .update({ quantity: finalQuantity })
+                  .eq("user_id", userId)
+                  .eq("product_id", productId),
+              `cart/updateQuantity/${productId}`,
+            )) as { error: any };
             if (error) throw error;
           }
         } catch (err) {
@@ -204,35 +215,54 @@ export const useCartStore = create<CartState>()(
           toast.error("Failed to update.");
         } finally {
           set((state) => ({
-            processingIds: state.processingIds.filter(id => id !== productId)
+            processingIds: state.processingIds.filter((id) => id !== productId),
           }));
         }
       },
 
-      syncWithDatabase: async (userId: string, isMergingGuest: boolean = false) => {
+      syncWithDatabase: async (
+        userId: string,
+        isMergingGuest: boolean = false,
+      ) => {
         if (!userId) return;
 
         if (get().isSyncing) {
-            Logger.debug("Syncing in progress, skipping", { module: "cart", userId });
-            return;
+          Logger.debug("Syncing in progress, skipping", {
+            module: "cart",
+            userId,
+          });
+          return;
         }
 
         try {
           set({ isSyncing: true });
 
           // 1. Fetch DB items with resilience
-          const { data: dbItems, error } = await resilientCall(async () => 
-            await supabase
-              .from("cart_items")
-              .select("*, product:products(*)")
-              .eq("user_id", userId),
-            "cart/syncFetch"
-          ) as { data: any[] | null; error: any };
+          const { data: dbItems, error } = (await resilientCall(
+            async () =>
+              await supabase
+                .from("cart_items")
+                .select(
+                  `
+    quantity,
+    product:products (
+      id,
+      name,
+      price,
+      compare_price,
+      images,
+      stock
+    )
+  `,
+                )
+                .eq("user_id", userId),
+            "cart/syncFetch",
+          )) as { data: any[] | null; error: any };
 
           if (error) throw error;
 
-          const mappedDbItems: CartProduct[] = (dbItems as any[] || [])
-            .filter((item: any) => item.product) 
+          const mappedDbItems: CartProduct[] = ((dbItems as any[]) || [])
+            .filter((item: any) => item.product)
             .map((item: any) => ({
               id: item.product.id,
               name: item.product.name,
@@ -240,37 +270,47 @@ export const useCartStore = create<CartState>()(
               compare_price: item.product.compare_price,
               image: getProductImage(item.product.images),
               stock: item.product.stock,
-              quantity: item.quantity
+              quantity: item.quantity,
             }));
 
           // 2. Deterministic Merge Logic
           const localItems = get().items;
-          const mergedItems = mergeCart(localItems, mappedDbItems, isMergingGuest);
+          const inFlightItemIds = get().processingIds;
+          const mergedItems = mergeCart(
+            localItems,
+            mappedDbItems,
+            isMergingGuest,
+            inFlightItemIds,
+          );
 
           // 3. Store Update
           set({ items: mergedItems });
 
-          // 🛡️ Phase 4: BULK SYNCHRONIZATION (The Critical Fix)
+          // 🛡️ Phase 4: BULK SYNCHRONIZATION
           // Instead of firing 10 separate requests, send ONE bulk upsert.
-          // This reduces network overhead and prevents connection pool exhaustion.
-          if (mergedItems.length > 0) {
-              const upsertData = mergedItems.map(item => ({
-                  user_id: userId,
-                  product_id: item.id,
-                  quantity: item.quantity
-              }));
+          if (isMergingGuest && mergedItems.length > 0) {
+            const upsertData = mergedItems.map((item) => ({
+              user_id: userId,
+              product_id: item.id,
+              quantity: item.quantity,
+            }));
 
-              const { error: syncError } = await resilientCall(async () => 
+            const { error: syncError } = (await resilientCall(
+              async () =>
                 await supabase
                   .from("cart_items")
-                  .upsert(upsertData, { onConflict: 'user_id,product_id' }),
-                "cart/bulkSync"
-              ) as { error: any };
+                  .upsert(upsertData, { onConflict: "user_id,product_id" }),
+              "cart/bulkSync",
+            )) as { error: any };
 
-              if (syncError) throw syncError;
+            if (syncError) throw syncError;
           }
 
-          Logger.info("Cart sync complete (Bulk)", { module: "cart", userId, count: mergedItems.length });
+          Logger.info("Cart sync complete", {
+            module: "cart",
+            userId,
+            count: mergedItems.length,
+          });
         } catch (err) {
           Logger.storeError("cart", "syncWithDatabase", err);
           if (isMergingGuest) {
@@ -291,10 +331,14 @@ export const useCartStore = create<CartState>()(
           try {
             const userId = useAuthStore.getState().user?.id;
             if (userId) {
-              const { error } = await resilientCall(async () => 
-                await supabase.from("cart_items").delete().eq("user_id", userId),
-                "cart/clear"
-              ) as { error: any };
+              const { error } = (await resilientCall(
+                async () =>
+                  await supabase
+                    .from("cart_items")
+                    .delete()
+                    .eq("user_id", userId),
+                "cart/clear",
+              )) as { error: any };
               if (error) throw error;
             }
           } catch (err) {
@@ -305,14 +349,17 @@ export const useCartStore = create<CartState>()(
         }
       },
 
-      getTotal: () => get().items.reduce((sum, item) => sum + item.price * item.quantity, 0),
-      getItemCount: () => get().items.reduce((sum, item) => sum + item.quantity, 0),
-      isProcessing: (productId: string) => get().processingIds.includes(productId),
+      getTotal: () =>
+        get().items.reduce((sum, item) => sum + item.price * item.quantity, 0),
+      getItemCount: () =>
+        get().items.reduce((sum, item) => sum + item.quantity, 0),
+      isProcessing: (productId: string) =>
+        get().processingIds.includes(productId),
     }),
-    { 
+    {
       name: "crochet-cart",
-      skipHydration: true, 
-      partialize: (state) => ({ items: state.items })
-    }
-  )
+      skipHydration: true,
+      partialize: (state) => ({ items: state.items }),
+    },
+  ),
 );
