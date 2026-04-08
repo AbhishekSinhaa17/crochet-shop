@@ -7,6 +7,7 @@ import { useCartStore } from "@/store/cartStore";
 import { supabase } from "@/lib/supabase/client";
 import { Loader2, Sparkles, Heart } from "lucide-react";
 import { Logger } from "@/lib/logger";
+import { AuthChangeEvent, Session } from "@supabase/supabase-js";
 
 export default function AuthProvider({ children }: { children: ReactNode }) {
   const { fetchUser, setUser, loading, initialized } = useAuthStore();
@@ -14,8 +15,6 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
   const [storesHydrated, setStoresHydrated] = useState(false);
 
   const mergedUserIds = useRef<Set<string>>(new Set());
-  
-  // ✅ Last synced user track karo
   const lastSyncedUserId = useRef<string | null>(null);
 
   useEffect(() => {
@@ -37,67 +36,83 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     rehydrateStores();
     fetchUser();
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event: string, session: any) => {
-      const user = session?.user ?? null;
-      Logger.info(`Auth event: ${event}`, { module: "auth", userId: user?.id });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event: AuthChangeEvent, session: Session | null) => {
+        const user = session?.user ?? null;
+        Logger.info(`Auth event: ${event}`, { module: "auth", userId: user?.id });
 
-      if (event === "TOKEN_REFRESHED" || event === "INITIAL_SESSION") {
-        useAuthStore.setState({ user });
-        return;
-      }
+        // ✅ TOKEN_REFRESHED - Bilkul kuch mat karo!
+        // Tab switch = token refresh = IGNORE
+        if (event === "TOKEN_REFRESHED") {
+          Logger.debug("Token refreshed, skipping sync", { module: "auth" });
+          return;
+        }
 
-      switch (event) {
-        case "SIGNED_IN":
-        case "USER_UPDATED":
-          if (user?.id) {
-            // ✅ FIX 2: Same user hai toh sync mat karo
-            if (lastSyncedUserId.current === user.id) {
-              Logger.debug("Same user, skipping sync", { module: "auth" });
-              return;
-            }
-
+        // ✅ INITIAL_SESSION - Sirf pehli baar
+        if (event === "INITIAL_SESSION") {
+          if (user?.id && lastSyncedUserId.current !== user.id) {
             lastSyncedUserId.current = user.id;
-            
-            const hasMerged = mergedUserIds.current.has(user.id);
-            const shouldMerge = event === "SIGNED_IN" && !hasMerged;
-            if (shouldMerge) mergedUserIds.current.add(user.id);
-
-            // Pehle profile fetch karo
             await setUser(user);
-
-            // Phir sync karo
-            await useCartStore
-              .getState()
-              .syncWithDatabase(user.id, shouldMerge);
-              
-            await useWishlistStore
-              .getState()
-              .syncWithDatabase(user.id, shouldMerge);
+            await useCartStore.getState().syncWithDatabase(user.id, false);
+            await useWishlistStore.getState().syncWithDatabase(user.id, false);
+          } else if (!user) {
+            await setUser(null);
           }
-          break;
+          return;
+        }
 
-        case "SIGNED_OUT":
-          lastSyncedUserId.current = null;
-          mergedUserIds.current.clear();
-          useAuthStore.setState({ 
-            user: null, 
-            profile: null, 
-            role: null,
-            isAdmin: false, 
-            loading: false,
-            initialized: true 
-          });
-          useCartStore.getState().clearCart(false);
-          useWishlistStore.getState().clearWishlist();
-          break;
+        switch (event) {
+          case "SIGNED_IN":
+            if (user?.id) {
+              // ✅ Same user = Skip sync
+              if (lastSyncedUserId.current === user.id) {
+                Logger.debug("Same user, skipping sync", { module: "auth" });
+                return;
+              }
+
+              lastSyncedUserId.current = user.id;
+
+              const hasMerged = mergedUserIds.current.has(user.id);
+              const shouldMerge = !hasMerged;
+              if (shouldMerge) mergedUserIds.current.add(user.id);
+
+              await setUser(user);
+              await useCartStore
+                .getState()
+                .syncWithDatabase(user.id, shouldMerge);
+              await useWishlistStore
+                .getState()
+                .syncWithDatabase(user.id, shouldMerge);
+            }
+            break;
+
+          // ✅ USER_UPDATED - Sirf profile update, no sync
+          case "USER_UPDATED":
+            if (user?.id) {
+              await setUser(user);
+            }
+            break;
+
+          case "SIGNED_OUT":
+            lastSyncedUserId.current = null;
+            mergedUserIds.current.clear();
+            useAuthStore.setState({
+              user: null,
+              profile: null,
+              role: null,
+              isAdmin: false,
+              loading: false,
+              initialized: true,
+            });
+            useCartStore.getState().clearCart(false);
+            useWishlistStore.getState().clearWishlist();
+            break;
+        }
       }
-    });
+    );
 
-    // ✅ FIX 3: Focus pe sync BILKUL MAT KARO
-    // Ye hi main problem thi tab switch karne pe!
-    // Window focus = Token refresh trigger = Sync fire!
+    // ✅ Window focus handler HATA DIYA
+    // Ye hi tab switch problem thi!
 
     return () => {
       subscription.unsubscribe();

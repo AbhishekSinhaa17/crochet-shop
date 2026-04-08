@@ -30,22 +30,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   isAdmin: false,
 
   setUser: async (user) => {
-    // Only update if user ID changed or we're not initialized yet
     if (user?.id === get().user?.id && get().initialized) {
       set({ loading: false });
       return;
     }
 
     set({ user, loading: !!user, initialized: true });
-    
+
     if (user) {
       await get().fetchProfile(user.id);
-      try {
-        await useCartStore.getState().syncWithDatabase(user.id);
-        await useWishlistStore.getState().syncWithDatabase(user.id);
-      } catch (err) {
-        Logger.storeError("auth", "post-login-sync", err);
-      }
     } else {
       set({ profile: null, role: null, isAdmin: false, loading: false });
       useCartStore.getState().clearCart(false);
@@ -63,11 +56,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
       if (!error && profile) {
         const isAdmin = profile.role === "admin";
-        set({ 
-          profile, 
+        set({
+          profile,
           role: profile.role,
           isAdmin,
-          loading: false 
+          loading: false,
         });
       } else {
         set({ loading: false, profile: null, role: null, isAdmin: false });
@@ -94,20 +87,30 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
       try {
         // 1. Try getSession first (faster, often cached in memory/cookie)
-        const { data: { session } } = await supabase.auth.getSession();
-        
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+
         let user = session?.user ?? null;
 
         // 2. Fallback to getUser for security if session looks stale or missing
         if (!user) {
-          const { data: { user: fetchedUser } } = await supabase.auth.getUser();
+          const {
+            data: { user: fetchedUser },
+          } = await supabase.auth.getUser();
           user = fetchedUser;
         }
 
         await get().setUser(user);
       } catch (error) {
         Logger.storeError("auth", "fetchUser", error);
-        set({ user: null, profile: null, isAdmin: false, loading: false, initialized: true });
+        set({
+          user: null,
+          profile: null,
+          isAdmin: false,
+          loading: false,
+          initialized: true,
+        });
       } finally {
         initializationPromise = null;
       }
@@ -121,13 +124,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       await supabase.auth.signOut();
       // State is cleared by the onAuthStateChange listener in AuthProvider,
       // but we do it here too for instant UI feedback.
-      set({ 
-        user: null, 
-        profile: null, 
+      set({
+        user: null,
+        profile: null,
         role: null,
-        isAdmin: false, 
+        isAdmin: false,
         loading: false,
-        initialized: true 
+        initialized: true,
       });
     } catch (error) {
       Logger.storeError("auth", "signOut", error);
