@@ -89,11 +89,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           error: sessionError,
         } = await supabase.auth.getSession();
 
+        // ✅ Invalid/Expired token - Clear karo
         if (sessionError) {
-          Logger.warn("Session error, clearing auth", {
-            module: "auth",
-            error: sessionError.message,
-          });
           await supabase.auth.signOut({ scope: "local" });
           set({
             user: null,
@@ -113,13 +110,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             error: userError,
           } = await supabase.auth.getUser();
 
-          if (
-            userError?.message?.includes("Refresh Token Not Found") ||
-            userError?.message?.includes("Invalid Refresh Token")
-          ) {
-            Logger.warn("Invalid refresh token, clearing session", {
-              module: "auth",
-            });
+          // ✅ 400 Error = Invalid refresh token
+          if (userError) {
             await supabase.auth.signOut({ scope: "local" });
             set({
               user: null,
@@ -137,6 +129,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         await get().setUser(user);
       } catch (error) {
         Logger.storeError("auth", "fetchUser", error);
+        // ✅ Error pe bhi clear karo
+        await supabase.auth.signOut({ scope: "local" });
         set({
           user: null,
           profile: null,
