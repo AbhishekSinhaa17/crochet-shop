@@ -36,80 +36,80 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     rehydrateStores();
     fetchUser();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event: AuthChangeEvent, session: Session | null) => {
-        const user = session?.user ?? null;
-        Logger.info(`Auth event: ${event}`, { module: "auth", userId: user?.id });
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event: AuthChangeEvent, session: Session | null) => {
+      const user = session?.user ?? null;
+      Logger.info(`Auth event: ${event}`, { module: "auth", userId: user?.id });
 
-        // ✅ TOKEN_REFRESHED - Bilkul kuch mat karo!
-        // Tab switch = token refresh = IGNORE
-        if (event === "TOKEN_REFRESHED") {
-          Logger.debug("Token refreshed, skipping sync", { module: "auth" });
-          return;
-        }
-
-        // ✅ INITIAL_SESSION - Sirf pehli baar
-        if (event === "INITIAL_SESSION") {
-          if (user?.id && lastSyncedUserId.current !== user.id) {
-            lastSyncedUserId.current = user.id;
-            await setUser(user);
-            await useCartStore.getState().syncWithDatabase(user.id, false);
-            await useWishlistStore.getState().syncWithDatabase(user.id, false);
-          } else if (!user) {
-            await setUser(null);
-          }
-          return;
-        }
-
-        switch (event) {
-          case "SIGNED_IN":
-            if (user?.id) {
-              // ✅ Same user = Skip sync
-              if (lastSyncedUserId.current === user.id) {
-                Logger.debug("Same user, skipping sync", { module: "auth" });
-                return;
-              }
-
-              lastSyncedUserId.current = user.id;
-
-              const hasMerged = mergedUserIds.current.has(user.id);
-              const shouldMerge = !hasMerged;
-              if (shouldMerge) mergedUserIds.current.add(user.id);
-
-              await setUser(user);
-              await useCartStore
-                .getState()
-                .syncWithDatabase(user.id, shouldMerge);
-              await useWishlistStore
-                .getState()
-                .syncWithDatabase(user.id, shouldMerge);
-            }
-            break;
-
-          // ✅ USER_UPDATED - Sirf profile update, no sync
-          case "USER_UPDATED":
-            if (user?.id) {
-              await setUser(user);
-            }
-            break;
-
-          case "SIGNED_OUT":
-            lastSyncedUserId.current = null;
-            mergedUserIds.current.clear();
-            useAuthStore.setState({
-              user: null,
-              profile: null,
-              role: null,
-              isAdmin: false,
-              loading: false,
-              initialized: true,
-            });
-            useCartStore.getState().clearCart(false);
-            useWishlistStore.getState().clearWishlist();
-            break;
-        }
+      // ✅ TOKEN_REFRESHED - Ignore
+      if (event === "TOKEN_REFRESHED") {
+        Logger.debug("Token refreshed, skipping sync", { module: "auth" });
+        return;
       }
-    );
+
+      // ✅ INITIAL_SESSION
+      if (event === "INITIAL_SESSION") {
+        if (user?.id && lastSyncedUserId.current !== user.id) {
+          lastSyncedUserId.current = user.id;
+          await setUser(user);
+          await useCartStore.getState().syncWithDatabase(user.id, false);
+          await useWishlistStore.getState().syncWithDatabase(user.id, false);
+        } else if (!user) {
+          await setUser(null);
+        }
+        return;
+      }
+
+      switch (event) {
+        case "SIGNED_IN":
+          if (user?.id) {
+            if (lastSyncedUserId.current === user.id) {
+              Logger.debug("Same user, skipping sync", { module: "auth" });
+              return;
+            }
+            lastSyncedUserId.current = user.id;
+            const hasMerged = mergedUserIds.current.has(user.id);
+            const shouldMerge = !hasMerged;
+            if (shouldMerge) mergedUserIds.current.add(user.id);
+            await setUser(user);
+            await useCartStore
+              .getState()
+              .syncWithDatabase(user.id, shouldMerge);
+            await useWishlistStore
+              .getState()
+              .syncWithDatabase(user.id, shouldMerge);
+          }
+          break;
+
+        case "USER_UPDATED":
+          if (user?.id) await setUser(user);
+          break;
+
+        case "SIGNED_OUT":
+          lastSyncedUserId.current = null;
+          mergedUserIds.current.clear();
+
+          // ✅ Invalid token clear karo
+          try {
+            await supabase.auth.signOut({ scope: "local" });
+          } catch {
+            // Silently ignore
+          }
+
+          useAuthStore.setState({
+            user: null,
+            profile: null,
+            role: null,
+            isAdmin: false,
+            loading: false,
+            initialized: true,
+          });
+          useCartStore.getState().clearCart(false);
+          useWishlistStore.getState().clearWishlist();
+          break;
+      }
+    });
 
     // ✅ Window focus handler HATA DIYA
     // Ye hi tab switch problem thi!
@@ -157,12 +157,23 @@ function GlobalAuthLoader() {
 
       <style jsx global>{`
         @keyframes blob {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          33% { transform: translate(30px, -50px) scale(1.1); }
-          66% { transform: translate(-20px, 20px) scale(0.9); }
+          0%,
+          100% {
+            transform: translate(0, 0) scale(1);
+          }
+          33% {
+            transform: translate(30px, -50px) scale(1.1);
+          }
+          66% {
+            transform: translate(-20px, 20px) scale(0.9);
+          }
         }
-        .animate-blob { animation: blob 7s infinite; }
-        .animation-delay-2000 { animation-delay: 2s; }
+        .animate-blob {
+          animation: blob 7s infinite;
+        }
+        .animation-delay-2000 {
+          animation-delay: 2s;
+        }
       `}</style>
     </div>
   );

@@ -72,12 +72,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   fetchUser: async () => {
-    // 🛡️ Concurrency Lock: If already fetching, return the existing promise
     if (initializationPromise) {
       return initializationPromise;
     }
 
-    // If already initialized with a user, no need to fetch again
     if (get().initialized && get().user) {
       return Promise.resolve();
     }
@@ -86,18 +84,53 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set({ loading: true });
 
       try {
-        // 1. Try getSession first (faster, often cached in memory/cookie)
         const {
           data: { session },
+          error: sessionError,
         } = await supabase.auth.getSession();
+
+        if (sessionError) {
+          Logger.warn("Session error, clearing auth", {
+            module: "auth",
+            error: sessionError.message,
+          });
+          await supabase.auth.signOut({ scope: "local" });
+          set({
+            user: null,
+            profile: null,
+            isAdmin: false,
+            loading: false,
+            initialized: true,
+          });
+          return;
+        }
 
         let user = session?.user ?? null;
 
-        // 2. Fallback to getUser for security if session looks stale or missing
         if (!user) {
           const {
             data: { user: fetchedUser },
+            error: userError,
           } = await supabase.auth.getUser();
+
+          if (
+            userError?.message?.includes("Refresh Token Not Found") ||
+            userError?.message?.includes("Invalid Refresh Token")
+          ) {
+            Logger.warn("Invalid refresh token, clearing session", {
+              module: "auth",
+            });
+            await supabase.auth.signOut({ scope: "local" });
+            set({
+              user: null,
+              profile: null,
+              isAdmin: false,
+              loading: false,
+              initialized: true,
+            });
+            return;
+          }
+
           user = fetchedUser;
         }
 
