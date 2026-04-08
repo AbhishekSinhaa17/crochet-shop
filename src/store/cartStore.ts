@@ -120,7 +120,7 @@ export const useCartStore = create<CartState>()(
                   { onConflict: "user_id,product_id" },
                 ),
               `cart/addItem/${product.id}`,
-              { timeout: 45000 },
+              { timeout: 15000 },
             );
           }
         } catch (err) {

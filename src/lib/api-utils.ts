@@ -4,7 +4,7 @@ import { Logger } from "./logger";
  * ⚡ API Utility functions for production resilience.
  */
 
-const DEFAULT_TIMEOUT_MS = 30000; // 30 seconds (Sufficient for force lock acquisition + network)
+const DEFAULT_TIMEOUT_MS = 15000; // 15 seconds (Sufficient for force lock acquisition + network)
 
 /**
  * ⏱️ Wraps a promise with a timeout.
