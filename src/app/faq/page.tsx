@@ -198,7 +198,7 @@ export default function FAQPage() {
             Everything you need to know about our products, services, and
             policies.
             <span className="block mt-2 text-violet-600 dark:text-violet-400 font-medium">
-              We're here to help!
+              We&apos;re here to help!
             </span>
           </p>
         </div>
@@ -376,7 +376,7 @@ export default function FAQPage() {
               No results found
             </h3>
             <p className="text-slate-600 dark:text-slate-400">
-              Try adjusting your search or filter to find what you're looking
+              Try adjusting your search or filter to find what you&apos;re looking
               for.
             </p>
           </div>
@@ -422,7 +422,7 @@ export default function FAQPage() {
                 </h2>
 
                 <p className="text-lg text-slate-600 dark:text-slate-400 mb-10 max-w-lg mx-auto leading-relaxed">
-                  Can't find the answer you're looking for? Our friendly team is
+                  Can&apos;t find the answer you&apos;re looking for? Our friendly team is
                   here to help you with anything you need.
                 </p>
 

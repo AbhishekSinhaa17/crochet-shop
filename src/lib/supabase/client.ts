@@ -22,10 +22,6 @@ if (!supabaseUrl || !supabaseKey) {
   }
 }
 
-declare global {
-  var _supabaseBrowserInstance: any;
-}
-
 // ✅ Optimized client with faster connection
 const createOptimizedClient = () => {
   return createBrowserClient(
@@ -53,10 +49,4 @@ const createOptimizedClient = () => {
   );
 };
 
-export const supabase =
-  globalThis._supabaseBrowserInstance ||
-  createOptimizedClient();
-
-if (process.env.NODE_ENV !== "production") {
-  globalThis._supabaseBrowserInstance = supabase;
-}
+export const supabase = createOptimizedClient();

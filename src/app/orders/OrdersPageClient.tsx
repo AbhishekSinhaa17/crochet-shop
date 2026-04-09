@@ -377,7 +377,7 @@ export default function OrdersPageClient({ orders, stats }: Props) {
                       onClick={() => setSearchQuery("")}
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-full text-sm font-medium"
                     >
-                      "{searchQuery}"
+                      &quot;{searchQuery}&quot;
                       <X className="w-3.5 h-3.5" />
                     </button>
                   )}
@@ -620,7 +620,7 @@ function EmptyState({ isLoaded }: { isLoaded: boolean }) {
         No orders yet
       </h2>
       <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-md mx-auto">
-        Looks like you haven't placed any orders yet. Start exploring our collection and find something you'll love!
+        Looks like you haven&apos;t placed any orders yet. Start exploring our collection and find something you&apos;ll love!
       </p>
 
       <div className="flex flex-col sm:flex-row items-center justify-center gap-4">

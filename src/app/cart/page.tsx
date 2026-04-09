@@ -281,7 +281,7 @@ export default function CartPage() {
               </div>
               <div>
                 <p className="font-medium text-emerald-700 dark:text-emerald-300">
-                  🎉 You've unlocked FREE shipping!
+                  🎉 You&apos;ve unlocked FREE shipping!
                 </p>
                 <p className="text-sm text-emerald-600 dark:text-emerald-400">
                   Enjoy free delivery on your order

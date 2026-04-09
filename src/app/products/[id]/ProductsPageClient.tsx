@@ -294,10 +294,7 @@ export default function ProductsPageClient({
                   <Filter className="w-5 h-5" />
                   Filters
                 </button>
-              </div>
-            </div>
-
-            {/* Active Filters */}
+{/* Active Filters */}
             {(currentCategory || searchQuery) && (
               <div className="flex flex-wrap items-center gap-2 mt-4">
                 <span className="text-sm text-gray-500 dark:text-gray-400">Active filters:</span>
@@ -317,10 +314,10 @@ export default function ProductsPageClient({
                 {searchQuery && (
                   <button
                     onClick={clearSearch}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-full text-sm font-medium hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors group"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:blue-400 rounded-full text-sm font-medium hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors group"
                   >
                     <Search className="w-3.5 h-3.5" />
-                    "{searchQuery}"
+                    &quot;{searchQuery}&quot;
                     <X className="w-3.5 h-3.5 opacity-50 group-hover:opacity-100" />
                   </button>
                 )}
@@ -335,8 +332,10 @@ export default function ProductsPageClient({
               </div>
             )}
           </div>
+        </div>
+      </div>
 
-          <div className="flex gap-8">
+      <div className="flex gap-8">
             {/* Desktop Sidebar */}
             <aside 
               className={`hidden lg:block w-72 shrink-0 transition-all duration-700 delay-200 ${
@@ -449,7 +448,8 @@ export default function ProductsPageClient({
                   <div className="relative z-10">
                     <h3 className="font-bold text-lg mb-1">Premium Quality</h3>
                     <p className="text-amber-50 dark:text-amber-100 text-xs leading-relaxed">
-                      Every piece is carefully inspect for quality and durability.
+                      Every piece is carefully crafted with premium materials and attention to detail. 
+                      <span className="block mt-2 font-medium">Handmade with love just for you.</span>
                     </p>
                   </div>
                 </div>
@@ -520,7 +520,7 @@ export default function ProductsPageClient({
             </div>
           </div>
         </div>
-
+        
         {/* Mobile Filter Modal */}
         <MobileFilterModal
           isOpen={isMobileFilterOpen}
@@ -540,7 +540,6 @@ export default function ProductsPageClient({
           }}
           buildUrl={buildUrl}
         />
-      </div>
 
       {/* Custom Styles */}
       <style jsx global>{`

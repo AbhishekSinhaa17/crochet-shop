@@ -232,7 +232,7 @@ export default function CustomOrderPage() {
           </h1>
           <p className="text-gray-500 dark:text-gray-400 max-w-xl mx-auto text-lg">
             Have something unique in mind? Describe your dream crochet piece and 
-            we'll bring it to life with love and care! ✨
+            we&apos;ll bring it to life with love and care! ✨
           </p>
         </div>
 

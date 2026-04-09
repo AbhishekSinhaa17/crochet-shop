@@ -989,7 +989,7 @@ function EmptyWishlist({ isLoaded }: { isLoaded: boolean }) {
               Your wishlist is empty
             </h2>
             <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-sm mx-auto leading-relaxed">
-              Tap the heart on items you love and they'll appear here — your personal collection of favorites, waiting for you.
+              Tap the heart on items you love and they&apos;ll appear here &mdash; your personal collection of favorites, waiting for you.
             </p>
 
             {/* CTA Button */}

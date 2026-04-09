@@ -64,6 +64,28 @@ export async function updateSession(request: NextRequest) {
     }
   }
 
+  // Helper to preserve cookies on redirect
+  const redirectWithCookies = (urlStr: string | URL) => {
+    const redirectResponse = NextResponse.redirect(urlStr);
+    
+    // Copy cookies from supabaseResponse to the new redirectResponse
+    supabaseResponse.cookies.getAll().forEach((cookie) => {
+      redirectResponse.cookies.set(cookie.name, cookie.value, {
+        ...cookie,
+      });
+    });
+    
+    // Copy Rate Limit headers as well if they exist
+    const rlLimit = supabaseResponse.headers.get("X-RateLimit-Limit");
+    const rlRemaining = supabaseResponse.headers.get("X-RateLimit-Remaining");
+    const rlReset = supabaseResponse.headers.get("X-RateLimit-Reset");
+    if (rlLimit) redirectResponse.headers.set("X-RateLimit-Limit", rlLimit);
+    if (rlRemaining) redirectResponse.headers.set("X-RateLimit-Remaining", rlRemaining);
+    if (rlReset) redirectResponse.headers.set("X-RateLimit-Reset", rlReset);
+    
+    return redirectResponse;
+  };
+
   // 4. Protection Logic
   const protectedRoutes = ["/profile", "/orders", "/wishlist", "/cart", "/checkout", "/chat", "/custom-order"];
   const adminRoutes = ["/admin"];
@@ -77,12 +99,12 @@ export async function updateSession(request: NextRequest) {
       const url = request.nextUrl.clone();
       url.pathname = "/auth/login";
       url.searchParams.set("redirect", pathname);
-      return NextResponse.redirect(url);
+      return redirectWithCookies(url);
     }
     return supabaseResponse;
   }
 
-  if (isAuthPage) return NextResponse.redirect(new URL("/", request.url));
+  if (isAuthPage) return redirectWithCookies(new URL("/", request.url));
 
   // 5. 👑 RBAC with Redis Caching
   if (isAdminRoute) {
@@ -104,7 +126,7 @@ export async function updateSession(request: NextRequest) {
 
     if (role !== "admin") {
       Logger.warn(`Forbidden admin access attempt`, { module: "middleware", userId: user.id });
-      return NextResponse.redirect(new URL("/", request.url));
+      return redirectWithCookies(new URL("/", request.url));
     }
   }
 

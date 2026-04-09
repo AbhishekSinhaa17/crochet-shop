@@ -143,8 +143,8 @@ export default function ReturnPolicyPage() {
           </h1>
           
           <p className="text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed animate-fade-in-up animation-delay-400">
-            We pour our hearts into crafting your items. If something isn't quite right, 
-            <span className="block mt-2 text-rose-600 dark:text-rose-400 font-medium">here's everything you need to know.</span>
+            We pour our hearts into crafting your items. If something isn&apos;t quite right, 
+            <span className="block mt-2 text-rose-600 dark:text-rose-400 font-medium">here&apos;s everything you need to know.</span>
           </p>
         </div>
 

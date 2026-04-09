@@ -59,11 +59,11 @@ export default function ContactPage() {
                 <span className="text-sm font-bold text-violet-700 dark:text-violet-300 tracking-wider uppercase">Get In Touch</span>
               </div>
               <h1 className="text-5xl md:text-6xl font-black mb-6 leading-tight">
-                Let's Start a <br />
+                Let&apos;s Start a <br />
                 <span className="text-transparent bg-clip-text bg-linear-to-r from-violet-600 via-purple-600 to-pink-600 animate-gradient-x">Conversation</span>
               </h1>
               <p className="text-xl text-slate-600 dark:text-slate-400 max-w-lg leading-relaxed">
-                Have a question about a product or interested in a custom commission? We'd love to hear from you.
+                Have a question about a product or interested in a custom commission? We&apos;d love to hear from you.
               </p>
             </div>
 
@@ -176,7 +176,7 @@ export default function ContactPage() {
                     <CheckCircle className="w-20 h-20 text-emerald-500 mb-6 animate-bounce-slow" />
                     <h3 className="text-3xl font-black mb-4">Message Sent!</h3>
                     <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
-                      Thank you for reaching out. We'll get back to you as soon as possible (usually within 2 hours).
+                      Thank you for reaching out. We&apos;ll get back to you as soon as possible (usually within 2 hours).
                     </p>
                   </div>
                 )}

@@ -75,7 +75,7 @@ export default function ProductDetailClient({
     };
     fetchAdminStatus();
     Analytics.viewProduct(product, user?.id);
-  }, [product.id, user?.id]);
+  }, [product, user?.id]);
 
   const parsedImages = getProductImages(product.images);
   const images = parsedImages.length > 0
@@ -599,7 +599,7 @@ export default function ProductDetailClient({
                   {/* Review Content */}
                   {review.title && (
                     <h4 className="font-semibold text-gray-900 dark:text-white mb-2 group-hover:text-amber-700 transition-colors">
-                      "{review.title}"
+                      &quot;{review.title}&quot;
                     </h4>
                   )}
                   {review.comment && (
