@@ -211,11 +211,14 @@ export const useCartStore = create<CartState>()(
           // Only retry/toast if still online
           if (typeof window !== "undefined" && navigator.onLine) {
             if (!isRetry) {
-              Logger.info("Retrying cart batch sync...", { module: "cart", userId });
+              Logger.info("Retrying cart batch sync with delay...", { module: "cart", userId });
               set((state) => ({
                 pendingOps: { ...pendingOps, ...state.pendingOps },
               }));
-              await get().flushCartQueue(userId, true);
+              // Artificial delay before retry to handle 429s
+              setTimeout(() => {
+                get().flushCartQueue(userId, true);
+              }, 2000);
             } else {
               toast.error("Cart sync failed after retry.");
             }

@@ -22,9 +22,9 @@ if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) 
 
 // Named configurations for different scenarios
 export const LIMIT_CONFIGS = {
-  PUBLIC: { limit: 10, window: "1 m" as const },      // 10 req/min for anonymous
-  AUTH: { limit: 100, window: "1 m" as const },        // 100 req/min for logged-in
-  CRITICAL: { limit: 5, window: "1 m" as const },      // 5 req/min for payments/auth
+  PUBLIC: { limit: 30, window: "1 m" as const },      // 30 req/min for anonymous
+  AUTH: { limit: 120, window: "1 m" as const },       // 120 req/min for logged-in
+  CRITICAL: { limit: 10, window: "1 m" as const },    // 10 req/min for payments/auth
 };
 
 export class RateLimitError extends Error {

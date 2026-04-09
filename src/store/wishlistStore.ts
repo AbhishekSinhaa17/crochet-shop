@@ -112,11 +112,14 @@ export const useWishlistStore = create<WishlistState>()(
 
           if (typeof window !== "undefined" && navigator.onLine) {
             if (!isRetry) {
-              Logger.info("Retrying wishlist batch sync...", { module: "wishlist", userId });
+              Logger.info("Retrying wishlist batch sync with delay...", { module: "wishlist", userId });
               set((state) => ({
                 pendingOps: { ...pendingOps, ...state.pendingOps },
               }));
-              await get().flushWishlistQueue(userId, true);
+              // Artificial delay before retry to handle 429s
+              setTimeout(() => {
+                get().flushWishlistQueue(userId, true);
+              }, 2000);
             } else {
               toast.error("Wishlist sync issues. Please refresh.");
             }

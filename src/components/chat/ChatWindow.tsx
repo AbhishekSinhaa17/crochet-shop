@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
 import { Message } from "@/types";
 import { Send, ImagePlus } from "lucide-react";
@@ -16,6 +16,16 @@ export default function ChatWindow({ conversationId, currentUserId }: ChatWindow
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  const fetchMessages = useCallback(async () => {
+    const { data } = await supabase
+      .from("messages")
+      .select("*, profile:profiles!sender_id(full_name, avatar_url)")
+      .eq("conversation_id", conversationId)
+      .order("created_at", { ascending: true });
+
+    if (data) setMessages(data);
+  }, [conversationId]);
 
   useEffect(() => {
     fetchMessages();
@@ -39,21 +49,11 @@ export default function ChatWindow({ conversationId, currentUserId }: ChatWindow
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [conversationId]);
+  }, [conversationId, fetchMessages]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
-
-  const fetchMessages = async () => {
-    const { data } = await supabase
-      .from("messages")
-      .select("*, profile:profiles!sender_id(full_name, avatar_url)")
-      .eq("conversation_id", conversationId)
-      .order("created_at", { ascending: true });
-
-    if (data) setMessages(data);
-  };
 
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();

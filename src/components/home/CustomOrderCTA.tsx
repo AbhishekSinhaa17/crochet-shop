@@ -753,12 +753,12 @@ export default function CustomOrderCTA() {
                       <h3 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight">
                         Dream It.
                         <br />
-                        <span className="text-gradient-gold">We'll Craft It.</span>
+                        <span className="text-gradient-gold">We&apos;ll Craft It.</span>
                       </h3>
 
                       {/* Description */}
                       <p className="text-lg text-white/85 leading-relaxed max-w-lg">
-                        From amigurumi toys to cozy blankets, share your idea and we'll bring it to life 
+                        From amigurumi toys to cozy blankets, share your idea and we&apos;ll bring it to life 
                         with premium materials and exceptional craftsmanship.
                       </p>
 

@@ -166,7 +166,7 @@ export default function ProductGrid({ products, title, subtitle, showHeader = tr
                 No Products Found
               </h3>
               <p className="text-gray-500 max-w-sm mx-auto">
-                We couldn't find any products matching your criteria. Try adjusting your filters.
+                We couldn&apos;t find any products matching your criteria. Try adjusting your filters.
               </p>
               
               <button className="mt-6 px-6 py-3 bg-linear-to-r from-purple-500 to-pink-500 text-white font-medium rounded-full shadow-lg shadow-purple-500/30 hover:shadow-xl hover:shadow-purple-500/40 transform hover:-translate-y-0.5 transition-all duration-300">

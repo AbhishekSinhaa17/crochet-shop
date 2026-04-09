@@ -543,7 +543,7 @@ export default function AboutSection() {
               <div className="relative mb-8">
                 <Quote className="absolute -top-2 -left-2 w-10 h-10 text-violet-500/20" />
                 <p className="text-xl lg:text-2xl text-foreground font-medium leading-relaxed pl-8 border-l-4 border-gradient-to-b from-violet-500 to-rose-500 italic">
-                  "In a world of mass production, there's magic in items made slowly, purposefully, and entirely by hand."
+                  &quot;In a world of mass production, there&apos;s magic in items made slowly, purposefully, and entirely by hand.&quot;
                 </p>
               </div>
 
