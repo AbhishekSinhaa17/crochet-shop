@@ -46,11 +46,39 @@ export class Response {
     return this.error(message, 404);
   }
 
-  static internalError(message = "Internal Server Error") {
+  static internalError(message = "Something went wrong") {
     return this.error(message, 500);
   }
 
-  static tooManyRequests(message = "Too Many Requests") {
+  static tooManyRequests(message = "Too many requests") {
     return this.error(message, 429);
+  }
+
+  /**
+   * 🛡️ Centralized error handler for common security/auth exceptions
+   */
+  static handle(err: any, route: string) {
+    // 1. Auth Errors
+    if (err.name === "AuthError") {
+      return this.error(err.message, err.status);
+    }
+
+    // 2. Rate Limit Errors
+    if (err.name === "RateLimitError") {
+      return this.tooManyRequests();
+    }
+
+    // 3. Zod Errors
+    if (err.name === "ZodError" || err.issues) {
+      return this.error("Invalid input data", 400);
+    }
+
+    // 4. Payload Size Errors
+    if (err.message === "Payload too large") {
+      return this.error("Request entity too large", 413);
+    }
+
+    // 5. Fallback for others (masked for production)
+    return this.internalError();
   }
 }

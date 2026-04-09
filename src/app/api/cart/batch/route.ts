@@ -1,54 +1,47 @@
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { Response } from "@/lib/api-response";
+import { Logger } from "@/lib/logger";
+import { requireUser } from "@/security/authGuard";
+import { checkRateLimit } from "@/security/rateLimiter";
+import { z } from "zod";
 
-const createClient = async () => {
-  const cookieStore = await cookies();
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll: () => cookieStore.getAll(),
-        setAll: (cookiesToSet: { name: string; value: string; options?: any }[]) => {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options)
-          );
-        },
-      },
-    }
-  );
-};
+const cartOperationSchema = z.object({
+  type: z.enum(["upsert", "delete"]),
+  product_id: z.string().uuid(),
+  quantity: z.number().int().min(1).max(100).optional(),
+});
+
+const batchSchema = z.object({
+  operations: z.array(cartOperationSchema).max(50, "Maximum 50 operations per batch"),
+});
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    await checkRateLimit(request);
+    const user = await requireUser();
+    
+    const body = await request.json();
+    const result = batchSchema.safeParse(body);
+    if (!result.success) throw result.error;
 
-    if (authError || !user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const { operations } = await request.json();
-
-    if (!Array.isArray(operations)) {
-      return NextResponse.json({ error: "Operations must be an array" }, { status: 400 });
-    }
+    const { operations } = result.data;
+    const supabase = await createServerSupabaseClient();
 
     // Sort operations into upserts and deletes
     const upserts = operations
-      .filter((op: any) => op.type === "upsert")
-      .map((op: any) => ({
+      .filter((op) => op.type === "upsert")
+      .map((op) => ({
         user_id: user.id,
         product_id: op.product_id,
-        quantity: op.quantity,
+        quantity: op.quantity || 1,
       }));
 
     const deleteIds = operations
-      .filter((op: any) => op.type === "delete")
-      .map((op: any) => op.product_id);
+      .filter((op) => op.type === "delete")
+      .map((op) => op.product_id);
 
-    // Execute deletions first (though order usually doesn't matter for distinct products)
+    // Execute deletions first
     if (deleteIds.length > 0) {
       const { error: deleteError } = await supabase
         .from("cart_items")
@@ -68,9 +61,9 @@ export async function POST(request: NextRequest) {
       if (upsertError) throw upsertError;
     }
 
-    return NextResponse.json({ success: true, processed: operations.length });
+    return Response.success({ success: true, processed: operations.length });
   } catch (error: any) {
-    console.error("Cart Batch Error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    Logger.apiError("/api/cart/batch", error);
+    return Response.handle(error, "/api/cart/batch");
   }
 }

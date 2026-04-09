@@ -1,27 +1,24 @@
+import { NextRequest } from "next/server";
 import { Response } from "@/lib/api-response";
 import { Logger } from "@/lib/logger";
 import { ProfileService } from "@/services/profile-service";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { requireUser } from "@/security/authGuard";
+import { checkRateLimit } from "@/security/rateLimiter";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const supabase = await createServerSupabaseClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    await checkRateLimit(request);
+    const user = await requireUser();
 
-    if (!user) {
-      Logger.info("Profile fetch: no user session");
-      return Response.success({ profile: null });
-    }
-
-    const profileService = new ProfileService(true);
+    const profileService = new ProfileService();
     const profile = await profileService.getProfile(user.id);
 
     return Response.success({ profile });
   } catch (err: any) {
-    Logger.error("Profile API Error", err);
-    return Response.internalError();
+    Logger.apiError("/api/profile", err);
+    return Response.handle(err, "/api/profile");
   }
 }
 

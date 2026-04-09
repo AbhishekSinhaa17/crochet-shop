@@ -1,82 +1,55 @@
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { Response } from "@/lib/api-response";
+import { Logger } from "@/lib/logger";
+import { requireUser } from "@/security/authGuard";
+import { checkRateLimit } from "@/security/rateLimiter";
+import { z } from "zod";
 
-const createClient = async () => {
-  const cookieStore = await cookies();
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll: () => cookieStore.getAll(),
-        // ✅ Type fix kiya
-        setAll: (cookiesToSet: { name: string; value: string; options?: any }[]) => {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options)
-          );
-        },
-      },
-    }
-  );
-};
+const wishlistSchema = z.object({
+  product_id: z.string().uuid("Invalid product ID"),
+});
 
-// GET - Wishlist fetch
-export async function GET() {
+const deleteWishlistSchema = z.object({
+  product_id: z.string().uuid().optional(),
+  clear_all: z.boolean().optional(),
+});
+
+export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient();
-
-    const { data: { user }, error: authError } =
-      await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
+    await checkRateLimit(request);
+    const user = await requireUser();
+    const supabase = await createServerSupabaseClient();
 
     const { data, error } = await supabase
       .from("wishlist")
       .select(`
         product:products (
-          id,
-          name,
-          price,
-          compare_price,
-          images,
-          stock
+          id, name, price,
+          compare_price, images, stock
         )
       `)
       .eq("user_id", user.id);
 
     if (error) throw error;
-
-    return NextResponse.json({ data });
+    return Response.success(data);
   } catch (error: any) {
-    return NextResponse.json(
-      { error: error.message },
-      { status: 500 }
-    );
+    Logger.apiError("/api/wishlist (GET)", error);
+    return Response.handle(error, "/api/wishlist");
   }
 }
 
-// POST - Item add
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient();
+    await checkRateLimit(request);
+    const user = await requireUser();
+    
+    const body = await request.json();
+    const result = wishlistSchema.safeParse(body);
+    if (!result.success) throw result.error;
 
-    const { data: { user }, error: authError } =
-      await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
-
-    const { product_id } = await request.json();
+    const { product_id } = result.data;
+    const supabase = await createServerSupabaseClient();
 
     const { error } = await supabase
       .from("wishlist")
@@ -86,55 +59,45 @@ export async function POST(request: NextRequest) {
       );
 
     if (error) throw error;
-
-    return NextResponse.json({ success: true });
+    return Response.success({ success: true });
   } catch (error: any) {
-    return NextResponse.json(
-      { error: error.message },
-      { status: 500 }
-    );
+    Logger.apiError("/api/wishlist (POST)", error);
+    return Response.handle(error, "/api/wishlist");
   }
 }
 
-// DELETE - Item remove
 export async function DELETE(request: NextRequest) {
   try {
-    const supabase = await createClient();
+    await checkRateLimit(request);
+    const user = await requireUser();
 
-    const { data: { user }, error: authError } =
-      await supabase.auth.getUser();
+    const body = await request.json();
+    const result = deleteWishlistSchema.safeParse(body);
+    if (!result.success) throw result.error;
 
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
-
-    const { product_id, clear_all } = await request.json();
+    const { product_id, clear_all } = result.data;
+    const supabase = await createServerSupabaseClient();
 
     if (clear_all) {
       const { error } = await supabase
         .from("wishlist")
         .delete()
         .eq("user_id", user.id);
-
       if (error) throw error;
     } else {
+      if (!product_id) throw new Error("Product ID required for deletion");
+      
       const { error } = await supabase
         .from("wishlist")
         .delete()
         .eq("user_id", user.id)
         .eq("product_id", product_id);
-
       if (error) throw error;
     }
 
-    return NextResponse.json({ success: true });
+    return Response.success({ success: true });
   } catch (error: any) {
-    return NextResponse.json(
-      { error: error.message },
-      { status: 500 }
-    );
+    Logger.apiError("/api/wishlist (DELETE)", error);
+    return Response.handle(error, "/api/wishlist");
   }
 }

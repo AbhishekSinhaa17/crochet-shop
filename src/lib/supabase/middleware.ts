@@ -1,10 +1,11 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { Logger } from "@/lib/logger";
+import { checkRateLimit, getClientIp } from "@/security/rateLimiter";
+import { Redis } from "@upstash/redis";
 
-// Basic Rate Limiting Structure (In-memory is not persistent across middleware runs, 
-// so this is more of a structural hint or using a real store if needed)
-import { checkRateLimit, AUTH_LIMIT, PUBLIC_LIMIT } from "@/lib/ratelimit";
+const redis = process.env.UPSTASH_REDIS_REST_URL ? Redis.fromEnv() : null;
+const ROLE_CACHE_TTL = 600;
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
@@ -14,49 +15,56 @@ export async function updateSession(request: NextRequest) {
   const authRoutes = ["/auth/login", "/auth/register", "/api/auth"];
   const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
 
-  // 2. Rate Limiting Check
-  const ip = request.ip || request.headers.get("x-forwarded-for") || "anonymous";
-  const limitConfig = isAuthRoute ? AUTH_LIMIT : PUBLIC_LIMIT;
-  
-  const { success, limit, remaining, reset } = await checkRateLimit(
-    `ip:${ip}:${pathname}`, 
-    limitConfig
-  );
-
-  if (!success) {
-    return new NextResponse("Too Many Requests", { 
-      status: 429,
-      headers: {
-        "X-RateLimit-Limit": limit.toString(),
-        "X-RateLimit-Remaining": remaining.toString(),
-        "X-RateLimit-Reset": reset.toString(),
-      }
-    });
-  }
-
-  // 3. Supabase Client Setup
+  // 2. Supabase Client Setup (needed for session check)
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        getAll() {
-          return request.cookies.getAll();
-        },
-        setAll(cookiesToSet: { name: string; value: string; options: any }[]) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value)
-          );
+        getAll: () => request.cookies.getAll(),
+        setAll: (cookiesToSet: { name: string; value: string; options: any }[]) => {
+          cookiesToSet.forEach((cookie) => request.cookies.set(cookie.name, cookie.value));
           supabaseResponse = NextResponse.next({ request });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
+          cookiesToSet.forEach((cookie) =>
+            supabaseResponse.cookies.set(cookie.name, cookie.value, cookie.options)
           );
         },
       },
     }
   );
 
-  // 4. Define route protection
+  const { data: { user } } = await supabase.auth.getUser();
+
+  // 3. 🚦 Hybrid Rate Limiting
+  try {
+    const rateLimitResult = await checkRateLimit(request, {
+      userId: user?.id,
+      config: isAuthRoute ? "CRITICAL" : (user ? "AUTH" : "PUBLIC"),
+    });
+
+    if (rateLimitResult && !rateLimitResult.success) {
+      return new NextResponse("Too Many Requests", { 
+        status: 429,
+        headers: {
+          "X-RateLimit-Limit": rateLimitResult.limit.toString(),
+          "X-RateLimit-Remaining": rateLimitResult.remaining.toString(),
+          "X-RateLimit-Reset": rateLimitResult.reset.toString(),
+        }
+      });
+    }
+
+    if (rateLimitResult) {
+      supabaseResponse.headers.set('X-RateLimit-Limit', rateLimitResult.limit.toString());
+      supabaseResponse.headers.set('X-RateLimit-Remaining', rateLimitResult.remaining.toString());
+      supabaseResponse.headers.set('X-RateLimit-Reset', rateLimitResult.reset.toString());
+    }
+  } catch (err: any) {
+    if (err.name === "RateLimitError") {
+       return new NextResponse("Too Many Requests", { status: 429 });
+    }
+  }
+
+  // 4. Protection Logic
   const protectedRoutes = ["/profile", "/orders", "/wishlist", "/cart", "/checkout", "/chat", "/custom-order"];
   const adminRoutes = ["/admin"];
 
@@ -64,22 +72,8 @@ export async function updateSession(request: NextRequest) {
   const isAdminRoute = adminRoutes.some((route) => pathname.startsWith(route));
   const isAuthPage = authRoutes.some((route) => pathname.startsWith(route));
 
-  // Determine if this route needs an authentication/authorization check
-  const needsAuthCheck = isProtectedRoute || isAdminRoute || isAuthPage;
-
-  if (!needsAuthCheck) {
-    return supabaseResponse;
-  }
-
-  // 🛡️ Security Best Practice: Use getUser() on the server to verify the JWT
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  // 5. Authentication Logic
   if (!user) {
     if (isProtectedRoute || isAdminRoute) {
-      Logger.info("Unauthorized access attempt", { module: "middleware", action: "auth_redirect", pathname });
       const url = request.nextUrl.clone();
       url.pathname = "/auth/login";
       url.searchParams.set("redirect", pathname);
@@ -88,35 +82,31 @@ export async function updateSession(request: NextRequest) {
     return supabaseResponse;
   }
 
-  // If user is already logged in and tries to access /auth pages, redirect to home
-  if (isAuthPage) {
-    Logger.debug("Authenticated user on auth page - Redirecting home", { module: "middleware" });
-    return NextResponse.redirect(new URL("/", request.url));
-  }
+  if (isAuthPage) return NextResponse.redirect(new URL("/", request.url));
 
-  // 6. Authorization Logic (RBAC)
+  // 5. 👑 RBAC with Redis Caching
   if (isAdminRoute) {
-    // Only admins can access admin routes
-    // 🛡️ Explicit DB check for role to prevent JWT spoofing (Production-Grade)
-    const { data: profile, error: roleError } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .maybeSingle();
+    let role = null;
+    if (redis) {
+      role = await redis.get<string>(`user:role:${user.id}`);
+    }
 
-    const currentRole = profile?.role?.toLowerCase()?.trim() || 'user';
+    if (!role) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .maybeSingle();
+      
+      role = profile?.role || 'customer';
+      if (redis) await redis.set(`user:role:${user.id}`, role, { ex: ROLE_CACHE_TTL });
+    }
 
-    if (roleError || currentRole !== "admin") {
-      Logger.warn(`Forbidden admin access attempt`, { module: "middleware", action: "admin_guard", userId: user.id, email: user.email, role: currentRole });
-      // Not an admin, redirect home
+    if (role !== "admin") {
+      Logger.warn(`Forbidden admin access attempt`, { module: "middleware", userId: user.id });
       return NextResponse.redirect(new URL("/", request.url));
     }
   }
-
-  // Add rate limit headers to response
-  supabaseResponse.headers.set('X-RateLimit-Limit', limit.toString());
-  supabaseResponse.headers.set('X-RateLimit-Remaining', remaining.toString());
-  supabaseResponse.headers.set('X-RateLimit-Reset', reset.toString());
 
   return supabaseResponse;
 }

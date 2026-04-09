@@ -1,41 +1,26 @@
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { Response } from "@/lib/api-response";
+import { Logger } from "@/lib/logger";
+import { requireUser } from "@/security/authGuard";
+import { checkRateLimit } from "@/security/rateLimiter";
+import { z } from "zod";
 
-const createClient = async () => {
-  const cookieStore = await cookies();
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll: () => cookieStore.getAll(),
-        setAll: (cookiesToSet: { 
-          name: string; 
-          value: string; 
-          options?: any 
-        }[]) => {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options)
-          );
-        },
-      },
-    }
-  );
-};
+const cartItemSchema = z.object({
+  product_id: z.string().uuid("Invalid product ID"),
+  quantity: z.number().int().min(1, "Quantity must be at least 1").max(100, "Quantity too high"),
+});
 
-export async function GET() {
+const deleteCartSchema = z.object({
+  product_id: z.string().uuid().optional(),
+  clear_all: z.boolean().optional(),
+});
+
+export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient();
-    const { data: { user }, error: authError } =
-      await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
+    await checkRateLimit(request);
+    const user = await requireUser();
+    const supabase = await createServerSupabaseClient();
 
     const { data, error } = await supabase
       .from("cart_items")
@@ -49,29 +34,25 @@ export async function GET() {
       .eq("user_id", user.id);
 
     if (error) throw error;
-    return NextResponse.json({ data });
+    return Response.success(data);
   } catch (error: any) {
-    return NextResponse.json(
-      { error: error.message },
-      { status: 500 }
-    );
+    Logger.apiError("/api/cart (GET)", error);
+    return Response.handle(error, "/api/cart");
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient();
-    const { data: { user }, error: authError } =
-      await supabase.auth.getUser();
+    await checkRateLimit(request);
+    const user = await requireUser();
+    
+    const body = await request.json();
+    const result = cartItemSchema.safeParse(body);
+    if (!result.success) throw result.error;
 
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
+    const { product_id, quantity } = result.data;
+    const supabase = await createServerSupabaseClient();
 
-    const { product_id, quantity } = await request.json();
     const { error } = await supabase
       .from("cart_items")
       .upsert(
@@ -80,29 +61,25 @@ export async function POST(request: NextRequest) {
       );
 
     if (error) throw error;
-    return NextResponse.json({ success: true });
+    return Response.success({ success: true });
   } catch (error: any) {
-    return NextResponse.json(
-      { error: error.message },
-      { status: 500 }
-    );
+    Logger.apiError("/api/cart (POST)", error);
+    return Response.handle(error, "/api/cart");
   }
 }
 
 export async function PUT(request: NextRequest) {
   try {
-    const supabase = await createClient();
-    const { data: { user }, error: authError } =
-      await supabase.auth.getUser();
+    await checkRateLimit(request);
+    const user = await requireUser();
 
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
+    const body = await request.json();
+    const result = cartItemSchema.safeParse(body);
+    if (!result.success) throw result.error;
 
-    const { product_id, quantity } = await request.json();
+    const { product_id, quantity } = result.data;
+    const supabase = await createServerSupabaseClient();
+
     const { error } = await supabase
       .from("cart_items")
       .update({ quantity })
@@ -110,29 +87,24 @@ export async function PUT(request: NextRequest) {
       .eq("product_id", product_id);
 
     if (error) throw error;
-    return NextResponse.json({ success: true });
+    return Response.success({ success: true });
   } catch (error: any) {
-    return NextResponse.json(
-      { error: error.message },
-      { status: 500 }
-    );
+    Logger.apiError("/api/cart (PUT)", error);
+    return Response.handle(error, "/api/cart");
   }
 }
 
 export async function DELETE(request: NextRequest) {
   try {
-    const supabase = await createClient();
-    const { data: { user }, error: authError } =
-      await supabase.auth.getUser();
+    await checkRateLimit(request);
+    const user = await requireUser();
 
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
+    const body = await request.json();
+    const result = deleteCartSchema.safeParse(body);
+    if (!result.success) throw result.error;
 
-    const { product_id, clear_all } = await request.json();
+    const { product_id, clear_all } = result.data;
+    const supabase = await createServerSupabaseClient();
 
     if (clear_all) {
       const { error } = await supabase
@@ -141,6 +113,8 @@ export async function DELETE(request: NextRequest) {
         .eq("user_id", user.id);
       if (error) throw error;
     } else {
+      if (!product_id) throw new Error("Product ID required for deletion");
+      
       const { error } = await supabase
         .from("cart_items")
         .delete()
@@ -149,11 +123,9 @@ export async function DELETE(request: NextRequest) {
       if (error) throw error;
     }
 
-    return NextResponse.json({ success: true });
+    return Response.success({ success: true });
   } catch (error: any) {
-    return NextResponse.json(
-      { error: error.message },
-      { status: 500 }
-    );
+    Logger.apiError("/api/cart (DELETE)", error);
+    return Response.handle(error, "/api/cart");
   }
 }
