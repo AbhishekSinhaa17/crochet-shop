@@ -51,7 +51,7 @@ export default function ProductCard({ product, className }: Props) {
     
     try {
       setIsAddingToCart(true);
-      addItem(product, 1);
+      addItem(product, 1, user?.id);
       toast.success(`${product.name} added to cart!`);
     } catch (err) {
       console.error(err);

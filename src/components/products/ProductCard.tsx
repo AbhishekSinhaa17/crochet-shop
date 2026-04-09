@@ -95,7 +95,7 @@ export default function ProductCard({
     if (isCartProcessing) return;
 
     try {
-      await addItem(product, 1);
+      await addItem(product, 1, user?.id);
       toast.success(
         <div className="flex items-center gap-2">
           <Check className="w-4 h-4 text-green-500" />

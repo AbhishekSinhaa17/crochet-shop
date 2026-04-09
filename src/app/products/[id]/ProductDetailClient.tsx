@@ -91,7 +91,7 @@ export default function ProductDetailClient({
     }
     
     try {
-      addItem(product, quantity);
+      addItem(product, quantity, user?.id);
       setAddedToCart(true);
       toast.success(`${product.name} added to cart!`);
       setTimeout(() => setAddedToCart(false), 2000);

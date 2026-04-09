@@ -119,7 +119,7 @@ export default function WishlistPageClient({ products: initialProducts, wishlist
       return;
     }
 
-    addItem(product, 1);
+    addItem(product, 1, user?.id);
     toast.success(`${product.name} added to cart!`);
   };
 
@@ -133,7 +133,7 @@ export default function WishlistPageClient({ products: initialProducts, wishlist
 
     try {
       for (const product of availableProducts) {
-        addItem(product, 1);
+        addItem(product, 1, user?.id);
       }
       toast.success(`Added ${availableProducts.length} items to cart!`);
     } catch (err) {

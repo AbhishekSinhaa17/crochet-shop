@@ -10,11 +10,10 @@ import { Logger } from "@/lib/logger";
 import { AuthChangeEvent, Session } from "@supabase/supabase-js";
 
 export default function AuthProvider({ children }: { children: ReactNode }) {
-  const { fetchUser, setUser, loading, initialized } = useAuthStore();
+  const { initializeAuth, user, loading, initialized } = useAuthStore();
   const [mounted, setMounted] = useState(false);
   const [storesHydrated, setStoresHydrated] = useState(false);
 
-  const mergedUserIds = useRef<Set<string>>(new Set());
   const lastSyncedUserId = useRef<string | null>(null);
 
   useEffect(() => {
@@ -34,90 +33,43 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     rehydrateStores();
-    fetchUser();
+    initializeAuth();
+  }, [initializeAuth]);
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event: AuthChangeEvent, session: Session | null) => {
-      const user = session?.user ?? null;
-      Logger.info(`Auth event: ${event}`, { module: "auth", userId: user?.id });
+  // 🔄 Coordination Effect: Handles side effects when user state changes
+  useEffect(() => {
+    if (!initialized || !storesHydrated) return;
 
-      // ✅ TOKEN_REFRESHED - Ignore
-      if (event === "TOKEN_REFRESHED") {
-        Logger.debug("Token refreshed, skipping sync", { module: "auth" });
-        return;
+    const syncStores = async () => {
+      if (user?.id) {
+        // ✅ Login or Session Restore detected
+        if (lastSyncedUserId.current === user.id) return;
+        
+        const isNewUser = lastSyncedUserId.current === null;
+        lastSyncedUserId.current = user.id;
+
+        Logger.info(`Syncing stores for user: ${user.id}`, { module: "auth", isMergingGuest: isNewUser });
+        
+        // Parallel sync with idempotency
+        await Promise.allSettled([
+          useCartStore.getState().syncWithDatabase(user.id, isNewUser),
+          useWishlistStore.getState().syncWithDatabase(user.id, isNewUser),
+        ]);
+      } else {
+        // ✅ Logout detected
+        if (lastSyncedUserId.current === null) return;
+        
+        Logger.info("User signed out, clearing sensitive stores", { module: "auth" });
+        lastSyncedUserId.current = null;
+        
+        useCartStore.getState().clearCart(false);
+        useWishlistStore.getState().clearWishlist();
       }
-
-      // ✅ INITIAL_SESSION
-      if (event === "INITIAL_SESSION") {
-        if (user?.id && lastSyncedUserId.current !== user.id) {
-          lastSyncedUserId.current = user.id;
-          await setUser(user);
-          await useCartStore.getState().syncWithDatabase(user.id, false);
-          await useWishlistStore.getState().syncWithDatabase(user.id, false);
-        } else if (!user) {
-          await setUser(null);
-        }
-        return;
-      }
-
-      switch (event) {
-        case "SIGNED_IN":
-          if (user?.id) {
-            if (lastSyncedUserId.current === user.id) {
-              Logger.debug("Same user, skipping sync", { module: "auth" });
-              return;
-            }
-            lastSyncedUserId.current = user.id;
-            const hasMerged = mergedUserIds.current.has(user.id);
-            const shouldMerge = !hasMerged;
-            if (shouldMerge) mergedUserIds.current.add(user.id);
-            await setUser(user);
-            await useCartStore
-              .getState()
-              .syncWithDatabase(user.id, shouldMerge);
-            await useWishlistStore
-              .getState()
-              .syncWithDatabase(user.id, shouldMerge);
-          }
-          break;
-
-        case "USER_UPDATED":
-          if (user?.id) await setUser(user);
-          break;
-
-        case "SIGNED_OUT":
-          lastSyncedUserId.current = null;
-          mergedUserIds.current.clear();
-
-          // ✅ Invalid token clear karo
-          try {
-            await supabase.auth.signOut({ scope: "local" });
-          } catch {
-            // Silently ignore
-          }
-
-          useAuthStore.setState({
-            user: null,
-            profile: null,
-            role: null,
-            isAdmin: false,
-            loading: false,
-            initialized: true,
-          });
-          useCartStore.getState().clearCart(false);
-          useWishlistStore.getState().clearWishlist();
-          break;
-      }
-    });
-
-    // ✅ Window focus handler HATA DIYA
-    // Ye hi tab switch problem thi!
-
-    return () => {
-      subscription.unsubscribe();
     };
-  }, [fetchUser, setUser]);
+
+    syncStores();
+  }, [user?.id, initialized, storesHydrated]);
+
 
   if (!mounted || !storesHydrated || (loading && !initialized)) {
     return <GlobalAuthLoader />;

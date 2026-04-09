@@ -4,18 +4,25 @@ import toast from "react-hot-toast";
 import { Product } from "@/types";
 import { Logger } from "@/lib/logger";
 import { Analytics } from "@/lib/analytics";
-import { useAuthStore } from "./useAuthStore";
+
+export type WishlistOp = {
+  type: "add" | "remove";
+  productId: string;
+};
 
 interface WishlistState {
   items: string[];
   processingIds: string[];
   isSyncing: boolean;
+  pendingOps: Record<string, WishlistOp>;
+  syncTimer: any;
   toggleWishlist: (product: Product, userId: string) => Promise<void>;
   syncWithDatabase: (userId: string, isMergingGuest?: boolean) => Promise<void>;
   fetchWishlist: (userId: string) => Promise<void>;
   setItems: (productIds: string[]) => void;
   clearWishlist: () => void;
   isInWishlist: (productId: string) => boolean;
+  flushWishlistQueue: (userId: string, isRetry?: boolean) => Promise<void>;
 }
 
 export const useWishlistStore = create<WishlistState>()(
@@ -24,6 +31,8 @@ export const useWishlistStore = create<WishlistState>()(
       items: [],
       processingIds: [],
       isSyncing: false,
+      pendingOps: {},
+      syncTimer: null,
 
       toggleWishlist: async (product, userId) => {
         if (!userId) {
@@ -31,10 +40,7 @@ export const useWishlistStore = create<WishlistState>()(
           return;
         }
 
-        const { items, processingIds } = get();
-        if (processingIds.includes(product.id)) return;
-
-        const prevItems = [...items];
+        const { items, pendingOps, syncTimer } = get();
         const alreadyExists = items.includes(product.id);
 
         // ✅ Optimistic Update
@@ -44,48 +50,70 @@ export const useWishlistStore = create<WishlistState>()(
 
         set({
           items: updatedItems,
-          processingIds: [...processingIds, product.id],
+          pendingOps: {
+            ...pendingOps,
+            [product.id]: {
+              type: alreadyExists ? "remove" : "add",
+              productId: product.id,
+            },
+          },
         });
 
+        // 🧠 Reset timer
+        if (syncTimer) clearTimeout(syncTimer);
+        const timer = setTimeout(() => get().flushWishlistQueue(userId), 500);
+        set({ syncTimer: timer });
+
+        toast.success(alreadyExists ? "Removed from wishlist" : "Added to wishlist");
+        
+        if (alreadyExists) {
+          Analytics.removeFromWishlist(product.id, userId);
+        } else {
+          Analytics.addToWishlist(product.id, userId);
+        }
+      },
+
+      flushWishlistQueue: async (userId: string, isRetry = false) => {
+        const { pendingOps } = get();
+        const ops = Object.values(pendingOps);
+        if (ops.length === 0) return;
+
+        const productIds = ops.map((op) => op.productId);
+        set((state) => ({
+          processingIds: Array.from(new Set([...state.processingIds, ...productIds])),
+          pendingOps: {},
+        }));
+
         try {
-          if (alreadyExists) {
-            // ✅ API Route use karo
-            const response = await fetch("/api/wishlist", {
-              method: "DELETE",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ product_id: product.id }),
-            });
+          const response = await fetch("/api/wishlist/batch", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              operations: ops.map((op) => ({
+                type: op.type,
+                product_id: op.productId,
+              })),
+            }),
+          });
 
-            const result = await response.json();
-            if (!response.ok) throw new Error(result.error);
+          if (!response.ok) throw new Error("Wishlist batch sync failed");
 
-            Analytics.removeFromWishlist(product.id, userId);
+          Logger.info(`Wishlist batch sync success: ${ops.length} ops`, { module: "wishlist", userId });
+        } catch (err) {
+          Logger.storeError("wishlist", "flushWishlistQueue", err);
+
+          if (!isRetry) {
+            Logger.info("Retrying wishlist batch sync...", { module: "wishlist", userId });
+            set((state) => ({
+              pendingOps: { ...pendingOps, ...state.pendingOps },
+            }));
+            await get().flushWishlistQueue(userId, true);
           } else {
-            // ✅ API Route use karo
-            const response = await fetch("/api/wishlist", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ product_id: product.id }),
-            });
-
-            const result = await response.json();
-            if (!response.ok) throw new Error(result.error);
-
-            Analytics.addToWishlist(product.id, userId);
+            toast.error("Wishlist sync issues. Please refresh.");
           }
-
-          toast.success(
-            alreadyExists ? "Removed from wishlist" : "Added to wishlist"
-          );
-        } catch (err: any) {
-          Logger.storeError("wishlist", "toggleWishlist", err);
-          set({ items: prevItems }); // Rollback
-          toast.error("Wishlist sync issue.");
         } finally {
           set((state) => ({
-            processingIds: state.processingIds.filter(
-              (id) => id !== product.id
-            ),
+            processingIds: state.processingIds.filter((id) => !productIds.includes(id)),
           }));
         }
       },

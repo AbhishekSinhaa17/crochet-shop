@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useCartStore } from "@/store/cartStore";
+import { useAuthStore } from "@/store/useAuthStore";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -53,6 +54,7 @@ const validPromoCodes: PromoCode[] = [
 
 export default function CartPage() {
   const { items, updateQuantity, removeItem, getTotal, clearCart, processingIds } = useCartStore();
+  const { user } = useAuthStore();
   const [isLoaded, setIsLoaded] = useState(false);
   const [promoCode, setPromoCode] = useState("");
   const [appliedPromo, setAppliedPromo] = useState<PromoCode | null>(null);
@@ -93,11 +95,11 @@ export default function CartPage() {
 
   const handleUpdateQuantity = async (id: string, newQuantity: number) => {
     if (newQuantity < 1) return;
-    updateQuantity(id, newQuantity);
+    updateQuantity(id, newQuantity, user?.id);
   };
 
   const handleRemoveItem = async (id: string, name: string) => {
-    removeItem(id);
+    removeItem(id, user?.id);
     toast.success(`${name} removed from cart`);
   };
 

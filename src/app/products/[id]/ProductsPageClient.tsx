@@ -597,6 +597,7 @@ export default function ProductsPageClient({
 // Product List Card Component
 function ProductListCard({ product, isAdmin = false }: { product: Product; isAdmin?: boolean }) {
   const addItem = useCartStore((s) => s.addItem);
+  const { user } = useAuthStore();
   const [isWishlisted, setIsWishlisted] = useState(false);
   const hasDiscount = product.compare_price && product.compare_price > product.price;
 
@@ -611,7 +612,7 @@ function ProductListCard({ product, isAdmin = false }: { product: Product; isAdm
     }
 
     try {
-      addItem(product, 1);
+      addItem(product, 1, user?.id);
       toast.success(`${product.name} added to cart!`);
     } catch (err) {
       console.error(err);

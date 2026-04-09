@@ -1,25 +1,25 @@
 import { create } from "zustand";
 import { supabase } from "@/lib/supabase/client";
+import { AuthChangeEvent, Session, User } from "@supabase/supabase-js";
 import { Profile } from "@/types";
 import { Logger } from "@/lib/logger";
-import { useCartStore } from "./cartStore";
-import { useWishlistStore } from "./wishlistStore";
 
 interface AuthState {
-  user: any | null;
+  user: User | null;
   profile: Profile | null;
   loading: boolean;
   initialized: boolean;
   isAdmin: boolean;
   role: "admin" | "user" | null;
-  setUser: (user: any | null) => Promise<void>;
-  fetchUser: () => Promise<void>;
+  setUser: (user: User | null) => Promise<void>;
+  initializeAuth: () => Promise<void>;
   fetchProfile: (userId: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
-// 🔒 Internal lock to prevent concurrent initialization calls
+// 🔒 Module-level variables to ensure singleton behavior
 let initializationPromise: Promise<void> | null = null;
+let isListenerAttached = false;
 
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
@@ -30,6 +30,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   isAdmin: false,
 
   setUser: async (user) => {
+    // Prevent redundant profile fetches if user ID is the same
     if (user?.id === get().user?.id && get().initialized) {
       set({ loading: false });
       return;
@@ -41,8 +42,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       await get().fetchProfile(user.id);
     } else {
       set({ profile: null, role: null, isAdmin: false, loading: false });
-      useCartStore.getState().clearCart(false);
-      useWishlistStore.getState().clearWishlist();
     }
   },
 
@@ -71,73 +70,46 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
   },
 
-  fetchUser: async () => {
-    if (initializationPromise) {
-      return initializationPromise;
-    }
+  initializeAuth: async () => {
+    // 1. If already initializing, return the existing promise
+    if (initializationPromise) return initializationPromise;
 
-    if (get().initialized && get().user) {
-      return Promise.resolve();
-    }
+    // 2. If already initialized, we're done
+    if (get().initialized && get().user) return Promise.resolve();
 
     initializationPromise = (async () => {
       set({ loading: true });
 
       try {
-        const {
-          data: { session },
-          error: sessionError,
-        } = await supabase.auth.getSession();
-
-        // ✅ Invalid/Expired token - Clear karo
-        if (sessionError) {
-          await supabase.auth.signOut({ scope: "local" });
-          set({
-            user: null,
-            profile: null,
-            isAdmin: false,
-            loading: false,
-            initialized: true,
+        // 🔒 Attached listener ONLY ONCE
+        if (!isListenerAttached) {
+          supabase.auth.onAuthStateChange(async (event: AuthChangeEvent, session: Session | null) => {
+            const user = session?.user ?? null;
+            Logger.info(`Auth transition: ${event}`, { module: "auth", userId: user?.id });
+            
+            if (event === "SIGNED_OUT") {
+              set({ user: null, profile: null, role: null, isAdmin: false, loading: false, initialized: true });
+            } else if (user) {
+              await get().setUser(user);
+            } else {
+              set({ loading: false, initialized: true });
+            }
           });
-          return;
+          isListenerAttached = true;
         }
 
-        let user = session?.user ?? null;
-
-        if (!user) {
-          const {
-            data: { user: fetchedUser },
-            error: userError,
-          } = await supabase.auth.getUser();
-
-          // ✅ 400 Error = Invalid refresh token
-          if (userError) {
-            await supabase.auth.signOut({ scope: "local" });
-            set({
-              user: null,
-              profile: null,
-              isAdmin: false,
-              loading: false,
-              initialized: true,
-            });
-            return;
-          }
-
-          user = fetchedUser;
+        // 🚀 Call getUser() ONLY ONCE to get initial state
+        const { data: { user }, error } = await supabase.auth.getUser();
+        
+        if (error || !user) {
+          set({ user: null, profile: null, isAdmin: false, loading: false, initialized: true });
+          return;
         }
 
         await get().setUser(user);
       } catch (error) {
-        Logger.storeError("auth", "fetchUser", error);
-        // ✅ Error pe bhi clear karo
-        await supabase.auth.signOut({ scope: "local" });
-        set({
-          user: null,
-          profile: null,
-          isAdmin: false,
-          loading: false,
-          initialized: true,
-        });
+        Logger.storeError("auth", "initializeAuth", error);
+        set({ user: null, loading: false, initialized: true });
       } finally {
         initializationPromise = null;
       }
@@ -148,9 +120,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   signOut: async () => {
     try {
+      set({ loading: true });
       await supabase.auth.signOut();
-      // State is cleared by the onAuthStateChange listener in AuthProvider,
-      // but we do it here too for instant UI feedback.
       set({
         user: null,
         profile: null,
@@ -161,6 +132,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       });
     } catch (error) {
       Logger.storeError("auth", "signOut", error);
+      set({ loading: false });
     }
   },
 }));
+

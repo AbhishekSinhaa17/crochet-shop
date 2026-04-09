@@ -4,7 +4,6 @@ import { Product } from "@/types";
 import { getProductImage } from "@/lib/utils";
 import { Logger } from "@/lib/logger";
 import { Analytics } from "@/lib/analytics";
-import { useAuthStore } from "./useAuthStore";
 import toast from "react-hot-toast";
 
 export interface CartProduct {
@@ -17,19 +16,28 @@ export interface CartProduct {
   quantity: number;
 }
 
+export type CartOp = {
+  type: "upsert" | "delete";
+  productId: string;
+  quantity?: number;
+};
+
 interface CartState {
   items: CartProduct[];
   processingIds: string[];
   isSyncing: boolean;
-  addItem: (product: Product, quantity?: number) => Promise<void>;
-  removeItem: (productId: string) => Promise<void>;
-  updateQuantity: (productId: string, quantity: number) => Promise<void>;
+  pendingOps: Record<string, CartOp>;
+  syncTimer: any;
+  addItem: (product: Product, quantity?: number, userId?: string) => Promise<void>;
+  removeItem: (productId: string, userId?: string) => Promise<void>;
+  updateQuantity: (productId: string, quantity: number, userId?: string) => Promise<void>;
   setItems: (items: CartProduct[]) => void;
   syncWithDatabase: (userId: string, isMergingGuest?: boolean) => Promise<void>;
   clearCart: (shouldSync?: boolean) => Promise<void>;
   getTotal: () => number;
   getItemCount: () => number;
   isProcessing: (productId: string) => boolean;
+  flushCartQueue: (userId: string, retry?: boolean) => Promise<void>;
 }
 
 const mergeCart = (
@@ -66,21 +74,19 @@ export const useCartStore = create<CartState>()(
       items: [],
       processingIds: [],
       isSyncing: false,
+      pendingOps: {},
+      syncTimer: null,
 
-      addItem: async (product: Product, quantity = 1) => {
-        const { items, processingIds } = get();
-        if (processingIds.includes(product.id)) return;
+      addItem: async (product: Product, quantity = 1, userId) => {
+        const { items, processingIds, pendingOps, syncTimer } = get();
 
         const existing = items.find((i) => i.id === product.id);
         const newQuantity = existing
           ? Math.min(existing.quantity + quantity, product.stock)
           : Math.min(quantity, product.stock);
 
-        const prevItems = [...items];
         const newItems = existing
-          ? items.map((i) =>
-              i.id === product.id ? { ...i, quantity: newQuantity } : i
-            )
+          ? items.map((i) => (i.id === product.id ? { ...i, quantity: newQuantity } : i))
           : [
               ...items,
               {
@@ -94,131 +100,118 @@ export const useCartStore = create<CartState>()(
               },
             ];
 
-        // ✅ Pehle local update
+        // ✅ Optimistic UI update
         set({
           items: newItems,
-          processingIds: [...processingIds, product.id],
+          pendingOps: {
+            ...pendingOps,
+            [product.id]: { type: "upsert", productId: product.id, quantity: newQuantity },
+          },
         });
 
-        try {
-          const userId = useAuthStore.getState().user?.id;
+        Analytics.addToCart(product.id, product.price, userId);
 
-          if (userId) {
-            // ✅ Direct Supabase nahi - API Route use karo
-            const response = await fetch("/api/cart", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                product_id: product.id,
-                quantity: newQuantity,
-              }),
-            });
-
-            const result = await response.json();
-            if (!response.ok) throw new Error(result.error);
-          }
-
-          Analytics.addToCart(product.id, product.price, userId);
-        } catch (err) {
-          Logger.storeError("cart", "addItem", err);
-          set({ items: prevItems });
-          toast.error("Failed to add item.");
-        } finally {
-          set((state) => ({
-            processingIds: state.processingIds.filter(
-              (id) => id !== product.id
-            ),
-          }));
+        if (userId) {
+          if (syncTimer) clearTimeout(syncTimer);
+          const timer = setTimeout(() => get().flushCartQueue(userId), 500);
+          set({ syncTimer: timer });
         }
       },
 
-      removeItem: async (productId: string) => {
-        const { items, processingIds } = get();
-        if (processingIds.includes(productId)) return;
-
-        const prevItems = [...items];
+      removeItem: async (productId: string, userId) => {
+        const { items, pendingOps, syncTimer } = get();
         const newItems = items.filter((i) => i.id !== productId);
 
+        // ✅ Optimistic UI update
         set({
           items: newItems,
-          processingIds: [...processingIds, productId],
+          pendingOps: {
+            ...pendingOps,
+            [productId]: { type: "delete", productId },
+          },
         });
 
-        try {
-          const userId = useAuthStore.getState().user?.id;
+        Analytics.removeFromCart(productId, userId);
 
-          if (userId) {
-            // ✅ API Route use karo
-            const response = await fetch("/api/cart", {
-              method: "DELETE",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ product_id: productId }),
-            });
-
-            const result = await response.json();
-            if (!response.ok) throw new Error(result.error);
-          }
-
-          Analytics.removeFromCart(productId, userId);
-        } catch (err) {
-          Logger.storeError("cart", "removeItem", err);
-          set({ items: prevItems });
-          toast.error("Failed to remove.");
-        } finally {
-          set((state) => ({
-            processingIds: state.processingIds.filter(
-              (id) => id !== productId
-            ),
-          }));
+        if (userId) {
+          if (syncTimer) clearTimeout(syncTimer);
+          const timer = setTimeout(() => get().flushCartQueue(userId), 500);
+          set({ syncTimer: timer });
         }
       },
 
-      updateQuantity: async (productId: string, quantity: number) => {
-        const { items, processingIds } = get();
-        if (processingIds.includes(productId)) return;
-
-        if (quantity <= 0) return get().removeItem(productId);
+      updateQuantity: async (productId: string, quantity: number, userId) => {
+        const { items, pendingOps, syncTimer } = get();
+        if (quantity <= 0) return get().removeItem(productId, userId);
 
         const item = items.find((i) => i.id === productId);
         if (!item) return;
 
-        const prevItems = [...items];
         const finalQuantity = Math.min(quantity, item.stock);
         const newItems = items.map((i) =>
           i.id === productId ? { ...i, quantity: finalQuantity } : i
         );
 
+        // ✅ Optimistic UI update
         set({
           items: newItems,
-          processingIds: [...processingIds, productId],
+          pendingOps: {
+            ...pendingOps,
+            [productId]: { type: "upsert", productId, quantity: finalQuantity },
+          },
         });
 
+        if (userId) {
+          if (syncTimer) clearTimeout(syncTimer);
+          const timer = setTimeout(() => get().flushCartQueue(userId), 500);
+          set({ syncTimer: timer });
+        }
+      },
+
+      flushCartQueue: async (userId: string, isRetry = false) => {
+        const { pendingOps } = get();
+        const ops = Object.values(pendingOps);
+        if (ops.length === 0) return;
+
+        // Mark items as processing
+        const productIds = ops.map((op) => op.productId);
+        set((state) => ({
+          processingIds: Array.from(new Set([...state.processingIds, ...productIds])),
+          pendingOps: {}, // Clear queue immediately to avoid double processing
+        }));
+
         try {
-          const userId = useAuthStore.getState().user?.id;
+          const response = await fetch("/api/cart/batch", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              operations: ops.map((op) => ({
+                type: op.type,
+                product_id: op.productId,
+                quantity: op.quantity,
+              })),
+            }),
+          });
 
-          if (userId) {
-            // ✅ API Route use karo
-            const response = await fetch("/api/cart", {
-              method: "PUT",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                product_id: productId,
-                quantity: finalQuantity,
-              }),
-            });
+          if (!response.ok) throw new Error("Batch sync failed");
 
-            const result = await response.json();
-            if (!response.ok) throw new Error(result.error);
-          }
+          Logger.info(`Cart batch sync success: ${ops.length} ops`, { module: "cart", userId });
         } catch (err) {
-          Logger.storeError("cart", "updateQuantity", err);
-          set({ items: prevItems });
-          toast.error("Failed to update.");
+          Logger.storeError("cart", "flushCartQueue", err);
+
+          if (!isRetry) {
+            Logger.info("Retrying cart batch sync...", { module: "cart", userId });
+            // Add back to queue and retry once
+            set((state) => ({
+              pendingOps: { ...pendingOps, ...state.pendingOps },
+            }));
+            await get().flushCartQueue(userId, true);
+          } else {
+            toast.error("Cart sync failed after retry.");
+          }
         } finally {
           set((state) => ({
-            processingIds: state.processingIds.filter(
-              (id) => id !== productId
-            ),
+            processingIds: state.processingIds.filter((id) => !productIds.includes(id)),
           }));
         }
       },
@@ -233,7 +226,6 @@ export const useCartStore = create<CartState>()(
         try {
           set({ isSyncing: true });
 
-          // ✅ API Route use karo
           const response = await fetch("/api/cart", {
             method: "GET",
             headers: { "Content-Type": "application/json" },
@@ -265,7 +257,6 @@ export const useCartStore = create<CartState>()(
 
           set({ items: mergedItems });
 
-          // ✅ Guest merge - bulk sync
           if (isMergingGuest && mergedItems.length > 0) {
             await Promise.all(
               mergedItems.map((item) =>
@@ -304,18 +295,16 @@ export const useCartStore = create<CartState>()(
 
         if (shouldSync) {
           try {
-            const userId = useAuthStore.getState().user?.id;
-            if (userId) {
-              // ✅ API Route use karo
-              const response = await fetch("/api/cart", {
-                method: "DELETE",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ clear_all: true }),
-              });
+            // ✅ We don't import useAuthStore here, so we skip server sync on basic clear
+            // Real sync is handled by AuthProvider on logout detection
+            const response = await fetch("/api/cart", {
+              method: "DELETE",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ clear_all: true }),
+            });
 
-              const result = await response.json();
-              if (!response.ok) throw new Error(result.error);
-            }
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.error);
           } catch (err) {
             Logger.storeError("cart", "clearCart", err);
             set({ items: prevItems });
