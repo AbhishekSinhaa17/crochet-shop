@@ -294,6 +294,7 @@ export default function ProductsPageClient({
                   <Filter className="w-5 h-5" />
                   Filters
                 </button>
+              </div>
 {/* Active Filters */}
             {(currentCategory || searchQuery) && (
               <div className="flex flex-wrap items-center gap-2 mt-4">

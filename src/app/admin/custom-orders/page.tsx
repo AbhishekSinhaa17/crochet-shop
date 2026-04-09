@@ -795,7 +795,7 @@ export default function AdminCustomOrdersPage() {
                   Customer Request
                 </p>
                 <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-3 italic">
-                  "{replyingOrder.description}"
+                  &quot;{replyingOrder.description}&quot;
                 </p>
               </div>
 
