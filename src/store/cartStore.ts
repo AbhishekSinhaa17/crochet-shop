@@ -180,6 +180,15 @@ export const useCartStore = create<CartState>()(
           pendingOps: {}, // Clear queue immediately to avoid double processing
         }));
 
+        if (typeof window !== "undefined" && !navigator.onLine) {
+          // If offline, put items back in queue and exit quietly
+          set((state) => ({
+            pendingOps: { ...pendingOps, ...state.pendingOps },
+            processingIds: state.processingIds.filter((id) => !productIds.includes(id)),
+          }));
+          return;
+        }
+
         try {
           const response = await fetch("/api/cart/batch", {
             method: "POST",
@@ -199,15 +208,22 @@ export const useCartStore = create<CartState>()(
         } catch (err) {
           Logger.storeError("cart", "flushCartQueue", err);
 
-          if (!isRetry) {
-            Logger.info("Retrying cart batch sync...", { module: "cart", userId });
-            // Add back to queue and retry once
+          // Only retry/toast if still online
+          if (typeof window !== "undefined" && navigator.onLine) {
+            if (!isRetry) {
+              Logger.info("Retrying cart batch sync...", { module: "cart", userId });
+              set((state) => ({
+                pendingOps: { ...pendingOps, ...state.pendingOps },
+              }));
+              await get().flushCartQueue(userId, true);
+            } else {
+              toast.error("Cart sync failed after retry.");
+            }
+          } else {
+            // Put back in queue for later
             set((state) => ({
               pendingOps: { ...pendingOps, ...state.pendingOps },
             }));
-            await get().flushCartQueue(userId, true);
-          } else {
-            toast.error("Cart sync failed after retry.");
           }
         } finally {
           set((state) => ({
@@ -326,7 +342,10 @@ export const useCartStore = create<CartState>()(
     {
       name: "crochet-cart",
       skipHydration: true,
-      partialize: (state) => ({ items: state.items }),
+      partialize: (state) => ({ 
+        items: state.items,
+        pendingOps: state.pendingOps 
+      }),
     }
   )
 );

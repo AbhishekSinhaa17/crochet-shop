@@ -84,6 +84,14 @@ export const useWishlistStore = create<WishlistState>()(
           pendingOps: {},
         }));
 
+        if (typeof window !== "undefined" && !navigator.onLine) {
+          set((state) => ({
+            pendingOps: { ...pendingOps, ...state.pendingOps },
+            processingIds: state.processingIds.filter((id) => !productIds.includes(id)),
+          }));
+          return;
+        }
+
         try {
           const response = await fetch("/api/wishlist/batch", {
             method: "POST",
@@ -102,14 +110,20 @@ export const useWishlistStore = create<WishlistState>()(
         } catch (err) {
           Logger.storeError("wishlist", "flushWishlistQueue", err);
 
-          if (!isRetry) {
-            Logger.info("Retrying wishlist batch sync...", { module: "wishlist", userId });
+          if (typeof window !== "undefined" && navigator.onLine) {
+            if (!isRetry) {
+              Logger.info("Retrying wishlist batch sync...", { module: "wishlist", userId });
+              set((state) => ({
+                pendingOps: { ...pendingOps, ...state.pendingOps },
+              }));
+              await get().flushWishlistQueue(userId, true);
+            } else {
+              toast.error("Wishlist sync issues. Please refresh.");
+            }
+          } else {
             set((state) => ({
               pendingOps: { ...pendingOps, ...state.pendingOps },
             }));
-            await get().flushWishlistQueue(userId, true);
-          } else {
-            toast.error("Wishlist sync issues. Please refresh.");
           }
         } finally {
           set((state) => ({
@@ -224,7 +238,10 @@ export const useWishlistStore = create<WishlistState>()(
     {
       name: "crochet-wishlist",
       skipHydration: true,
-      partialize: (state) => ({ items: state.items }),
+      partialize: (state) => ({ 
+        items: state.items,
+        pendingOps: state.pendingOps 
+      }),
     }
   )
 );

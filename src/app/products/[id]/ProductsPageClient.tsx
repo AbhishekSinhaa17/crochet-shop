@@ -10,6 +10,7 @@ import { useCartStore } from "@/store/cartStore";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useWishlistStore } from "@/store/wishlistStore";
 import { useDebounce } from "@/hooks/useDebounce";
+import { useProducts } from "@/hooks/useProducts";
 import { ProductCardSkeleton, ProductGridSkeleton } from "@/components/common/Skeletons";
 import { EmptyState } from "@/components/common/EmptyStates";
 import toast from "react-hot-toast";
@@ -89,9 +90,19 @@ export default function ProductsPageClient({
     localStorage.setItem("products-view-mode", mode);
   };
 
+  // Debounced search sync with URL
+  const debouncedSearchInput = useDebounce(searchInput, 400);
+
+  // Use React Query for caching and SWR
+  const { data: qProducts = products, isLoading } = useProducts({
+    category: currentCategory,
+    search: searchQuery,
+    sort: currentSort,
+  });
+
   // Filter products client-side for additional filters
   const filteredProducts = useMemo(() => {
-    let filtered = [...products];
+    let filtered = [...qProducts];
     
     if (showOnlyInStock) {
       filtered = filtered.filter(p => p.stock > 0);
@@ -104,7 +115,7 @@ export default function ProductsPageClient({
     filtered = filtered.filter(p => p.price >= priceRange[0] && p.price <= priceRange[1]);
     
     return filtered;
-  }, [products, showOnlyInStock, showOnlyOnSale, priceRange]);
+  }, [qProducts, showOnlyInStock, showOnlyOnSale, priceRange]);
 
   const buildUrl = (params: Record<string, string | null>) => {
     const current = new URLSearchParams(searchParams.toString());

@@ -33,6 +33,8 @@ export const metadata: Metadata = {
 
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import AuthProvider from "@/components/AuthProvider";
+import QueryProvider from "@/components/providers/QueryProvider";
+import SyncManager from "@/components/SyncManager";
 import LayoutWrapper from "@/components/layout/LayoutWrapper";
 
 export default function RootLayout({
@@ -56,11 +58,14 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen flex flex-col transition-colors duration-300" suppressHydrationWarning>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <AuthProvider>
-            <ErrorBoundary>
-              <LayoutWrapper>{children}</LayoutWrapper>
-            </ErrorBoundary>
-          </AuthProvider>
+          <QueryProvider>
+            <AuthProvider>
+              <SyncManager />
+              <ErrorBoundary>
+                <LayoutWrapper>{children}</LayoutWrapper>
+              </ErrorBoundary>
+            </AuthProvider>
+          </QueryProvider>
           <Toaster
             position="bottom-right"
             toastOptions={{

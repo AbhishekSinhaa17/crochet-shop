@@ -22,52 +22,86 @@ class Analytics {
    * Track a structured event.
    */
   static track(event: AnalyticsEvent) {
-    Logger.info(`[Analytics] ${event.category}:${event.action}`, {
-      module: "analytics",
-      action: event.action,
-      userId: event.userId,
-      category: event.category,
-      label: event.label,
-      value: event.value,
+    // Ensure tracking is non-blocking
+    const trackWork = () => {
+      Logger.info(`[Analytics] ${event.category}:${event.action}`, {
+        module: "analytics",
+        action: event.action,
+        userId: event.userId,
+        category: event.category,
+        label: event.label,
+        value: event.value,
+      });
+    };
+
+    if (typeof window !== "undefined" && "requestIdleCallback" in window) {
+      (window as any).requestIdleCallback(trackWork);
+    } else {
+      setTimeout(trackWork, 0);
+    }
+  }
+
+  /**
+   * 🚀 Generic event tracking utility
+   */
+  static trackEvent(eventName: string, payload: any = {}) {
+    const { userId, category = "general", value, label, ...rest } = payload;
+    
+    this.track({
+      category: category as EventCategory,
+      action: eventName.toLowerCase(),
+      label: label || JSON.stringify(rest),
+      value,
+      userId
     });
   }
 
   // ---- Convenience helpers ----
 
   static login(userId: string, method: "email" | "google" = "email") {
-    this.track({ category: "auth", action: "login", label: method, userId });
+    this.trackEvent("LOGIN", { category: "auth", method, userId });
   }
 
   static register(userId: string, method: "email" | "google" = "email") {
-    this.track({ category: "auth", action: "register", label: method, userId });
+    this.trackEvent("REGISTER", { category: "auth", method, userId });
   }
 
   static logout(userId?: string) {
-    this.track({ category: "auth", action: "logout", userId });
+    this.trackEvent("LOGOUT", { category: "auth", userId });
   }
 
   static addToCart(productId: string, price: number, userId?: string) {
-    this.track({ category: "cart", action: "add_to_cart", label: productId, value: price, userId });
+    this.trackEvent("ADD_TO_CART", { category: "cart", productId, price, value: price, userId });
   }
 
   static removeFromCart(productId: string, userId?: string) {
-    this.track({ category: "cart", action: "remove_from_cart", label: productId, userId });
+    this.trackEvent("REMOVE_FROM_CART", { category: "cart", productId, userId });
   }
 
   static addToWishlist(productId: string, userId?: string) {
-    this.track({ category: "wishlist", action: "add_to_wishlist", label: productId, userId });
+    this.trackEvent("ADD_TO_WISHLIST", { category: "wishlist", productId, userId });
   }
 
   static removeFromWishlist(productId: string, userId?: string) {
-    this.track({ category: "wishlist", action: "remove_from_wishlist", label: productId, userId });
+    this.trackEvent("REMOVE_FROM_WISHLIST", { category: "wishlist", productId, userId });
   }
 
   static beginCheckout(cartTotal: number, itemCount: number, userId?: string) {
-    this.track({ category: "checkout", action: "begin_checkout", value: cartTotal, label: `${itemCount} items`, userId });
+    this.trackEvent("BEGIN_CHECKOUT", { category: "checkout", value: cartTotal, label: `${itemCount} items`, userId });
   }
 
   static pageView(path: string, userId?: string) {
-    this.track({ category: "navigation", action: "page_view", label: path, userId });
+    this.trackEvent("PAGE_VIEW", { category: "navigation", label: path, userId });
+  }
+
+  static viewProduct(product: any, userId?: string) {
+    this.trackEvent("VIEW_PRODUCT", { 
+      category: "navigation", 
+      productId: product.id, 
+      productName: product.name,
+      price: product.price,
+      userId 
+    });
   }
 }
 

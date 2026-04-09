@@ -31,6 +31,7 @@ import toast from "react-hot-toast";
 import { supabase } from "@/lib/supabase/client";
 import { useWishlistStore } from "@/store/wishlistStore";
 import { useAuthStore } from "@/store/useAuthStore";
+import { Analytics } from "@/lib/analytics";
 
 interface Props {
   product: Product;
@@ -73,7 +74,8 @@ export default function ProductDetailClient({
       }
     };
     fetchAdminStatus();
-  }, []);
+    Analytics.viewProduct(product, user?.id);
+  }, [product.id, user?.id]);
 
   const parsedImages = getProductImages(product.images);
   const images = parsedImages.length > 0
