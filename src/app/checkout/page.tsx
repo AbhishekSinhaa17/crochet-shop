@@ -114,7 +114,7 @@ export default function CheckoutPage() {
             const { data: order, error } = await supabase
               .from("orders")
               .insert({
-                user_id: user.id,
+                user_id: currentUser.id,
                 order_number: orderNumber,
                 status: "confirmed",
                 items: orderItems,

@@ -104,7 +104,7 @@ export default function ProductDetailClient({
     if (isAdmin || isProcessing) return;
     
     try {
-      await toggleWishlist(product, user?.id);
+      await toggleWishlist(product, user?.id || "");
     } catch (err) {
       console.error(err);
     }

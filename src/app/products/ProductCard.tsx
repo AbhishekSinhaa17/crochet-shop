@@ -69,7 +69,7 @@ export default function ProductCard({ product, className }: Props) {
     if (isProcessing) return;
 
     try {
-      await toggleWishlist(product, user?.id);
+      await toggleWishlist(product, user?.id || "");
     } catch (err) {
       console.error("Wishlist error:", err);
     }

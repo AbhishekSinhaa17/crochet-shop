@@ -153,7 +153,7 @@ export default function WishlistPageClient({ products: initialProducts, wishlist
       await Promise.all(idsToRemove.map(async (productId) => {
         const product = products.find(p => p.id === productId);
         if (product) {
-          await toggleWishlist(product, user?.id);
+          await toggleWishlist(product, user?.id || "");
         }
       }));
 
