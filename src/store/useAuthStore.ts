@@ -66,7 +66,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }
     } catch (err) {
       Logger.storeError("auth", "fetchProfile", err);
-      set({ loading: false });
+      // ✅ CRITICAL: Mark as initialized even on error to prevent loading hang
+      set({ loading: false, initialized: true, profile: null, role: null, isAdmin: false });
     }
   },
 
@@ -112,6 +113,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         set({ user: null, loading: false, initialized: true });
       } finally {
         initializationPromise = null;
+        Logger.info("Auth initialization cycle complete", { module: "auth", initialized: get().initialized });
       }
     })();
 
