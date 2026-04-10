@@ -31,17 +31,16 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   setUser: async (user) => {
     // Prevent redundant profile fetches if user ID is the same
-    if (user?.id === get().user?.id && get().initialized) {
+    if (user?.id === get().user?.id && get().initialized && get().profile) {
       set({ loading: false });
       return;
     }
 
-    set({ user, loading: !!user, initialized: true });
-
     if (user) {
+      set({ user, loading: true, initialized: false }); // Stay uninitialized until profile is here
       await get().fetchProfile(user.id);
     } else {
-      set({ profile: null, role: null, isAdmin: false, loading: false });
+      set({ user: null, profile: null, role: null, isAdmin: false, loading: false, initialized: true });
     }
   },
 
@@ -60,9 +59,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           role: profile.role,
           isAdmin,
           loading: false,
+          initialized: true, // Only now is the auth fully initialized
         });
       } else {
-        set({ loading: false, profile: null, role: null, isAdmin: false });
+        set({ loading: false, profile: null, role: null, isAdmin: false, initialized: true });
       }
     } catch (err) {
       Logger.storeError("auth", "fetchProfile", err);

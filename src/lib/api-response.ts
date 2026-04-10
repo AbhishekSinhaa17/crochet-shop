@@ -79,6 +79,10 @@ export class Response {
     }
 
     // 5. Fallback for others (masked for production)
-    return this.internalError();
+    const isDev = process.env.NODE_ENV === "development";
+    return this.error(
+      isDev ? `Internal Error: ${err.message || "Unknown error"}` : "Something went wrong",
+      500
+    );
   }
 }

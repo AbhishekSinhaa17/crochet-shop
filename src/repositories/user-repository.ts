@@ -79,4 +79,15 @@ export class UserRepository {
     if (error) throw error;
     return true;
   }
+
+  async getCustomerCount() {
+    const supabase = await this.getClient();
+    const { count, error } = await supabase
+      .from("profiles")
+      .select("*", { count: "exact", head: true })
+      .neq("role", "admin");
+
+    if (error) throw error;
+    return count || 0;
+  }
 }

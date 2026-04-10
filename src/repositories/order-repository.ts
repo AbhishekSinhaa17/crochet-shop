@@ -125,6 +125,19 @@ export class OrderRepository {
     return order;
   }
 
+  async update(id: string, data: any) {
+    const supabase = await this.getClient();
+    const { data: order, error } = await supabase
+      .from("orders")
+      .update(data)
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return order;
+  }
+
   // Custom Orders
   async createCustomOrder(order: CustomOrderInput & { user_id: string }) {
     const supabase = await this.getClient();
@@ -193,6 +206,44 @@ export class OrderRepository {
       .eq("id", id)
       .select()
       .single();
+
+    if (error) throw error;
+    return data;
+  }
+
+  async getDashboardStats() {
+    const supabase = await this.getClient();
+    
+    // Total Revenue (excluding cancelled)
+    const { data: revenueData, error: revenueError } = await supabase
+      .from("orders")
+      .select("total")
+      .neq("status", "cancelled");
+
+    if (revenueError) throw revenueError;
+
+    const totalRevenue = revenueData?.reduce((sum, order) => sum + (Number(order.total) || 0), 0) || 0;
+
+    // Total Orders (count)
+    const { count, error: countError } = await supabase
+      .from("orders")
+      .select("*", { count: "exact", head: true });
+
+    if (countError) throw countError;
+
+    return {
+      totalRevenue,
+      totalOrders: count || 0
+    };
+  }
+
+  async getRecentOrders(limit = 5) {
+    const supabase = await this.getClient();
+    const { data, error } = await supabase
+      .from("orders")
+      .select("id, order_number, total, created_at, status")
+      .order("created_at", { ascending: false })
+      .limit(limit);
 
     if (error) throw error;
     return data;

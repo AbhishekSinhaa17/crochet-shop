@@ -20,6 +20,12 @@ import {
   ShoppingBag,
   IndianRupee,
   Sparkles,
+  Eye,
+  X,
+  MapPin,
+  Phone,
+  CreditCard,
+  ArrowRight,
 } from "lucide-react";
 
 const STATUS_OPTIONS = [
@@ -35,7 +41,8 @@ const FILTER_OPTIONS = ["all", ...STATUS_OPTIONS] as const;
 
 import { 
   getAdminOrdersAction, 
-  updateOrderStatusAction 
+  updateOrderStatusAction,
+  updateOrderTrackingAction
 } from "@/actions/admin_orders";
 
 export default function AdminOrdersPage() {
@@ -45,18 +52,31 @@ export default function AdminOrdersPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [trackingNumber, setTrackingNumber] = useState("");
+  const [isUpdatingTracking, setIsUpdatingTracking] = useState(false);
 
   useEffect(() => {
     fetchOrders();
   }, []);
 
+  useEffect(() => {
+    if (selectedOrder) {
+      setTrackingNumber(selectedOrder.tracking_number || "");
+    }
+  }, [selectedOrder]);
+
   const fetchOrders = async () => {
     try {
       const response = await getAdminOrdersAction();
-      if (response.data) setOrders(response.data);
+      if (response.success) {
+        setOrders(response.data || []);
+      } else {
+        throw new Error(response.error);
+      }
     } catch (error: any) {
       console.error("Error fetching orders:", error);
-      toast.error("Failed to load orders");
+      toast.error(error.message || "Failed to load orders");
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -84,6 +104,42 @@ export default function AdminOrdersPage() {
       toast.error(error.message || "Failed to update status");
     } finally {
       setUpdatingId(null);
+    }
+  };
+
+  const handleUpdateTracking = async () => {
+    if (!selectedOrder || !trackingNumber.trim()) {
+      toast.error("Please enter a tracking number");
+      return;
+    }
+
+    setIsUpdatingTracking(true);
+    try {
+      const response = await updateOrderTrackingAction(
+        selectedOrder.id, 
+        trackingNumber.trim(), 
+        "INDIA_POST",
+        "shipped" // Automatically mark as shipped
+      );
+
+      if (response.success) {
+        toast.success("Tracking information updated & order marked as shipped!");
+        await fetchOrders();
+        // Update local state to reflect changes in modal
+        setSelectedOrder({
+          ...selectedOrder,
+          tracking_number: trackingNumber.trim(),
+          courier: "INDIA_POST",
+          status: "shipped" as any
+        });
+      } else {
+        throw new Error(response.error);
+      }
+    } catch (error: any) {
+      console.error("Error updating tracking:", error);
+      toast.error(error.message || "Failed to update tracking");
+    } finally {
+      setIsUpdatingTracking(false);
     }
   };
 
@@ -190,7 +246,7 @@ export default function AdminOrdersPage() {
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
+    <div className="min-h-screen relative">
       {/* ── Background blobs ── */}
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div
@@ -457,9 +513,11 @@ export default function AdminOrdersPage() {
                   return (
                     <tr
                       key={`${order.id}-${idx}`}
+                      onClick={() => setSelectedOrder(order)}
                       className="order-row group border-b
                         border-gray-50 dark:border-gray-800/60 
-                        animate-table-row"
+                        animate-table-row cursor-pointer hover:bg-gray-50/50 
+                        dark:hover:bg-gray-800/30 transition-colors"
                       style={{ animationDelay: `${550 + idx * 60}ms` }}
                     >
                       {/* Order number */}
@@ -473,12 +531,14 @@ export default function AdminOrdersPage() {
                           >
                             #{idx + 1}
                           </div>
-                          <p
-                            className="font-mono text-xs font-semibold 
-                              text-gray-800 dark:text-gray-200"
-                          >
-                            {order.order_number}
-                          </p>
+                          <div>
+                            <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 line-clamp-1">
+                              {(order.shipping_address as any)?.name || "Customer"}
+                            </p>
+                            <p className="font-mono text-[10px] text-gray-400 dark:text-gray-500">
+                              {order.order_number}
+                            </p>
+                          </div>
                         </div>
                       </td>
 
@@ -541,7 +601,7 @@ export default function AdminOrdersPage() {
 
                       {/* Action dropdown */}
                       <td className="py-4 px-6">
-                        <div className="relative">
+                        <div className="relative" onClick={(e) => e.stopPropagation()}>
                           {updatingId === order.id && (
                             <div className="absolute -left-6 top-1/2 -translate-y-1/2">
                               <Loader2 className="w-3.5 h-3.5 animate-spin text-violet-500" />
@@ -567,7 +627,11 @@ export default function AdminOrdersPage() {
                               capitalize"
                           >
                             {STATUS_OPTIONS.map((s) => (
-                              <option key={s} value={s} className="capitalize">
+                              <option 
+                                key={s} 
+                                value={s} 
+                                className="bg-white text-gray-900 dark:bg-gray-800 dark:text-gray-100 capitalize"
+                              >
                                 {s}
                               </option>
                             ))}
@@ -663,6 +727,242 @@ export default function AdminOrdersPage() {
           </div>
         )}
       </div>
+      {/* ══════════════════════════════════════════
+          ORDER DETAILS MODAL
+         ══════════════════════════════════════════ */}
+      {selectedOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-end">
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity"
+            onClick={() => setSelectedOrder(null)}
+          />
+          
+          {/* Sidebar */}
+          <div className="relative w-full max-w-2xl h-full bg-white dark:bg-gray-900 shadow-2xl animate-slide-in-right overflow-y-auto premium-scroll">
+            <div className="sticky top-0 z-10 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 p-6 flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-display font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                  Order Details
+                  <span className="text-sm font-mono font-normal text-gray-400">
+                    {selectedOrder.order_number}
+                  </span>
+                </h2>
+                <p className="text-xs text-gray-500 mt-1">Placed on {formatDate(selectedOrder.created_at)}</p>
+              </div>
+              <button 
+                onClick={() => setSelectedOrder(null)}
+                className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              >
+                <X className="w-6 h-6 text-gray-400" />
+              </button>
+            </div>
+
+            <div className="p-8 space-y-8">
+              {/* Status Header */}
+              <div className="flex flex-wrap gap-4 items-center justify-between p-4 rounded-2xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800">
+                <div className="flex items-center gap-3">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${getStatusStyle(selectedOrder.status).bg}`}>
+                    <Package className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Order Status</p>
+                    <p className="text-sm font-bold text-gray-900 dark:text-white capitalize">{selectedOrder.status}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${getPaymentStyle(selectedOrder.payment_status)}`}>
+                    <CreditCard className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Payment</p>
+                    <p className="text-sm font-bold text-gray-900 dark:text-white capitalize">{selectedOrder.payment_status}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Customer Info */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <h3 className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-violet-500" />
+                    Shipping Address
+                  </h3>
+                  <div className="text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/30 p-4 rounded-xl border border-gray-100 dark:border-gray-800">
+                    <p className="font-bold text-gray-900 dark:text-white text-base mb-1">
+                      {selectedOrder.shipping_address?.name}
+                    </p>
+                    {selectedOrder.shipping_address?.phone && (
+                      <p className="flex items-center gap-2 text-violet-600 dark:text-violet-400 font-medium mb-3">
+                        <Phone className="w-3.5 h-3.5" />
+                        {selectedOrder.shipping_address.phone}
+                      </p>
+                    )}
+                    <p>{selectedOrder.shipping_address?.line1}</p>
+                    {selectedOrder.shipping_address?.line2 && <p>{selectedOrder.shipping_address.line2}</p>}
+                    <p>
+                      {selectedOrder.shipping_address?.city}, {selectedOrder.shipping_address?.state}
+                    </p>
+                    <p className="font-semibold text-gray-700 dark:text-gray-300">
+                      {selectedOrder.shipping_address?.postal_code || selectedOrder.shipping_address?.pincode}
+                    </p>
+                    <p>{selectedOrder.shipping_address?.country}</p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                    <Package className="w-4 h-4 text-violet-500" />
+                    Order Summary
+                  </h3>
+                  <div className="bg-gray-50 dark:bg-gray-800/30 p-4 rounded-xl border border-gray-100 dark:border-gray-800 space-y-3">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-500">Subtotal</span>
+                      <span className="font-medium text-gray-900 dark:text-white">{formatPrice(selectedOrder.subtotal || selectedOrder.total - (selectedOrder.shipping_fee || 0))}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-500">Shipping</span>
+                      <span className="font-medium text-gray-900 dark:text-white">{formatPrice(selectedOrder.shipping_fee || 0)}</span>
+                    </div>
+                    {selectedOrder.discount > 0 && (
+                      <div className="flex justify-between text-sm text-emerald-600">
+                        <span>Discount</span>
+                        <span>-{formatPrice(selectedOrder.discount)}</span>
+                      </div>
+                    )}
+                    <div className="pt-3 border-t border-gray-200 dark:border-gray-700 flex justify-between">
+                      <span className="font-bold text-gray-900 dark:text-white">Total</span>
+                      <span className="font-bold text-xl text-violet-600 dark:text-violet-400">{formatPrice(selectedOrder.total)}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Shipment Tracking Section */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                  <Truck className="w-4 h-4 text-violet-500" />
+                  Shipment Tracking
+                </h3>
+                <div className="bg-violet-50/50 dark:bg-violet-900/10 p-6 rounded-2xl border border-violet-100 dark:border-violet-900/30 space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-violet-600 dark:text-violet-400">
+                        Tracking Number (India Post)
+                      </label>
+                      <input 
+                        type="text"
+                        placeholder="e.g. EW123456789IN"
+                        value={trackingNumber}
+                        onChange={(e) => setTrackingNumber(e.target.value)}
+                        className="w-full px-4 py-2.5 rounded-xl text-sm border 
+                          bg-white dark:bg-gray-900 border-violet-200 dark:border-violet-800
+                          focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500
+                          transition-all outline-none"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-violet-600 dark:text-violet-400">
+                        Courier
+                      </label>
+                      <div className="px-4 py-2.5 rounded-xl text-sm border bg-gray-100/50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700 text-gray-500 font-medium">
+                        India Post (Speed Post)
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between gap-4 pt-2">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+                      <AlertCircle className="w-3.5 h-3.5 text-amber-500" />
+                      Updating tracking will mark the order as <span className="font-bold text-indigo-600">Shipped</span>
+                    </p>
+                    <button 
+                      onClick={handleUpdateTracking}
+                      disabled={isUpdatingTracking || !trackingNumber.trim() || trackingNumber === selectedOrder?.tracking_number}
+                      className="px-6 py-2.5 bg-violet-600 text-white rounded-xl text-sm font-bold 
+                        hover:bg-violet-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed
+                        flex items-center gap-2 shadow-lg shadow-violet-600/20"
+                    >
+                      {isUpdatingTracking ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Updating...
+                        </>
+                      ) : (
+                        <>
+                          <Truck className="w-4 h-4" />
+                          Update Tracking
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+
+              {/* Items List */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-bold text-gray-900 dark:text-white flex items-center justify-between">
+                  Ordered Items ({selectedOrder.items.length})
+                  <span className="text-[10px] font-normal text-gray-400 italic">Scroll for more</span>
+                </h3>
+                <div className="space-y-3">
+                  {selectedOrder.items.map((item, i) => (
+                    <div 
+                      key={i}
+                      className="flex items-center gap-4 p-3 bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 hover:border-violet-200 dark:hover:border-violet-900/50 transition-colors group"
+                    >
+                      <div className="relative w-16 h-16 rounded-lg overflow-hidden border border-gray-100 dark:border-gray-800 shrink-0">
+                        <img 
+                          src={item.image || "https://images.unsplash.com/photo-1615529151169-7b1ff50dc7f2?w=100"} 
+                          alt={item.name}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-gray-900 dark:text-white line-clamp-1">{item.name}</p>
+                        <p className="text-xs text-gray-500 mt-0.5">Quantity: {item.quantity}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-bold text-gray-900 dark:text-white">{formatPrice(item.price * item.quantity)}</p>
+                        <p className="text-[10px] text-gray-400">{formatPrice(item.price)} each</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Notes */}
+              {selectedOrder.notes && (
+                <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-100 dark:border-amber-900/50">
+                  <p className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider mb-1">Customer Note</p>
+                  <p className="text-sm text-amber-800 dark:text-amber-200 italic">&ldquo;{selectedOrder.notes}&rdquo;</p>
+                </div>
+              )}
+            </div>
+
+            <div className="sticky bottom-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-t border-gray-100 dark:border-gray-800 p-6">
+              <button 
+                onClick={() => setSelectedOrder(null)}
+                className="w-full py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl font-bold hover:opacity-90 transition-opacity"
+              >
+                Close Details
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Global Animations */}
+      <style jsx global>{`
+        @keyframes slide-in-right {
+          from { transform: translateX(100%); }
+          to { transform: translateX(0); }
+        }
+        .animate-slide-in-right {
+          animation: slide-in-right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+      `}</style>
     </div>
   );
 }

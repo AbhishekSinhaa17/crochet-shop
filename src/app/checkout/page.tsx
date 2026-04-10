@@ -28,6 +28,7 @@ export default function CheckoutPage() {
     country: "India",
   });
   const [phone, setPhone] = useState("");
+  const [isSuccess, setIsSuccess] = useState(false);
   const router = useRouter();
 
   const subtotal = getTotal();
@@ -36,10 +37,10 @@ export default function CheckoutPage() {
 
   // ✅ FIX 1: redirect inside useEffect (NO SSR crash)
   useEffect(() => {
-    if (items.length === 0) {
+    if (items.length === 0 && !isSuccess) {
       router.push("/cart");
     }
-  }, [items, router]);
+  }, [items, router, isSuccess]);
 
   useEffect(() => {
     const script = document.createElement("script");
@@ -59,6 +60,60 @@ export default function CheckoutPage() {
     }
   }, [user, profile, authLoading]);
 
+  const isRazorpayConfigured = 
+    !!process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID && 
+    process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID !== "your_razorpay_key_id" &&
+    !process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID.startsWith("rzp_test_placeholder");
+
+  const saveOrderToDb = async (paymentData: {
+    order_id: string;
+    payment_id: string;
+    signature: string;
+  }) => {
+    const currentUser = useAuthStore.getState().user;
+    if (!currentUser) throw new Error("Not authenticated");
+
+    const orderNumber = `SC-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
+    const orderItems = items.map((item) => ({
+      product_id: item.id,
+      name: item.name,
+      price: item.price,
+      quantity: item.quantity,
+      image: item.image,
+    }));
+
+    const { data: order, error } = await supabase
+      .from("orders")
+      .insert({
+        user_id: currentUser.id,
+        order_number: orderNumber,
+        status: "confirmed",
+        items: orderItems,
+        subtotal,
+        shipping_fee: shipping,
+        total,
+        shipping_address: {
+          ...address,
+          name: profile?.full_name || currentUser.email,
+          postal_code: address.pincode,
+          phone: phone,
+        },
+        payment_status: "paid",
+        razorpay_order_id: paymentData.order_id,
+        razorpay_payment_id: paymentData.payment_id,
+        razorpay_signature: paymentData.signature,
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    setIsSuccess(true);
+    clearCart();
+    toast.success("Order placed successfully!");
+    router.push(`/orders/${order.id}`);
+  };
+
   const handlePayment = async () => {
     if (!address.line1 || !address.city || !address.state || !address.pincode || !phone) {
       toast.error("Please fill in all required fields");
@@ -67,6 +122,21 @@ export default function CheckoutPage() {
 
     setLoading(true);
     try {
+      // TEST MODE: Bypass Razorpay if API Key is missing
+      if (!isRazorpayConfigured) {
+        toast.loading("Simulating payment...", { duration: 1500 });
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        await saveOrderToDb({
+          order_id: `test_order_${Date.now()}`,
+          payment_id: `test_pay_${Date.now()}`,
+          signature: "mock_signature",
+        });
+        setLoading(false);
+        return;
+      }
+
+      // REAL RAZORPAY FLOW
       const res = await fetch("/api/payment/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -75,9 +145,6 @@ export default function CheckoutPage() {
 
       const data = await res.json();
       if (!data.orderId) throw new Error("Failed to create order");
-
-      const currentUser = useAuthStore.getState().user;
-      if (!currentUser) throw new Error("Not authenticated");
 
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
@@ -102,39 +169,11 @@ export default function CheckoutPage() {
             const verifyData = await verifyRes.json();
             if (!verifyData.verified) throw new Error("Payment verification failed");
 
-            const orderNumber = `SC-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
-            const orderItems = items.map((item) => ({
-              product_id: item.id,
-              name: item.name,
-              price: item.price,
-              quantity: item.quantity,
-              image: item.image,
-            }));
-
-            const { data: order, error } = await supabase
-              .from("orders")
-              .insert({
-                user_id: currentUser.id,
-                order_number: orderNumber,
-                status: "confirmed",
-                items: orderItems,
-                subtotal,
-                shipping_fee: shipping,
-                total,
-                shipping_address: address,
-                payment_status: "paid",
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-              })
-              .select()
-              .single();
-
-            if (error) throw error;
-
-            clearCart();
-            toast.success("Order placed successfully!");
-            router.push(`/orders/${order.id}`);
+            await saveOrderToDb({
+              order_id: response.razorpay_order_id,
+              payment_id: response.razorpay_payment_id,
+              signature: response.razorpay_signature,
+            });
           } catch (err: any) {
             toast.error(err.message || "Something went wrong");
           }
@@ -144,7 +183,6 @@ export default function CheckoutPage() {
         theme: { color: "#db2777" },
       };
 
-      // ✅ FIX 2: safe window usage
       if (typeof window !== "undefined") {
         const rzp = new window.Razorpay(options);
         rzp.open();
@@ -289,12 +327,12 @@ export default function CheckoutPage() {
             className="btn-primary w-full mt-6 flex items-center justify-center gap-2 disabled:opacity-50"
           >
             <Lock className="w-4 h-4" />
-            {loading ? "Processing..." : `Pay ${formatPrice(total)}`}
+            {loading ? "Processing..." : isRazorpayConfigured ? `Pay ${formatPrice(total)}` : "Place Test Order"}
           </button>
 
           <div className="flex items-center justify-center gap-2 mt-4 text-xs text-gray-400">
             <ShieldCheck className="w-4 h-4" />
-            Secured by Razorpay
+            {isRazorpayConfigured ? "Secured by Razorpay" : "Test Mode Enabled (No Keys Found)"}
           </div>
         </div>
       </div>

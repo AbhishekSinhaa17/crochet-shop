@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import toast from "react-hot-toast";
 import { formatPrice, formatDate } from "@/lib/utils";
 import {
   Package,
@@ -26,6 +28,8 @@ import {
   AlertCircle,
   ChevronDown,
   X,
+  Copy,
+  ExternalLink,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -38,6 +42,8 @@ interface Order {
   created_at: string;
   shipping_address?: any;
   payment_status?: string;
+  tracking_number?: string | null;
+  courier?: string | null;
 }
 
 interface Props {
@@ -63,6 +69,14 @@ const statusConfig: Record<string, {
   pending: {
     label: "Pending",
     icon: Clock,
+    color: "text-amber-600 dark:text-amber-400",
+    bgColor: "bg-amber-50 dark:bg-amber-500/10",
+    borderColor: "border-amber-200 dark:border-amber-500/20",
+    gradient: "from-amber-500 to-orange-500",
+  },
+  confirmed: {
+    label: "Confirmed",
+    icon: CheckCircle,
     color: "text-amber-600 dark:text-amber-400",
     bgColor: "bg-amber-50 dark:bg-amber-500/10",
     borderColor: "border-amber-200 dark:border-amber-500/20",
@@ -476,15 +490,16 @@ function OrderCard({
   isLoaded: boolean;
   delay: number;
 }) {
+  const router = useRouter();
   const status = statusConfig[order.status] || statusConfig.pending;
   const StatusIcon = status.icon;
   const itemCount = order.items?.length || 0;
 
   return (
-    <Link
-      href={`/orders/${order.id}`}
+    <div
+      onClick={() => router.push(`/orders/${order.id}`)}
       className={cn(
-        "group block bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden transition-all duration-500",
+        "group block bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 overflow-hidden transition-all duration-500 cursor-pointer",
         "hover:shadow-xl hover:shadow-amber-100/50 dark:hover:shadow-amber-900/20 hover:border-amber-200 dark:hover:border-amber-700 hover:-translate-y-1",
         isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
       )}
@@ -544,6 +559,63 @@ function OrderCard({
           </div>
         </div>
 
+        {/* Tracking Info Section (If Shipped) */}
+        {order.tracking_number && (
+          <div 
+            className="mb-6 p-4 rounded-xl border border-dashed border-purple-200 dark:border-purple-800 bg-purple-50/30 dark:bg-purple-900/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-white dark:bg-gray-800 flex items-center justify-center shadow-sm">
+                <Truck className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+              </div>
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">India Post Tracking ID</p>
+                <div className="flex items-center gap-2">
+                  <code className="text-sm font-mono font-bold text-gray-700 dark:text-gray-300 tracking-tight">
+                    {order.tracking_number}
+                  </code>
+                  <button 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      navigator.clipboard.writeText(order.tracking_number || "");
+                      toast.success("Tracking ID copied!");
+                    }}
+                    className="p-1.5 hover:bg-white dark:hover:bg-gray-800 rounded-md transition-colors text-gray-400 hover:text-purple-600"
+                    title="Copy Tracking ID"
+                  >
+                    <Copy className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              <a
+                href={`https://www.17track.net/en/track?nums=${order.tracking_number}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-lg transition-all shadow-md shadow-purple-600/20 group/btn"
+              >
+                <Truck className="w-3.5 h-3.5" />
+                Track Order (Fast)
+                <ArrowRight className="w-3 h-3 group-hover/btn:translate-x-1 transition-transform" />
+              </a>
+              <a
+                href="https://www.indiapost.gov.in/"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-purple-200 dark:border-purple-700 text-purple-600 dark:text-purple-400 text-xs font-bold rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all"
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+                Official Portal
+              </a>
+            </div>
+          </div>
+        )}
+
         {/* Product Images */}
         <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-800">
           <div className="flex items-center gap-3">
@@ -581,7 +653,7 @@ function OrderCard({
           </span>
         </div>
       </div>
-    </Link>
+    </div>
   );
 }
 

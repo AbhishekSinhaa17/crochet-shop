@@ -10,11 +10,14 @@ export interface Profile {
 }
 
 export interface Address {
+  name?: string;
   line1?: string;
   line2?: string;
   city?: string;
   state?: string;
   pincode?: string;
+  postal_code?: string;
+  phone?: string;
   country?: string;
 }
 
@@ -90,6 +93,7 @@ export interface Order {
   razorpay_payment_id: string | null;
   razorpay_signature: string | null;
   tracking_number: string | null;
+  courier: string | null;
   estimated_delivery: string | null;
   notes: string | null;
   created_at: string;

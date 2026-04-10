@@ -1,5 +1,6 @@
 import { OrderRepository } from "@/repositories/order-repository";
 import { ProductRepository } from "@/repositories/product-repository";
+import { UserRepository } from "@/repositories/user-repository";
 import { orderCreateSchema, customOrderSchema } from "@/validators/order";
 import { Logger } from "@/lib/logger";
 
@@ -7,10 +8,12 @@ export class OrderService {
 
   private repository: OrderRepository;
   private productRepository: ProductRepository;
+  private userRepository: UserRepository;
 
   constructor(useAdmin = false) {
     this.repository = new OrderRepository(useAdmin);
     this.productRepository = new ProductRepository(useAdmin);
+    this.userRepository = new UserRepository(useAdmin);
   }
 
   async placeOrder(userId: string, data: any) {
@@ -79,6 +82,20 @@ export class OrderService {
     return await this.repository.updateOrderStatus(id, status, note);
   }
 
+  async updateTracking(id: string, trackingNumber: string, courier: string = 'INDIA_POST', status?: string) {
+    const data: any = { 
+      tracking_number: trackingNumber,
+      courier: courier,
+      updated_at: new Date().toISOString()
+    };
+    
+    if (status) {
+      data.status = status;
+    }
+
+    return await this.repository.update(id, data);
+  }
+
   // Custom Orders
   async submitCustomOrder(userId: string, data: any) {
     // 1. Validate
@@ -103,5 +120,29 @@ export class OrderService {
 
   async updateCustomStatus(id: string, status: string, adminNotes?: string, quotedPrice?: number) {
     return await this.repository.updateCustomOrderStatus(id, status, adminNotes, quotedPrice);
+  }
+
+  async getAdminDashboardData() {
+    try {
+      const [orderStats, recentOrders, productCount, customerCount] = await Promise.all([
+        this.repository.getDashboardStats(),
+        this.repository.getRecentOrders(5),
+        this.productRepository.getActiveCount(),
+        this.userRepository.getCustomerCount()
+      ]);
+
+      return {
+        stats: {
+          totalRevenue: orderStats.totalRevenue,
+          totalOrders: orderStats.totalOrders,
+          activeInventory: productCount,
+          totalCustomers: customerCount
+        },
+        recentOrders
+      };
+    } catch (error) {
+      Logger.error("Failed to fetch dashboard data", error);
+      throw error;
+    }
   }
 }

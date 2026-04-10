@@ -114,19 +114,33 @@ export async function updateSession(request: NextRequest) {
     }
 
     if (!role) {
-      const { data: profile } = await supabase
+      // 🛡️ Use Service Role for internal RBAC to avoid RLS/Refresh issues
+      const adminClient = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        {
+          cookies: {
+            getAll: () => [],
+            setAll: () => {},
+          },
+        }
+      );
+
+      const { data: profile } = await adminClient
         .from("profiles")
         .select("role")
         .eq("id", user.id)
         .maybeSingle();
       
       role = profile?.role || 'customer';
-      if (redis) await redis.set(`user:role:${user.id}`, role, { ex: ROLE_CACHE_TTL });
+      if (redis && role) await redis.set(`user:role:${user.id}`, role, { ex: ROLE_CACHE_TTL });
     }
 
     if (role !== "admin") {
       Logger.warn(`Forbidden admin access attempt`, { module: "middleware", userId: user.id });
-      return redirectWithCookies(new URL("/", request.url));
+      const url = request.nextUrl.clone();
+      url.pathname = "/";
+      return redirectWithCookies(url);
     }
   }
 

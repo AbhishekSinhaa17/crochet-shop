@@ -160,4 +160,16 @@ export class ProductRepository {
     if (error) throw error;
     return data;
   }
+
+  async getActiveCount() {
+    const supabase = await this.getClient();
+    const { count, error } = await supabase
+      .from("products")
+      .select("*", { count: "exact", head: true })
+      .eq("is_deleted", false)
+      .eq("is_active", true);
+
+    if (error) throw error;
+    return count || 0;
+  }
 }

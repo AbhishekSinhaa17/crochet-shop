@@ -50,7 +50,7 @@ export default async function AdminProductsPage() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
+    <div className="min-h-screen relative">
       {/* ── Background blobs ── */}
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute -top-24 -right-24 h-96 w-96 rounded-full bg-pink-200/20 dark:bg-pink-800/10 blur-3xl" />

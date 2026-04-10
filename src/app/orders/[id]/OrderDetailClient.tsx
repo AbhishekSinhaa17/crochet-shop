@@ -28,6 +28,7 @@ import {
   Box,
   Calendar,
   User,
+  ExternalLink,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import toast from "react-hot-toast";
@@ -56,6 +57,7 @@ interface Props {
 
 const statusSteps = [
   { key: "pending", label: "Order Placed", icon: Clock },
+  { key: "confirmed", label: "Confirmed", icon: CheckCircle },
   { key: "processing", label: "Processing", icon: RotateCcw },
   { key: "shipped", label: "Shipped", icon: Truck },
   { key: "delivered", label: "Delivered", icon: CheckCircle },
@@ -63,6 +65,7 @@ const statusSteps = [
 
 const statusConfig: Record<string, { color: string; bgColor: string; gradient: string }> = {
   pending: { color: "text-amber-600 dark:text-amber-400", bgColor: "bg-amber-50 dark:bg-amber-500/10", gradient: "from-amber-500 to-orange-500" },
+  confirmed: { color: "text-amber-600 dark:text-amber-400", bgColor: "bg-amber-50 dark:bg-amber-500/10", gradient: "from-amber-500 to-orange-500" },
   processing: { color: "text-blue-600 dark:text-blue-400", bgColor: "bg-blue-50 dark:bg-blue-500/10", gradient: "from-blue-500 to-cyan-500" },
   shipped: { color: "text-purple-600 dark:text-purple-400", bgColor: "bg-purple-50 dark:bg-purple-500/10", gradient: "from-purple-500 to-pink-500" },
   delivered: { color: "text-emerald-600 dark:text-emerald-400", bgColor: "bg-emerald-50 dark:bg-emerald-500/10", gradient: "from-emerald-500 to-teal-500" },
@@ -246,14 +249,40 @@ export default function OrderDetailClient({ order }: Props) {
                     </div>
                     <button
                       onClick={() => copyToClipboard(order.tracking_number!, "tracking")}
-                      className="p-2 rounded-lg bg-white dark:bg-gray-900 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors"
+                      className="p-3 rounded-xl bg-white dark:bg-gray-900 border border-amber-200 dark:border-amber-800 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-all flex items-center gap-2"
+                      title="Copy Tracking ID"
                     >
                       {copiedField === "tracking" ? (
-                        <Check className="w-5 h-5 text-emerald-500" />
+                        <Check className="w-4 h-4 text-emerald-500" />
                       ) : (
-                        <Copy className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                        <Copy className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                       )}
+                      <span className="text-xs font-bold text-amber-700 dark:text-amber-300">Copy ID</span>
                     </button>
+                  </div>
+                  
+                  <div className="mt-6 flex flex-wrap items-center gap-4">
+                    <a
+                      href={`https://www.17track.net/en/track?nums=${order.tracking_number}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl transition-all shadow-lg shadow-amber-500/20"
+                    >
+                      <Truck className="w-5 h-5" />
+                      Track Order (Fast)
+                    </a>
+                    <a
+                      href="https://www.indiapost.gov.in/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2 border-2 border-amber-200 dark:border-amber-800 text-amber-600 dark:text-amber-400 font-bold rounded-xl hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-all"
+                    >
+                      <ExternalLink className="w-5 h-5" />
+                      Official Portal
+                    </a>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 italic w-full">
+                      If the official portal is slow, use the Fast Tracker button above.
+                    </p>
                   </div>
                 </div>
               )}

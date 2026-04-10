@@ -38,9 +38,11 @@ export async function POST(request: NextRequest) {
     const keyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
     const keySecret = process.env.RAZORPAY_KEY_SECRET;
 
-    if (!keyId || !keySecret) {
-      Logger.error("Razorpay credentials not configured", undefined, { module: "payment", action: "create-order" });
-      return Response.internalError("Payment system is currently unavailable");
+    const isPlaceholder = keyId === "your_razorpay_key_id" || keySecret === "your_razorpay_key_secret";
+
+    if (!keyId || !keySecret || isPlaceholder) {
+      Logger.error("Razorpay credentials not configured or using placeholders", undefined, { module: "payment", action: "create-order" });
+      return Response.internalError("Payment system is in Test Mode. Please use the frontend Test Checkout.");
     }
 
     const razorpay = new Razorpay({
