@@ -19,6 +19,7 @@ interface AuthState {
 
 // 🔒 Module-level variables to ensure singleton behavior
 let initializationPromise: Promise<void> | null = null;
+let profileFetchPromise: Promise<void> | null = null;
 let isListenerAttached = false;
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -45,37 +46,51 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   fetchProfile: async (userId: string) => {
+    // 1. If already fetching this profile, return the existing promise
+    if (profileFetchPromise) return profileFetchPromise;
+
     Logger.info("Fetching user profile...", { userId });
-    try {
-      // ⏱️ Safety timeout: Don't wait more than 5s for profile
-      const { data: profile, error } = await Promise.race([
-        supabase.from("profiles").select("*").eq("id", userId).single(),
-        new Promise((_, reject) => setTimeout(() => reject(new Error("Profile fetch timeout")), 5000))
-      ]) as any;
+    
+    profileFetchPromise = (async () => {
+      try {
+        // ⏱️ Safety timeout: Don't wait more than 8s for profile
+        const { data: profile, error } = await Promise.race([
+          supabase.from("profiles").select("*").eq("id", userId).single(),
+          new Promise((_, reject) => setTimeout(() => reject(new Error("Profile fetch timeout")), 8000))
+        ]) as any;
 
-      if (error) {
-        Logger.warn("Profile fetch returned error (expected for new signups)", { error });
-      }
+        if (error) {
+          Logger.warn("Profile fetch returned error (expected for new signups or slow connection)", { error });
+        }
 
-      if (profile) {
-        const isAdmin = profile.role === "admin";
-        Logger.info("Profile fetched successfully", { userId, role: profile.role });
-        set({
-          profile,
-          role: profile.role,
-          isAdmin,
-          loading: false,
-          initialized: true, // Only now is the auth fully initialized
-        });
-      } else {
-        Logger.info("No profile found for user", { userId });
-        set({ loading: false, profile: null, role: null, isAdmin: false, initialized: true });
+        if (profile) {
+          const isAdmin = profile.role === "admin";
+          Logger.info("Profile fetched successfully", { userId, role: profile.role });
+          set({
+            profile,
+            role: profile.role,
+            isAdmin,
+            loading: false,
+            initialized: true,
+          });
+        } else {
+          Logger.info("No profile found for user", { userId });
+          set({ loading: false, profile: null, role: null, isAdmin: false, initialized: true });
+        }
+      } catch (err: any) {
+        if (err?.message === "Profile fetch timeout") {
+          Logger.warn("Profile fetch timed out, proceeding in guest mode for now.");
+        } else {
+          Logger.storeError("auth", "fetchProfile", err);
+        }
+        // ✅ CRITICAL: Mark as initialized even on error to prevent loading hang
+        set({ loading: false, initialized: true, profile: null, role: null, isAdmin: false });
+      } finally {
+        profileFetchPromise = null;
       }
-    } catch (err) {
-      Logger.storeError("auth", "fetchProfile", err);
-      // ✅ CRITICAL: Mark as initialized even on error to prevent loading hang
-      set({ loading: false, initialized: true, profile: null, role: null, isAdmin: false });
-    }
+    })();
+
+    return profileFetchPromise;
   },
 
   initializeAuth: async () => {
