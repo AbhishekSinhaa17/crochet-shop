@@ -3,8 +3,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
 import { Message } from "@/types";
-import { Send, ImagePlus } from "lucide-react";
+import { Send, ImagePlus, Loader2 } from "lucide-react";
 import { formatDateTime } from "@/lib/utils";
+import { useAuthStore } from "@/store/useAuthStore";
 
 interface ChatWindowProps {
   conversationId: string;
@@ -13,24 +14,48 @@ interface ChatWindowProps {
 }
 
 export default function ChatWindow({ conversationId, currentUserId, onSeen }: ChatWindowProps) {
+  const { user } = useAuthStore();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [shouldScrollToBottom, setShouldScrollToBottom] = useState(true);
   const isInitialLoad = useRef(true);
 
   const fetchMessages = useCallback(async () => {
-    const { data } = await supabase
-      .from("messages")
-      .select("*, profile:profiles(full_name, avatar_url)")
-      .eq("conversation_id", conversationId)
-      .order("created_at", { ascending: true });
+    try {
+      setInitialLoading(true);
+      // Try with profile join first
+      const { data, error } = await supabase
+        .from("messages")
+        .select("*, profile:profiles(full_name, avatar_url)")
+        .eq("conversation_id", conversationId)
+        .order("created_at", { ascending: true });
 
-    if (data) {
-      setMessages(data);
-      isInitialLoad.current = true;
-      setShouldScrollToBottom(true);
+      if (error) throw error;
+
+      if (data) {
+        setMessages(data);
+        isInitialLoad.current = true;
+        setShouldScrollToBottom(true);
+      }
+    } catch (err) {
+      console.warn("Retrying fetch without profile join due to error:", err);
+      // Fallback to simple select if join fails (common with missing FKs or RLS)
+      const { data } = await supabase
+        .from("messages")
+        .select("*")
+        .eq("conversation_id", conversationId)
+        .order("created_at", { ascending: true });
+
+      if (data) {
+        setMessages(data);
+        isInitialLoad.current = true;
+        setShouldScrollToBottom(true);
+      }
+    } finally {
+      setInitialLoading(false);
     }
   }, [conversationId]);
 
@@ -128,13 +153,18 @@ export default function ChatWindow({ conversationId, currentUserId, onSeen }: Ch
         onScroll={handleScroll}
         className="flex-1 overflow-y-auto p-4 space-y-5 scrollbar-thin"
       >
-        {messages.length === 0 && (
+        {initialLoading ? (
+          <div className="flex flex-col items-center justify-center py-20 animate-fade-in">
+            <Loader2 className="w-8 h-8 text-violet-500 animate-spin mb-3" />
+            <p className="text-sm text-slate-400">Loading message history...</p>
+          </div>
+        ) : messages.length === 0 ? (
           <div className="text-center text-gray-400 py-10">
             <p>No messages yet. Start the conversation!</p>
           </div>
-        )}
-        {messages.map((msg) => {
-          const isOwn = msg.sender_id === currentUserId;
+        ) : null}
+        {!initialLoading && messages.map((msg) => {
+          const isOwn = user?.id && String(msg.sender_id).toLowerCase() === String(user.id).toLowerCase();
           return (
             <div
               key={msg.id}
