@@ -1,6 +1,7 @@
 import { ProductService } from "@/services/product-service";
 import AdminProductActions from "@/components/admin/AdminProductActions";
 import Link from "next/link";
+import Image from "next/image";
 import { formatPrice, getProductImage } from "@/lib/utils";
 import {
   Plus,
@@ -147,7 +148,12 @@ export default async function AdminProductsPage() {
                         <div className="flex items-center gap-3">
                           <div className="relative w-11 h-11 rounded-xl overflow-hidden shrink-0 border-2 border-transparent group-hover:border-violet-200 dark:group-hover:border-violet-700/50 transition-all duration-300 shadow-sm group-hover:shadow-md">
                             {getProductImage(product.images) ? (
-                              <img src={getProductImage(product.images)} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                              <Image 
+                                src={getProductImage(product.images)} 
+                                alt={product.name} 
+                                fill
+                                className="object-cover group-hover:scale-110 transition-transform duration-500" 
+                              />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800">
                                 <ImageIcon className="w-4 h-4 text-gray-300 dark:text-gray-600" />

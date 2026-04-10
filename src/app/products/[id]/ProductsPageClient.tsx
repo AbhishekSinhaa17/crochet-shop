@@ -117,7 +117,7 @@ export default function ProductsPageClient({
     return filtered;
   }, [qProducts, showOnlyInStock, showOnlyOnSale, priceRange]);
 
-  const buildUrl = (params: Record<string, string | null>) => {
+  const buildUrl = useCallback((params: Record<string, string | null>) => {
     const current = new URLSearchParams(searchParams.toString());
     
     Object.entries(params).forEach(([key, value]) => {
@@ -129,7 +129,7 @@ export default function ProductsPageClient({
     });
     
     return `/products?${current.toString()}`;
-  };
+  }, [searchParams]);
 
   // Debounced search sync with URL
   const debouncedSearch = useDebounce(searchInput, 400);
@@ -140,7 +140,7 @@ export default function ProductsPageClient({
         router.push(buildUrl({ search: debouncedSearch.trim() || null }));
       });
     }
-  }, [debouncedSearch]);
+  }, [debouncedSearch, searchQuery, router, buildUrl]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();

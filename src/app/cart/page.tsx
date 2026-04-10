@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useCartStore } from "@/store/cartStore";
 import { useAuthStore } from "@/store/useAuthStore";
 import Image from "next/image";
@@ -63,12 +63,7 @@ export default function CartPage() {
   const [recommendedProducts, setRecommendedProducts] = useState<Product[]>([]);
   const [isLoadingRecommended, setIsLoadingRecommended] = useState(true);
 
-  useEffect(() => {
-    setIsLoaded(true);
-    fetchRecommended();
-  }, []);
-
-  const fetchRecommended = async () => {
+  const fetchRecommended = useCallback(async () => {
     try {
       let query = supabase
         .from("products")
@@ -91,7 +86,12 @@ export default function CartPage() {
     } finally {
       setIsLoadingRecommended(false);
     }
-  };
+  }, [items]);
+
+  useEffect(() => {
+    setIsLoaded(true);
+    fetchRecommended();
+  }, [fetchRecommended]);
 
   const handleUpdateQuantity = async (id: string, newQuantity: number) => {
     if (newQuantity < 1) return;

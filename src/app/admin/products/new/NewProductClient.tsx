@@ -651,6 +651,7 @@ export default function NewProductClient({ categories }: { categories: Category[
                         hover:border-violet-300 dark:hover:border-violet-600
                         shadow-sm hover:shadow-md"
                     >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={URL.createObjectURL(img)}
                         alt={`Preview ${i + 1}`}

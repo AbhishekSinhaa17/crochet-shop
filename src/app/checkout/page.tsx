@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { useCartStore } from "@/store/cartStore";
 import { supabase } from "@/lib/supabase/client";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -285,10 +286,11 @@ export default function CheckoutPage() {
               {items.map((item) => (
                 <div key={item.id} className="flex items-center gap-3 py-2">
                   <div className="w-12 h-12 rounded-lg bg-cream-100 overflow-hidden relative shrink-0">
-                    <img
+                    <Image
                       src={item.image || "https://images.unsplash.com/photo-1615529151169-7b1ff50dc7f2?w=100"}
                       alt={item.name}
-                      className="w-full h-full object-cover"
+                      fill
+                      className="object-cover"
                     />
                   </div>
                   <div className="flex-1 min-w-0">
