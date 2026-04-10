@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/lib/supabase/client";
 import { useAuthStore } from "@/store/useAuthStore";
 import ChatWindow from "@/components/chat/ChatWindow";
@@ -102,13 +102,18 @@ export default function AdminChatPage() {
 
         const { data, error } = await supabase
           .from("conversations")
-          .select("*, profile:profiles!customer_id(full_name)")
+          .select("*, profile:profiles!customer_id(full_name), messages(is_read, sender_id)")
           .order("last_message_at", { ascending: false });
 
         if (error) throw error;
         if (data) {
-          setConversations(data);
-          if (data.length > 0) setSelectedConv(data[0].id);
+          // Calculate unread count for each conversation
+          const enhancedData = data.map((conv: any) => ({
+            ...conv,
+            unread_count: conv.messages?.filter((m: any) => !m.is_read && m.sender_id !== user.id).length || 0
+          }));
+          setConversations(enhancedData);
+          if (enhancedData.length > 0 && !selectedConv) setSelectedConv(enhancedData[0].id);
         }
       } catch (error: any) {
         console.error("Error loading conversations:", error);
@@ -137,7 +142,14 @@ export default function AdminChatPage() {
     setShowMobileChat(true);
   };
 
-  const unreadCount = 3; // Mock unread count
+  // Calculate total conversations that HAVE unread messages
+  const unreadCount = conversations.filter(c => (c as any).unread_count > 0).length;
+
+  const handleConversationSeen = useCallback((id: string) => {
+    setConversations(prev => prev.map(c => 
+      c.id === id && (c as any).unread_count > 0 ? { ...c, unread_count: 0 } : c
+    ));
+  }, []);
 
   return (
     <div className="relative min-h-screen">
@@ -322,7 +334,7 @@ export default function AdminChatPage() {
                     avatarGradients[name.charCodeAt(0) % avatarGradients.length];
                   const isSelected = selectedConv === conv.id;
                   const timeAgo = getTimeAgo(conv.last_message_at);
-                  const isUnread = index < 2; // Mock unread status
+                  const isUnread = (conv as any).unread_count > 0;
 
                   return (
                     <button
@@ -438,15 +450,10 @@ export default function AdminChatPage() {
               {!loading && conversations.length > 0 && (
                 <div className="p-4 border-t border-gray-200/60 dark:border-gray-800/60 bg-gradient-to-r from-gray-50/80 to-gray-100/50 dark:from-gray-800/50 dark:to-gray-900/50">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                      <span className="flex items-center gap-1.5">
-                        <Circle className="w-2 h-2 fill-emerald-500 text-emerald-500" />
-                        {conversations.length} active
-                      </span>
-                    </div>
-                    <button className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors">
-                      View archived
-                    </button>
+                    <p className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      {conversations.length} active
+                    </p>
                   </div>
                 </div>
               )}
@@ -511,18 +518,7 @@ export default function AdminChatPage() {
                         </div>
                       </div>
 
-                      {/* Header Actions */}
                       <div className="flex items-center gap-2">
-                        <button className="p-2.5 rounded-xl bg-gray-100/80 dark:bg-gray-800/80 text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-all group">
-                          <Phone className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                        </button>
-                        <button className="p-2.5 rounded-xl bg-gray-100/80 dark:bg-gray-800/80 text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-all group">
-                          <Video className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                        </button>
-                        <button className="p-2.5 rounded-xl bg-gray-100/80 dark:bg-gray-800/80 text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-all group">
-                          <Star className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                        </button>
-                        <div className="w-px h-6 bg-gray-200 dark:bg-gray-700 mx-1" />
                         <button className="p-2.5 rounded-xl bg-gray-100/80 dark:bg-gray-800/80 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-all">
                           <MoreVertical className="w-4 h-4" />
                         </button>
@@ -535,44 +531,11 @@ export default function AdminChatPage() {
                     <ChatWindow
                       conversationId={selectedConv}
                       currentUserId={userId}
+                      onSeen={() => handleConversationSeen(selectedConv)}
                     />
                   </div>
 
-                  {/* Quick Actions Bar */}
-                  <div className="px-6 py-3 border-t border-gray-200/60 dark:border-gray-800/60 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl">
-                    <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
-                      {[
-                        {
-                          icon: Zap,
-                          label: "Quick reply",
-                          gradient: "from-amber-500 to-orange-500",
-                        },
-                        {
-                          icon: Hash,
-                          label: "Order status",
-                          gradient: "from-blue-500 to-cyan-500",
-                        },
-                        {
-                          icon: Truck,
-                          label: "Tracking",
-                          gradient: "from-emerald-500 to-teal-500",
-                        },
-                        {
-                          icon: Crown,
-                          label: "VIP support",
-                          gradient: "from-violet-500 to-purple-500",
-                        },
-                      ].map((action) => (
-                        <button
-                          key={action.label}
-                          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-100/80 dark:bg-gray-800/80 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 dark:hover:from-indigo-900/30 dark:hover:to-purple-900/30 border border-transparent hover:border-indigo-200/50 dark:hover:border-indigo-700/50 text-gray-600 dark:text-gray-400 hover:text-indigo-700 dark:hover:text-indigo-400 text-xs font-semibold whitespace-nowrap transition-all group"
-                        >
-                          <action.icon className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
-                          {action.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+
                 </>
               ) : (
                 /* Empty State */

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   LayoutDashboard,
   Package,
@@ -19,7 +19,6 @@ import {
   Sparkles,
   Crown,
   Bell,
-  Search,
   Moon,
   Sun,
   Zap,
@@ -27,6 +26,7 @@ import {
   Activity,
   Menu,
   Scissors,
+  Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import toast from "react-hot-toast";
@@ -34,48 +34,50 @@ import AdminGuard from "@/components/admin/AdminGuard";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useTheme } from "next-themes";
 
-const navItems = [
+import { supabase } from "@/lib/supabase/client";
+
+const navItemsList = [
   {
     href: "/admin/dashboard",
     label: "Dashboard",
     icon: LayoutDashboard,
     gradient: "from-violet-500 to-purple-600",
-    badge: null,
+    id: "dashboard",
   },
   {
     href: "/admin/products",
     label: "Products",
     icon: Package,
     gradient: "from-blue-500 to-cyan-600",
-    badge: null,
+    id: "products",
   },
   {
     href: "/admin/orders",
     label: "Orders",
     icon: ShoppingCart,
     gradient: "from-emerald-500 to-teal-600",
-    badge: "3",
+    id: "orders",
   },
   {
     href: "/admin/users",
     label: "Users",
     icon: Users,
     gradient: "from-amber-500 to-orange-600",
-    badge: null,
+    id: "users",
   },
   {
     href: "/admin/custom-orders",
     label: "Custom Orders",
     icon: FileText,
     gradient: "from-pink-500 to-rose-600",
-    badge: "2",
+    id: "custom-orders",
   },
   {
     href: "/admin/chat",
     label: "Messages",
     icon: MessageCircle,
     gradient: "from-indigo-500 to-blue-600",
-    badge: "5",
+    id: "chat",
   },
 ];
 
@@ -90,10 +92,75 @@ export default function AdminLayout({
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [counts, setCounts] = useState<Record<string, number>>({
+    orders: 0,
+    "custom-orders": 0,
+    chat: 0,
+  });
+  const [todayRevenue, setTodayRevenue] = useState(0);
 
   useEffect(() => {
     setMounted(true);
+    fetchCounts();
+    // Refresh counts every 30 seconds
+    const interval = setInterval(fetchCounts, 30000);
+    return () => clearInterval(interval);
   }, []);
+
+  // Scroll to top on pathname change
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = 0;
+    }
+  }, [pathname]);
+
+  const fetchCounts = async () => {
+    try {
+      // 1. Pending Orders
+      const { count: orderCount } = await supabase
+        .from("orders")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "pending");
+
+      // 2. Pending Custom Orders
+      const { count: customOrderCount } = await supabase
+        .from("custom_orders")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "pending");
+
+      // 3. Conversations with Unread Messages
+      const { data: chatData } = await supabase
+        .from("conversations")
+        .select("id, messages(is_read, sender_id)")
+        .eq("is_closed", false);
+
+      const realChatCount = chatData?.filter((conv: any) => 
+        conv.messages?.some((m: any) => !m.is_read && m.sender_id !== profile?.id)
+      ).length || 0;
+
+      setCounts({
+        orders: orderCount || 0,
+        "custom-orders": customOrderCount || 0,
+        chat: realChatCount,
+      });
+
+      // 4. Today's Revenue
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const { data: revenueData } = await supabase
+        .from("orders")
+        .select("total")
+        .gte("created_at", today.toISOString())
+        .neq("status", "cancelled");
+
+      const total = revenueData?.reduce((sum, o) => sum + (Number(o.total) || 0), 0) || 0;
+      setTodayRevenue(total);
+    } catch (err) {
+      console.error("Error fetching admin counts:", err);
+    }
+  };
 
   const handleLogout = async () => {
     try {
@@ -110,7 +177,7 @@ export default function AdminLayout({
   };
 
   return (
-    <div className="min-h-screen bg-gray-50/50 dark:bg-gray-950 flex transition-colors duration-500">
+    <div className="h-screen overflow-hidden bg-gray-50/50 dark:bg-gray-950 flex transition-colors duration-500">
       {/* Background Effects */}
       <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
         <div className="dark:opacity-0 transition-opacity duration-700">
@@ -176,22 +243,8 @@ export default function AdminLayout({
             </Link>
           </div>
 
-          {/* Search Bar (when expanded) */}
-          {!sidebarCollapsed && (
-            <div className="px-4 pt-4 animate-fade-in">
-              <div className="relative group">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-purple-500 transition-colors" />
-                <input
-                  type="text"
-                  placeholder="Quick search..."
-                  className="w-full pl-10 pr-4 py-2.5 bg-gray-100/80 dark:bg-gray-800/80 border border-transparent focus:border-purple-500/50 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500 text-gray-900 dark:text-white"
-                />
-                <kbd className="absolute right-3 top-1/2 -translate-y-1/2 px-1.5 py-0.5 bg-gray-200 dark:bg-gray-700 rounded text-[10px] font-medium text-gray-500 dark:text-gray-400 hidden sm:block">
-                  ⌘K
-                </kbd>
-              </div>
-            </div>
-          )}
+          {/* Spacer */}
+          {!sidebarCollapsed && <div className="pt-4" />}
 
           {/* Navigation */}
           <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto scrollbar-thin">
@@ -202,8 +255,10 @@ export default function AdminLayout({
               </p>
             )}
 
-            {navItems.map((item, index) => {
+            {navItemsList.map((item, index) => {
               const isActive = pathname === item.href;
+              const badgeCount = counts[item.id] || 0;
+              
               return (
                 <Link
                   key={item.href}
@@ -248,9 +303,9 @@ export default function AdminLayout({
                   {!sidebarCollapsed && (
                     <>
                       <span className="flex-1">{item.label}</span>
-                      {item.badge && (
+                      {badgeCount > 0 && (
                         <span className="px-2 py-0.5 rounded-full bg-gradient-to-r from-rose-500 to-pink-600 text-white text-[10px] font-bold shadow-lg shadow-rose-500/25 animate-pulse">
-                          {item.badge}
+                          {badgeCount}
                         </span>
                       )}
                     </>
@@ -260,9 +315,9 @@ export default function AdminLayout({
                   {sidebarCollapsed && (
                     <div className="absolute left-full ml-3 px-3 py-2 bg-gray-900 dark:bg-gray-800 text-white text-sm font-medium rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 shadow-xl">
                       {item.label}
-                      {item.badge && (
+                      {badgeCount > 0 && (
                         <span className="ml-2 px-1.5 py-0.5 rounded-full bg-rose-500 text-[10px]">
-                          {item.badge}
+                          {badgeCount}
                         </span>
                       )}
                       <span className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-2 h-2 bg-gray-900 dark:bg-gray-800 rotate-45" />
@@ -289,7 +344,9 @@ export default function AdminLayout({
                     </span>
                   </div>
                   <div className="flex items-end gap-2">
-                    <span className="text-2xl font-bold text-white">$2,847</span>
+                    <span className="text-2xl font-bold text-white">
+                      ₹{todayRevenue.toLocaleString('en-IN')}
+                    </span>
                     <span className="text-emerald-300 text-xs font-semibold flex items-center gap-0.5 mb-1">
                       <TrendingUp className="w-3 h-3" />
                       +12%
@@ -488,8 +545,10 @@ export default function AdminLayout({
 
             {/* Navigation */}
             <nav className="p-4 space-y-1 overflow-y-auto max-h-[calc(100vh-200px)]">
-              {navItems.map((item) => {
+              {navItemsList.map((item) => {
                 const isActive = pathname === item.href;
+                const badgeCount = counts[item.id] || 0;
+
                 return (
                   <Link
                     key={item.href}
@@ -520,9 +579,9 @@ export default function AdminLayout({
                       />
                     </div>
                     <span className="flex-1">{item.label}</span>
-                    {item.badge && (
+                    {badgeCount > 0 && (
                       <span className="px-2 py-0.5 rounded-full bg-rose-500 text-white text-xs font-bold">
-                        {item.badge}
+                        {badgeCount}
                       </span>
                     )}
                   </Link>
@@ -561,8 +620,9 @@ export default function AdminLayout({
 
       {/* Main Content */}
       <div
+        ref={scrollContainerRef}
         className={cn(
-          "flex-1 transition-all duration-500 overflow-x-hidden",
+          "flex-1 transition-all duration-500 h-full overflow-y-auto overflow-x-hidden scroll-smooth",
           sidebarCollapsed ? "lg:ml-20" : "lg:ml-72"
         )}
       >

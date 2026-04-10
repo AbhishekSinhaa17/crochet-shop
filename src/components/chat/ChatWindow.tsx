@@ -9,23 +9,44 @@ import { formatDateTime } from "@/lib/utils";
 interface ChatWindowProps {
   conversationId: string;
   currentUserId: string;
+  onSeen?: () => void;
 }
 
-export default function ChatWindow({ conversationId, currentUserId }: ChatWindowProps) {
+export default function ChatWindow({ conversationId, currentUserId, onSeen }: ChatWindowProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [shouldScrollToBottom, setShouldScrollToBottom] = useState(true);
+  const isInitialLoad = useRef(true);
 
   const fetchMessages = useCallback(async () => {
     const { data } = await supabase
       .from("messages")
-      .select("*, profile:profiles!sender_id(full_name, avatar_url)")
+      .select("*, profile:profiles(full_name, avatar_url)")
       .eq("conversation_id", conversationId)
       .order("created_at", { ascending: true });
 
-    if (data) setMessages(data);
+    if (data) {
+      setMessages(data);
+      isInitialLoad.current = true;
+      setShouldScrollToBottom(true);
+    }
   }, [conversationId]);
+
+  const markAsRead = useCallback(async () => {
+    try {
+      await supabase
+        .from("messages")
+        .update({ is_read: true })
+        .eq("conversation_id", conversationId)
+        .neq("sender_id", currentUserId)
+        .eq("is_read", false);
+      if (onSeen) onSeen();
+    } catch (err) {
+      console.error("Error marking messages as read:", err);
+    }
+  }, [conversationId, currentUserId, onSeen]);
 
   useEffect(() => {
     fetchMessages();
@@ -52,8 +73,28 @@ export default function ChatWindow({ conversationId, currentUserId }: ChatWindow
   }, [conversationId, fetchMessages]);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    if (messages.length > 0) {
+      markAsRead();
+    }
+  }, [messages.length, markAsRead]);
+
+  // Handle auto-scroll
+  useEffect(() => {
+    if (shouldScrollToBottom && scrollRef.current) {
+      const scrollContainer = scrollRef.current;
+      scrollContainer.scrollTop = scrollContainer.scrollHeight;
+      setShouldScrollToBottom(false);
+    }
+  }, [messages, shouldScrollToBottom]);
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const container = e.currentTarget;
+    const isAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 50;
+    // We only want to auto-scroll if the user is already at the bottom
+    if (isAtBottom) {
+      setShouldScrollToBottom(true);
+    }
+  };
 
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,7 +123,11 @@ export default function ChatWindow({ conversationId, currentUserId }: ChatWindow
   return (
     <div className="flex flex-col h-full bg-transparent overflow-hidden">
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-5 scrollbar-thin">
+      <div 
+        ref={scrollRef}
+        onScroll={handleScroll}
+        className="flex-1 overflow-y-auto p-4 space-y-5 scrollbar-thin"
+      >
         {messages.length === 0 && (
           <div className="text-center text-gray-400 py-10">
             <p>No messages yet. Start the conversation!</p>
@@ -119,7 +164,6 @@ export default function ChatWindow({ conversationId, currentUserId }: ChatWindow
             </div>
           );
         })}
-        <div ref={bottomRef} />
       </div>
 
       {/* Input */}
