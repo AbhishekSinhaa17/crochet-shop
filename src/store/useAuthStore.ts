@@ -45,15 +45,21 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   fetchProfile: async (userId: string) => {
+    Logger.info("Fetching user profile...", { userId });
     try {
-      const { data: profile, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", userId)
-        .single();
+      // ⏱️ Safety timeout: Don't wait more than 5s for profile
+      const { data: profile, error } = await Promise.race([
+        supabase.from("profiles").select("*").eq("id", userId).single(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error("Profile fetch timeout")), 5000))
+      ]) as any;
 
-      if (!error && profile) {
+      if (error) {
+        Logger.warn("Profile fetch returned error (expected for new signups)", { error });
+      }
+
+      if (profile) {
         const isAdmin = profile.role === "admin";
+        Logger.info("Profile fetched successfully", { userId, role: profile.role });
         set({
           profile,
           role: profile.role,
@@ -62,6 +68,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           initialized: true, // Only now is the auth fully initialized
         });
       } else {
+        Logger.info("No profile found for user", { userId });
         set({ loading: false, profile: null, role: null, isAdmin: false, initialized: true });
       }
     } catch (err) {
