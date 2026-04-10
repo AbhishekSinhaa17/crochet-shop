@@ -30,16 +30,17 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   initialized: false,
   isAdmin: false,
 
-  setUser: async (user) => {
-    // Prevent redundant profile fetches if user ID is the same
-    if (user?.id === get().user?.id && get().initialized && get().profile) {
-      set({ loading: false });
-      return;
-    }
-
+  setUser: async (user: User | null) => {
     if (user) {
-      set({ user, loading: true, initialized: false }); // Stay uninitialized until profile is here
-      await get().fetchProfile(user.id);
+      // ✅ Set user immediately but keep loading:true for profile sync
+      set({ user, loading: true });
+      
+      // 🚀 Optimistic Initialization: Don't block the UI for the profile fetch
+      // We set initialized: true so the loader disappears, but loading: true
+      // stays until fetchProfile completes in the background.
+      set({ initialized: true });
+      
+      get().fetchProfile(user.id); // Run in background
     } else {
       set({ user: null, profile: null, role: null, isAdmin: false, loading: false, initialized: true });
     }
