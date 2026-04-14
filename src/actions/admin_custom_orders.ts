@@ -35,11 +35,11 @@ export async function getAdminCustomOrdersAction(options?: any) {
   }
 }
 
-export async function updateCustomOrderStatusAction(id: string, status: string, adminNotes?: string, quotedPrice?: number) {
+export async function updateCustomOrderStatusAction(id: string, status: string, adminNotes?: string, quotedPrice?: number, additionalData?: any) {
   try {
     const admin = await verifyAdmin();
     const orderService = new OrderService(true);
-    const result = await orderService.updateCustomStatus(id, status, adminNotes, quotedPrice);
+    const result = await orderService.updateCustomStatus(id, status, adminNotes, quotedPrice, additionalData);
     Logger.adminAction(admin.id, "update_custom_order_status", { orderId: id, status });
     revalidatePath("/admin/custom-orders");
     return { success: true, data: result };

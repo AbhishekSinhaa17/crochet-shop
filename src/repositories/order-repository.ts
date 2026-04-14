@@ -163,6 +163,18 @@ export class OrderRepository {
     return data;
   }
 
+  async getCustomOrderById(id: string) {
+    const supabase = await this.getClient();
+    const { data, error } = await supabase
+      .from("custom_orders")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+
   async getAllCustomOrders(options?: {
     status?: string;
     page?: number;
@@ -198,17 +210,36 @@ export class OrderRepository {
   }
 
 
-  async updateCustomOrderStatus(id: string, status: string, admin_notes?: string, quoted_price?: number) {
+  async updateCustomOrderStatus(id: string, status: string, admin_notes?: string, quoted_price?: number, additionalData?: any) {
     const supabase = await this.getClient();
     const { data, error } = await supabase
       .from("custom_orders")
-      .update({ status, admin_notes, quoted_price, updated_at: new Date().toISOString() })
+      .update({ 
+        status, 
+        admin_notes, 
+        quoted_price, 
+        ...additionalData,
+        updated_at: new Date().toISOString() 
+      })
       .eq("id", id)
       .select()
       .single();
 
     if (error) throw error;
     return data;
+  }
+
+  async updateCustomOrder(id: string, data: any) {
+    const supabase = await this.getClient();
+    const { data: order, error } = await supabase
+      .from("custom_orders")
+      .update({ ...data, updated_at: new Date().toISOString() })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return order;
   }
 
   async getDashboardStats() {

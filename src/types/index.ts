@@ -145,12 +145,26 @@ export interface CustomOrder {
   budget_min: number | null;
   budget_max: number | null;
   deadline: string | null;
-  status: string;
+  status: CustomOrderStatus;
   quoted_price: number | null;
   admin_notes: string | null;
+  razorpay_order_id: string | null;
+  razorpay_payment_id: string | null;
+  razorpay_signature: string | null;
+  tracking_id: string | null;
+  courier_name: string | null;
   created_at: string;
   updated_at: string;
 }
+
+export type CustomOrderStatus =
+  | "pending"
+  | "quoted"
+  | "paid"
+  | "in_progress"
+  | "shipped"
+  | "delivered"
+  | "cancelled";
 
 export interface Conversation {
   id: string;

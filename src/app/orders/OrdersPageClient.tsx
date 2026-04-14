@@ -32,6 +32,8 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import CustomOrdersContent from "./CustomOrdersContent";
+import { CustomOrder } from "@/types";
 
 interface Order {
   id: string;
@@ -48,6 +50,7 @@ interface Order {
 
 interface Props {
   orders: Order[];
+  customOrders: CustomOrder[];
   stats: {
     total: number;
     pending: number;
@@ -116,12 +119,13 @@ const statusConfig: Record<string, {
   },
 };
 
-export default function OrdersPageClient({ orders, stats }: Props) {
+export default function OrdersPageClient({ orders, customOrders, stats }: Props) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<"standard" | "custom">("standard");
 
   useEffect(() => {
     setIsLoaded(true);
@@ -255,7 +259,38 @@ export default function OrdersPageClient({ orders, stats }: Props) {
           ))}
         </div>
 
-        {orders.length === 0 ? (
+        {/* Tabs */}
+        <div className="flex items-center gap-1 mb-6 p-1 bg-gray-100/50 dark:bg-gray-800/50 rounded-2xl w-fit">
+          <button
+            onClick={() => setActiveTab("standard")}
+            className={cn(
+              "px-6 py-2 rounded-xl text-sm font-bold transition-all duration-300",
+              activeTab === "standard" 
+                ? "bg-white dark:bg-gray-900 text-amber-600 dark:text-amber-400 shadow-sm" 
+                : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+            )}
+          >
+            Standard Orders
+          </button>
+          <button
+            onClick={() => setActiveTab("custom")}
+            className={cn(
+              "px-6 py-2 rounded-xl text-sm font-bold transition-all duration-300 flex items-center gap-2",
+              activeTab === "custom" 
+                ? "bg-white dark:bg-gray-900 text-purple-600 dark:text-purple-400 shadow-sm" 
+                : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+            )}
+          >
+            Custom Requests
+            {customOrders.length > 0 && (
+              <span className="flex h-2 w-2 rounded-full bg-purple-500 animate-pulse" />
+            )}
+          </button>
+        </div>
+
+        {activeTab === "custom" ? (
+          <CustomOrdersContent customOrders={customOrders} />
+        ) : orders.length === 0 ? (
           /* Empty State */
           <EmptyState isLoaded={isLoaded} />
         ) : (

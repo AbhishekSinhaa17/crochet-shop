@@ -151,10 +151,15 @@ CREATE TABLE public.custom_orders (
   budget_max DECIMAL(10,2),
   deadline DATE,
   status TEXT DEFAULT 'pending' CHECK (status IN (
-    'pending','reviewing','quoted','accepted','in_progress','completed','cancelled'
+    'pending','quoted','paid','in_progress', 'shipped','delivered','cancelled'
   )),
   quoted_price DECIMAL(10,2),
   admin_notes TEXT,
+  razorpay_order_id TEXT,
+  razorpay_payment_id TEXT,
+  razorpay_signature TEXT,
+  tracking_id TEXT,
+  courier_name TEXT DEFAULT 'India Post',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );

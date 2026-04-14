@@ -118,8 +118,12 @@ export class OrderService {
     return await this.repository.getAllCustomOrders(options);
   }
 
-  async updateCustomStatus(id: string, status: string, adminNotes?: string, quotedPrice?: number) {
-    return await this.repository.updateCustomOrderStatus(id, status, adminNotes, quotedPrice);
+  async getCustomOrder(id: string) {
+    return await this.repository.getCustomOrderById(id);
+  }
+
+  async updateCustomStatus(id: string, status: string, adminNotes?: string, quotedPrice?: number, additionalData?: any) {
+    return await this.repository.updateCustomOrderStatus(id, status, adminNotes, quotedPrice, additionalData);
   }
 
   async getAdminDashboardData() {

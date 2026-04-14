@@ -14,21 +14,27 @@ export default async function OrdersPage() {
   
   if (!user) redirect("/auth/login?redirect=/orders");
 
-  const { data: orders } = await supabase
+  const { data: regularOrders } = await supabase
     .from("orders")
     .select("*")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
-  // Get order statistics
+  const { data: customOrders } = await supabase
+    .from("custom_orders")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+
+  // Get order statistics (regular only for now)
   const stats = {
-    total: orders?.length || 0,
-    pending: orders?.filter(o => o.status === 'pending').length || 0,
-    processing: orders?.filter(o => o.status === 'processing').length || 0,
-    shipped: orders?.filter(o => o.status === 'shipped').length || 0,
-    delivered: orders?.filter(o => o.status === 'delivered').length || 0,
-    totalSpent: orders?.reduce((sum, o) => sum + (o.total || 0), 0) || 0,
+    total: regularOrders?.length || 0,
+    pending: regularOrders?.filter(o => o.status === 'pending').length || 0,
+    processing: regularOrders?.filter(o => o.status === 'processing').length || 0,
+    shipped: regularOrders?.filter(o => o.status === 'shipped').length || 0,
+    delivered: regularOrders?.filter(o => o.status === 'delivered').length || 0,
+    totalSpent: regularOrders?.reduce((sum, o) => sum + (o.total || 0), 0) || 0,
   };
 
-  return <OrdersPageClient orders={orders || []} stats={stats} />;
+  return <OrdersPageClient orders={regularOrders || []} customOrders={customOrders || []} stats={stats} />;
 }

@@ -77,7 +77,7 @@ const statusConfig: Record<
     darkText: "dark:text-cyan-400",
     darkBorder: "dark:border-cyan-500/30",
   },
-  accepted: {
+  paid: {
     icon: CheckCircle2,
     gradient: "from-emerald-500 via-green-500 to-teal-500",
     bg: "bg-emerald-50",
@@ -99,7 +99,18 @@ const statusConfig: Record<
     darkText: "dark:text-violet-400",
     darkBorder: "dark:border-violet-500/30",
   },
-  completed: {
+  shipped: {
+    icon: Package,
+    gradient: "from-blue-600 via-indigo-600 to-violet-600",
+    bg: "bg-blue-50",
+    text: "text-blue-700",
+    border: "border-blue-200",
+    glow: "shadow-blue-500/20",
+    darkBg: "dark:bg-blue-500/10",
+    darkText: "dark:text-blue-400",
+    darkBorder: "dark:border-blue-500/30",
+  },
+  delivered: {
     icon: CheckCircle2,
     gradient: "from-green-500 via-emerald-500 to-teal-600",
     bg: "bg-green-50",
@@ -125,11 +136,11 @@ const statusConfig: Record<
 
 const allStatuses = [
   "pending",
-  "reviewing",
   "quoted",
-  "accepted",
+  "paid",
   "in_progress",
-  "completed",
+  "shipped",
+  "delivered",
   "cancelled",
 ];
 
@@ -151,6 +162,14 @@ export default function AdminCustomOrdersPage() {
   const [replyText, setReplyText] = useState("");
   const [isSendingReply, setIsSendingReply] = useState(false);
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
+
+  // New processing states
+  const [processingOrder, setProcessingOrder] = useState<CustomOrder | null>(null);
+  const [newStatus, setNewStatus] = useState<string>("");
+  const [quotedPriceInput, setQuotedPriceInput] = useState<string>("");
+  const [trackingIdInput, setTrackingIdInput] = useState<string>("");
+  const [adminNotesInput, setAdminNotesInput] = useState<string>("");
+  const [isProcessingAction, setIsProcessingAction] = useState(false);
 
   useEffect(() => {
     fetchOrders();
@@ -176,12 +195,25 @@ export default function AdminCustomOrdersPage() {
   };
 
   const updateStatus = async (id: string, status: string) => {
+    const order = orders.find(o => o.id === id);
+    if (!order) return;
+
+    // Show modal for Quote and Ship
+    if (status === "quoted" || status === "shipped") {
+      setProcessingOrder(order);
+      setNewStatus(status);
+      setQuotedPriceInput(order.quoted_price?.toString() || "");
+      setAdminNotesInput(order.admin_notes || "");
+      setTrackingIdInput(order.tracking_id || "");
+      return;
+    }
+
     setUpdatingId(id);
     try {
       const response = await updateCustomOrderStatusAction(id, status);
       if (response.error) toast.error(response.error);
       else {
-        toast.success("Status updated!");
+        toast.success(`Status updated to ${status.replace("_", " ")}!`);
         fetchOrders();
       }
     } catch (error: any) {
@@ -189,6 +221,36 @@ export default function AdminCustomOrdersPage() {
       toast.error("Failed to update status");
     } finally {
       setUpdatingId(null);
+    }
+  };
+
+  const handleProcessSubmit = async () => {
+    if (!processingOrder) return;
+    setIsProcessingAction(true);
+
+    try {
+      const additionalData: any = {};
+      if (newStatus === "shipped") {
+        additionalData.tracking_id = trackingIdInput;
+      }
+
+      const response = await updateCustomOrderStatusAction(
+        processingOrder.id, 
+        newStatus, 
+        adminNotesInput, 
+        newStatus === "quoted" ? Number(quotedPriceInput) : undefined,
+        additionalData
+      );
+
+      if (response.error) throw new Error(response.error);
+
+      toast.success(newStatus === "quoted" ? "Quote sent to customer!" : "Order marked as shipped!");
+      setProcessingOrder(null);
+      fetchOrders();
+    } catch (error: any) {
+      toast.error(error.message || "Failed to process order");
+    } finally {
+      setIsProcessingAction(false);
     }
   };
 
@@ -357,7 +419,6 @@ export default function AdminCustomOrdersPage() {
             className="group relative animate-fade-in-up"
             style={{ animationDelay: `${150 + index * 50}ms` }}
           >
-            {/* Glow effect on hover */}
             <div
               className={`absolute inset-0 bg-linear-to-r ${stat.gradient} rounded-2xl blur-xl opacity-0 group-hover:opacity-20 transition-opacity duration-500`}
             />
@@ -753,6 +814,117 @@ export default function AdminCustomOrdersPage() {
           );
         })}
       </div>
+
+      {/* Process Order Modal (Quote / Ship) */}
+      {processingOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+          <div
+            className="absolute inset-0 bg-gray-900/40 backdrop-blur-md animate-fade-in"
+            onClick={() => !isProcessingAction && setProcessingOrder(null)}
+          />
+          <div
+            className="relative w-full max-w-lg bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-white/60 dark:border-gray-700/50 overflow-hidden animate-zoom-in"
+          >
+            <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700/50 flex items-center justify-between bg-linear-to-r from-violet-500/5 to-purple-500/5">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-linear-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/20">
+                  {(() => {
+                    const config = statusConfig[newStatus] || statusConfig.pending;
+                    const Icon = config.icon;
+                    return <Icon className="w-5 h-5 text-white" />;
+                  })()}
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                    {newStatus === "quoted" ? "Finalize Quote" : "Shipping Details"}
+                  </h3>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[200px]">
+                    Order: {processingOrder.title}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setProcessingOrder(null)}
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full text-gray-400 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              {newStatus === "quoted" && (
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                    Quoted Price (₹)
+                  </label>
+                  <div className="relative">
+                    <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input
+                      type="number"
+                      value={quotedPriceInput}
+                      onChange={(e) => setQuotedPriceInput(e.target.value)}
+                      placeholder="e.g. 1500"
+                      className="w-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all font-bold"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {newStatus === "shipped" && (
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                    Tracking ID (India Post)
+                  </label>
+                  <div className="relative">
+                    <Package className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input
+                      type="text"
+                      value={trackingIdInput}
+                      onChange={(e) => setTrackingIdInput(e.target.value)}
+                      placeholder="e.g. RC123456789IN"
+                      className="w-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all font-mono"
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  Admin Notes {newStatus === "quoted" ? "(Visible to customer)" : ""}
+                </label>
+                <textarea
+                  value={adminNotesInput}
+                  onChange={(e) => setAdminNotesInput(e.target.value)}
+                  placeholder="Add any specific notes for this order stage..."
+                  rows={3}
+                  className="w-full p-4 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all resize-none"
+                />
+              </div>
+            </div>
+
+            <div className="px-6 py-4 bg-gray-50 dark:bg-gray-900/30 border-t border-gray-100 dark:border-gray-700/50 flex justify-end gap-3">
+              <button
+                onClick={() => setProcessingOrder(null)}
+                className="px-5 py-2 text-sm font-semibold text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleProcessSubmit}
+                disabled={isProcessingAction || (newStatus === "quoted" && !quotedPriceInput) || (newStatus === "shipped" && !trackingIdInput)}
+                className="flex items-center gap-2 px-6 py-2 bg-linear-to-r from-violet-600 to-purple-600 text-white text-sm font-bold rounded-xl shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 hover:scale-105 disabled:opacity-50 disabled:scale-100 transition-all"
+              >
+                {isProcessingAction ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <CheckCircle2 className="w-4 h-4" />
+                )}
+                {isProcessingAction ? "Processing..." : `Confirm ${newStatus.replace("_", " ")}`}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Reply Modal */}
       {replyingOrder && (
