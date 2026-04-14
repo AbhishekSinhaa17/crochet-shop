@@ -104,6 +104,7 @@ export default function AdminCustomOrdersPage() {
 
       toast.success("Order status updated successfully!");
       fetchOrders();
+      setAdminNotesInput("");
       setSelectedOrder(null);
     } catch (error: any) {
       toast.error(error.message || "Failed to update status");
@@ -141,7 +142,7 @@ export default function AdminCustomOrdersPage() {
     setSelectedOrder(order);
     setNewStatus(order.status);
     setQuotedPriceInput(order.quoted_price?.toString() || "");
-    setAdminNotesInput(order.admin_notes || "");
+    setAdminNotesInput(""); // Always start with an empty note for new updates
     setTrackingNumber(order.tracking_id || "");
   };
 
@@ -618,7 +619,15 @@ export default function AdminCustomOrdersPage() {
                         onChange={(e) => setNewStatus(e.target.value)}
                         className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-violet-500 outline-none"
                       >
-                        {FILTER_OPTIONS.slice(1).map((opt) => (
+                        {FILTER_OPTIONS.slice(1).filter(opt => {
+                          // If order is paid or beyond, don't allow going back to pending or quoted
+                          const postPaymentStatuses = ["paid", "in_progress", "shipped", "delivered"];
+                          const isAlreadyPaid = postPaymentStatuses.includes(selectedOrder.status);
+                          if (isAlreadyPaid && (opt === "pending" || opt === "quoted")) {
+                            return false;
+                          }
+                          return true;
+                        }).map((opt) => (
                           <option key={opt} value={opt}>
                             {opt.replace("_", " ").toUpperCase()}
                           </option>

@@ -2,7 +2,7 @@ import { Logger } from "@/lib/logger";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
-const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png"];
+const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 export class UploadService {
   private bucket: string;
@@ -23,7 +23,7 @@ export class UploadService {
       }
 
       if (!ALLOWED_MIME_TYPES.includes(file.type)) {
-        throw new Error(`File type ${file.type} is not allowed. Only JPEG and PNG are permitted.`);
+        throw new Error(`File type ${file.type} is not allowed. Only JPEG, PNG, and WEBP are permitted.`);
       }
 
       // 2. Prepare path

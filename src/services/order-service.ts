@@ -123,6 +123,18 @@ export class OrderService {
   }
 
   async updateCustomStatus(id: string, status: string, adminNotes?: string, quotedPrice?: number, additionalData?: any) {
+    // 1. Check current status to prevent illegal transitions
+    const currentOrder = await this.repository.getCustomOrderById(id);
+    if (!currentOrder) throw new Error("Order not found");
+
+    const postPaymentStatuses = ["paid", "in_progress", "shipped", "delivered"];
+    const isAlreadyPaid = postPaymentStatuses.includes(currentOrder.status);
+    const targetStatusIsPrePayment = ["pending", "quoted"].includes(status);
+
+    if (isAlreadyPaid && targetStatusIsPrePayment) {
+      throw new Error(`Cannot revert order to ${status} status after payment has been received.`);
+    }
+
     return await this.repository.updateCustomOrderStatus(id, status, adminNotes, quotedPrice, additionalData);
   }
 

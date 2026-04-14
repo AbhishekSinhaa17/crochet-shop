@@ -153,7 +153,7 @@ export default function CustomOrderPage() {
       toast.success("Custom order request submitted!");
       
       setTimeout(() => {
-        router.push("/orders");
+        router.push("/orders?tab=custom");
       }, 3000);
     } catch (err: any) {
       toast.error(err.message || "Something went wrong");
@@ -623,7 +623,7 @@ export default function CustomOrderPage() {
                       {dragActive ? "Drop your images here!" : "Click to upload or drag & drop"}
                     </p>
                     <p className="text-sm text-gray-400 dark:text-gray-500">
-                      PNG, JPG up to 5MB each • {5 - images.length} slots remaining
+                      PNG, JPG, WEBP up to 5MB each • {5 - images.length} slots remaining
                     </p>
                   </div>
 
