@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import toast from "react-hot-toast";
@@ -125,7 +125,20 @@ export default function OrdersPageClient({ orders, customOrders, stats }: Props)
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<"standard" | "custom">("standard");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const currentTab = searchParams.get("tab");
+  
+  const [activeTab, setActiveTab] = useState<"standard" | "custom">(
+    currentTab === "custom" ? "custom" : "standard"
+  );
+
+  const handleTabChange = (tab: "standard" | "custom") => {
+    setActiveTab(tab);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("tab", tab);
+    router.replace(`/orders?${params.toString()}`, { scroll: false });
+  };
 
   useEffect(() => {
     setIsLoaded(true);
@@ -262,7 +275,7 @@ export default function OrdersPageClient({ orders, customOrders, stats }: Props)
         {/* Tabs */}
         <div className="flex items-center gap-1 mb-6 p-1 bg-gray-100/50 dark:bg-gray-800/50 rounded-2xl w-fit">
           <button
-            onClick={() => setActiveTab("standard")}
+            onClick={() => handleTabChange("standard")}
             className={cn(
               "px-6 py-2 rounded-xl text-sm font-bold transition-all duration-300",
               activeTab === "standard" 
@@ -273,7 +286,7 @@ export default function OrdersPageClient({ orders, customOrders, stats }: Props)
             Standard Orders
           </button>
           <button
-            onClick={() => setActiveTab("custom")}
+            onClick={() => handleTabChange("custom")}
             className={cn(
               "px-6 py-2 rounded-xl text-sm font-bold transition-all duration-300 flex items-center gap-2",
               activeTab === "custom" 

@@ -144,8 +144,8 @@ export default function CheckoutPage() {
         body: JSON.stringify({ amount: total }),
       });
 
-      const data = await res.json();
-      if (!data.orderId) throw new Error("Failed to create order");
+      const { data, error } = await res.json();
+      if (!data?.orderId) throw new Error(error || "Failed to create order");
 
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,

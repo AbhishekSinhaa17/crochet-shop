@@ -126,6 +126,10 @@ export class OrderService {
     return await this.repository.updateCustomOrderStatus(id, status, adminNotes, quotedPrice, additionalData);
   }
 
+  async updateCustomOrder(id: string, data: any) {
+    return await this.repository.updateCustomOrder(id, data);
+  }
+
   async getAdminDashboardData() {
     try {
       const [orderStats, recentOrders, productCount, customerCount] = await Promise.all([

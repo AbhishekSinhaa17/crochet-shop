@@ -153,6 +153,8 @@ export interface CustomOrder {
   razorpay_signature: string | null;
   tracking_id: string | null;
   courier_name: string | null;
+  shipping_address: Address | null;
+  conversation_id: string | null;
   created_at: string;
   updated_at: string;
 }

@@ -13,6 +13,16 @@ const createOrderSchema = z.object({
   amount: z.number().positive().max(1000000).optional(),
   currency: z.string().default("INR"),
   customOrderId: z.string().uuid().optional(),
+  shippingAddress: z.object({
+    name: z.string().min(1),
+    line1: z.string().min(1),
+    line2: z.string().optional(),
+    city: z.string().min(1),
+    state: z.string().min(1),
+    pincode: z.string().min(1),
+    phone: z.string().min(1),
+    country: z.string().default("India")
+  }).optional()
 });
 
 const redis = process.env.UPSTASH_REDIS_REST_URL ? Redis.fromEnv() : null;
@@ -24,7 +34,7 @@ export async function POST(request: NextRequest) {
     const result = createOrderSchema.safeParse(body);
     if (!result.success) throw result.error;
 
-    let { amount, currency, customOrderId } = result.data;
+    let { amount, currency, customOrderId, shippingAddress } = result.data;
     const orderService = new OrderService(true);
 
     // If customOrderId is provided, validate status and get amount
@@ -36,6 +46,11 @@ export async function POST(request: NextRequest) {
       if (!customOrder.quoted_price) return Response.badRequest("Order has no quoted price");
       
       amount = Number(customOrder.quoted_price);
+
+      // Save shipping address if provided
+      if (shippingAddress) {
+        await orderService.updateCustomOrder(customOrderId, { shipping_address: shippingAddress });
+      }
     }
 
     if (!amount) return Response.badRequest("Amount is required");
@@ -51,7 +66,19 @@ export async function POST(request: NextRequest) {
     const keySecret = process.env.RAZORPAY_KEY_SECRET;
 
     if (!keyId || !keySecret || keyId === "your_razorpay_key_id") {
-      return Response.internalError("Payment system is in Test Mode.");
+      const mockOrder = {
+        orderId: `test_order_${Date.now()}`,
+        amount: Math.round(amount * 100),
+        testMode: true
+      };
+      
+      if (customOrderId) {
+        await orderService.updateCustomOrder(customOrderId, { 
+          razorpay_order_id: mockOrder.orderId 
+        });
+      }
+
+      return Response.success(mockOrder);
     }
 
     const razorpay = new Razorpay({ key_id: keyId, key_secret: keySecret });

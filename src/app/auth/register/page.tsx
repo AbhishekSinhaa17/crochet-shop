@@ -242,7 +242,13 @@ export default function RegisterPage() {
     
     await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo },
+      options: { 
+        redirectTo,
+        queryParams: {
+          prompt: 'select_account',
+          access_type: 'offline',
+        }
+      },
     });
   };
 

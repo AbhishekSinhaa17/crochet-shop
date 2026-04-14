@@ -24,7 +24,6 @@ export default function ContactPage() {
   const contactInfo = [
     { icon: Mail, title: "Email Us", value: "hello@strokesofcraft.in", href: "mailto:hello@strokesofcraft.in", color: "violet" },
     { icon: Phone, title: "Call Us", value: "+91 98765 43210", href: "tel:+919876543210", color: "blue" },
-    { icon: MapPin, title: "Visit Us", value: "123 Craft Lane, Creative City, IN", href: "#", color: "pink" },
   ];
 
   return (
@@ -35,13 +34,13 @@ export default function ContactPage() {
         <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-linear-to-tr from-blue-500/10 via-emerald-500/5 to-transparent rounded-full blur-3xl animate-blob animation-delay-2000" />
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-20 lg:py-28 relative z-10">
+      <div className="max-w-7xl mx-auto px-6 pt-12 pb-20 lg:pt-16 lg:pb-28 relative z-10">
         
         {/* Navigation */}
         <div className="animate-fade-in-down">
           <Link
             href="/"
-            className="inline-flex items-center gap-3 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all duration-300 mb-12 group"
+            className="inline-flex items-center gap-3 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all duration-300 mb-8 group"
           >
             <div className="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 shadow-lg shadow-slate-200/50 dark:shadow-slate-900/50 flex items-center justify-center group-hover:bg-violet-50 dark:group-hover:bg-violet-900/20 group-hover:shadow-violet-200/50 dark:group-hover:shadow-violet-900/30 transition-all duration-300 group-hover:-translate-x-1">
               <ArrowLeft className="w-4 h-4 group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors" />
@@ -52,9 +51,9 @@ export default function ContactPage() {
 
         <div className="grid lg:grid-cols-2 gap-16 items-start">
           {/* Left Side: Contact Info & Text */}
-          <div className="space-y-12">
+          <div className="space-y-8">
             <div className="animate-fade-in-up">
-              <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl shadow-lg shadow-violet-500/10 border border-violet-200/50 dark:border-violet-800/50 mb-8 group">
+              <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl shadow-lg shadow-violet-500/10 border border-violet-200/50 dark:border-violet-800/50 mb-6 group">
                 <MessageCircle className="w-4 h-4 text-violet-500 animate-sparkle" />
                 <span className="text-sm font-bold text-violet-700 dark:text-violet-300 tracking-wider uppercase">Get In Touch</span>
               </div>

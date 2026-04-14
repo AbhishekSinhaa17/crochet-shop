@@ -11,6 +11,7 @@ export default function LayoutWrapper({
 }) {
   const pathname = usePathname();
   const isAuthPage = pathname?.startsWith("/auth/");
+  const isFooterHidden = pathname?.startsWith("/orders") || pathname === "/contact";
 
   if (isAuthPage) {
     return <main className="flex-1">{children}</main>;
@@ -20,7 +21,7 @@ export default function LayoutWrapper({
     <>
       <Header />
       <main className="flex-1">{children}</main>
-      <Footer />
+      {!isFooterHidden && <Footer />}
     </>
   );
 }

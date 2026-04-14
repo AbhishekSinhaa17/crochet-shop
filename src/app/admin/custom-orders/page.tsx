@@ -1,140 +1,40 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
+import { formatPrice, formatDate } from "@/lib/utils";
 import { CustomOrder } from "@/types";
-import { formatDate, formatPrice } from "@/lib/utils";
+import {
+  Clock,
+  Package,
+  IndianRupee,
+  RefreshCcw,
+  Search,
+  Filter,
+  ChevronDown,
+  CheckCircle2,
+  AlertCircle,
+  ShoppingBag,
+  Truck,
+  Image as ImageIcon,
+  MapPin,
+  Phone,
+  X,
+  CreditCard,
+  MessageSquare,
+  StickyNote,
+  Edit,
+  Eye,
+  Check,
+} from "lucide-react";
 import toast from "react-hot-toast";
 import {
-  Palette,
-  Clock,
-  CheckCircle2,
-  XCircle,
-  Eye,
-  Sparkles,
-  Package,
-  ChevronDown,
-  Image as ImageIcon,
-  MessageSquare,
-  Loader2,
-  Inbox,
-  Zap,
-  TrendingUp,
-  Filter,
-  Search,
-  MoreHorizontal,
-  ExternalLink,
-  Copy,
-  RefreshCw,
-  IndianRupee,
-  Send,
-  X,
-} from "lucide-react";
+  getAdminCustomOrdersAction,
+  updateCustomOrderStatusAction,
+  sendAdminOrderReplyAction,
+} from "@/actions/admin_custom_orders";
 
-const statusConfig: Record<
-  string,
-  {
-    icon: React.ElementType;
-    gradient: string;
-    bg: string;
-    text: string;
-    border: string;
-    glow: string;
-    darkBg: string;
-    darkText: string;
-    darkBorder: string;
-  }
-> = {
-  pending: {
-    icon: Clock,
-    gradient: "from-amber-500 via-orange-500 to-yellow-500",
-    bg: "bg-amber-50",
-    text: "text-amber-700",
-    border: "border-amber-200",
-    glow: "shadow-amber-500/20",
-    darkBg: "dark:bg-amber-500/10",
-    darkText: "dark:text-amber-400",
-    darkBorder: "dark:border-amber-500/30",
-  },
-  reviewing: {
-    icon: Eye,
-    gradient: "from-blue-500 via-indigo-500 to-cyan-500",
-    bg: "bg-blue-50",
-    text: "text-blue-700",
-    border: "border-blue-200",
-    glow: "shadow-blue-500/20",
-    darkBg: "dark:bg-blue-500/10",
-    darkText: "dark:text-blue-400",
-    darkBorder: "dark:border-blue-500/30",
-  },
-  quoted: {
-    icon: IndianRupee,
-    gradient: "from-cyan-500 via-teal-500 to-emerald-500",
-    bg: "bg-cyan-50",
-    text: "text-cyan-700",
-    border: "border-cyan-200",
-    glow: "shadow-cyan-500/20",
-    darkBg: "dark:bg-cyan-500/10",
-    darkText: "dark:text-cyan-400",
-    darkBorder: "dark:border-cyan-500/30",
-  },
-  paid: {
-    icon: CheckCircle2,
-    gradient: "from-emerald-500 via-green-500 to-teal-500",
-    bg: "bg-emerald-50",
-    text: "text-emerald-700",
-    border: "border-emerald-200",
-    glow: "shadow-emerald-500/20",
-    darkBg: "dark:bg-emerald-500/10",
-    darkText: "dark:text-emerald-400",
-    darkBorder: "dark:border-emerald-500/30",
-  },
-  in_progress: {
-    icon: Zap,
-    gradient: "from-violet-500 via-purple-500 to-fuchsia-500",
-    bg: "bg-violet-50",
-    text: "text-violet-700",
-    border: "border-violet-200",
-    glow: "shadow-violet-500/20",
-    darkBg: "dark:bg-violet-500/10",
-    darkText: "dark:text-violet-400",
-    darkBorder: "dark:border-violet-500/30",
-  },
-  shipped: {
-    icon: Package,
-    gradient: "from-blue-600 via-indigo-600 to-violet-600",
-    bg: "bg-blue-50",
-    text: "text-blue-700",
-    border: "border-blue-200",
-    glow: "shadow-blue-500/20",
-    darkBg: "dark:bg-blue-500/10",
-    darkText: "dark:text-blue-400",
-    darkBorder: "dark:border-blue-500/30",
-  },
-  delivered: {
-    icon: CheckCircle2,
-    gradient: "from-green-500 via-emerald-500 to-teal-600",
-    bg: "bg-green-50",
-    text: "text-green-700",
-    border: "border-green-200",
-    glow: "shadow-green-500/20",
-    darkBg: "dark:bg-green-500/10",
-    darkText: "dark:text-green-400",
-    darkBorder: "dark:border-green-500/30",
-  },
-  cancelled: {
-    icon: XCircle,
-    gradient: "from-red-500 via-rose-500 to-pink-500",
-    bg: "bg-red-50",
-    text: "text-red-700",
-    border: "border-red-200",
-    glow: "shadow-red-500/20",
-    darkBg: "dark:bg-red-500/10",
-    darkText: "dark:text-red-400",
-    darkBorder: "dark:border-red-500/30",
-  },
-};
-
-const allStatuses = [
+const FILTER_OPTIONS = [
+  "all",
   "pending",
   "quoted",
   "paid",
@@ -144,32 +44,22 @@ const allStatuses = [
   "cancelled",
 ];
 
-import { 
-  getAdminCustomOrdersAction, 
-  updateCustomOrderStatusAction, 
-  sendAdminOrderReplyAction 
-} from "@/actions/admin_custom_orders";
-
 export default function AdminCustomOrdersPage() {
   const [orders, setOrders] = useState<CustomOrder[]>([]);
   const [loading, setLoading] = useState(true);
-  const [expandedImages, setExpandedImages] = useState<string | null>(null);
-  const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterStatus, setFilterStatus] = useState<string>("all");
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [replyingOrder, setReplyingOrder] = useState<CustomOrder | null>(null);
-  const [replyText, setReplyText] = useState("");
-  const [isSendingReply, setIsSendingReply] = useState(false);
-  const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [refreshing, setRefreshing] = useState(false);
 
-  // New processing states
-  const [processingOrder, setProcessingOrder] = useState<CustomOrder | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<CustomOrder | null>(null);
+
+  // Modal Actions States
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+  const [isUpdatingTracking, setIsUpdatingTracking] = useState(false);
   const [newStatus, setNewStatus] = useState<string>("");
   const [quotedPriceInput, setQuotedPriceInput] = useState<string>("");
-  const [trackingIdInput, setTrackingIdInput] = useState<string>("");
+  const [trackingNumber, setTrackingNumber] = useState<string>("");
   const [adminNotesInput, setAdminNotesInput] = useState<string>("");
-  const [isProcessingAction, setIsProcessingAction] = useState(false);
 
   useEffect(() => {
     fetchOrders();
@@ -188,969 +78,667 @@ export default function AdminCustomOrdersPage() {
   };
 
   const handleRefresh = async () => {
-    setIsRefreshing(true);
+    setRefreshing(true);
     await fetchOrders();
-    setTimeout(() => setIsRefreshing(false), 600);
+    setTimeout(() => setRefreshing(false), 500);
     toast.success("Orders refreshed!");
   };
 
-  const updateStatus = async (id: string, status: string) => {
-    const order = orders.find(o => o.id === id);
-    if (!order) return;
-
-    // Show modal for Quote and Ship
-    if (status === "quoted" || status === "shipped") {
-      setProcessingOrder(order);
-      setNewStatus(status);
-      setQuotedPriceInput(order.quoted_price?.toString() || "");
-      setAdminNotesInput(order.admin_notes || "");
-      setTrackingIdInput(order.tracking_id || "");
-      return;
-    }
-
-    setUpdatingId(id);
-    try {
-      const response = await updateCustomOrderStatusAction(id, status);
-      if (response.error) toast.error(response.error);
-      else {
-        toast.success(`Status updated to ${status.replace("_", " ")}!`);
-        fetchOrders();
-      }
-    } catch (error: any) {
-      console.error("Error updating status:", error);
-      toast.error("Failed to update status");
-    } finally {
-      setUpdatingId(null);
-    }
-  };
-
-  const handleProcessSubmit = async () => {
-    if (!processingOrder) return;
-    setIsProcessingAction(true);
-
+  const handleUpdateStatus = async () => {
+    if (!selectedOrder) return;
+    setIsUpdatingStatus(true);
     try {
       const additionalData: any = {};
-      if (newStatus === "shipped") {
-        additionalData.tracking_id = trackingIdInput;
-      }
-
+      
       const response = await updateCustomOrderStatusAction(
-        processingOrder.id, 
-        newStatus, 
-        adminNotesInput, 
-        newStatus === "quoted" ? Number(quotedPriceInput) : undefined,
+        selectedOrder.id,
+        newStatus,
+        adminNotesInput,
+        newStatus === "quoted"
+          ? Number(quotedPriceInput)
+          : selectedOrder.quoted_price || undefined,
         additionalData
       );
 
       if (response.error) throw new Error(response.error);
 
-      toast.success(newStatus === "quoted" ? "Quote sent to customer!" : "Order marked as shipped!");
-      setProcessingOrder(null);
+      toast.success("Order status updated successfully!");
       fetchOrders();
+      setSelectedOrder(null);
     } catch (error: any) {
-      toast.error(error.message || "Failed to process order");
+      toast.error(error.message || "Failed to update status");
     } finally {
-      setIsProcessingAction(false);
+      setIsUpdatingStatus(false);
     }
   };
 
-  const copyOrderId = (id: string) => {
-    navigator.clipboard.writeText(id);
-    toast.success("Order ID copied!");
-  };
-
-  const handleSendReply = async () => {
-    if (!replyingOrder || !replyText.trim()) return;
-    setIsSendingReply(true);
-
+  const handleUpdateTracking = async () => {
+    if (!selectedOrder || !trackingNumber.trim()) return;
+    setIsUpdatingTracking(true);
     try {
-      const response = await sendAdminOrderReplyAction(replyingOrder.user_id, replyText.trim());
-      
+      const response = await updateCustomOrderStatusAction(
+        selectedOrder.id,
+        "shipped",
+        undefined,
+        selectedOrder.quoted_price || undefined,
+        { tracking_id: trackingNumber, courier_name: "India Post (Speed Post)" }
+      );
+
       if (response.error) throw new Error(response.error);
 
-      toast.success("Message sent to customer!");
-      setReplyingOrder(null);
-      setReplyText("");
+      toast.success("Tracking updated. Order marked as Shipped!");
+      fetchOrders();
+      setSelectedOrder(null);
     } catch (error: any) {
-      toast.error(error.message || "Failed to send message");
+      toast.error(error.message || "Failed to update tracking");
     } finally {
-      setIsSendingReply(false);
+      setIsUpdatingTracking(false);
     }
   };
 
+  // Select row logic
+  const handleSelectOrder = (order: CustomOrder) => {
+    setSelectedOrder(order);
+    setNewStatus(order.status);
+    setQuotedPriceInput(order.quoted_price?.toString() || "");
+    setAdminNotesInput(order.admin_notes || "");
+    setTrackingNumber(order.tracking_id || "");
+  };
 
   const filteredOrders = orders.filter((order) => {
     const matchesSearch =
-      (order.title?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
-      (order.description?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
-      (order.id?.toLowerCase() || "").includes(searchQuery.toLowerCase());
-    const matchesFilter =
-      filterStatus === "all" || order.status === filterStatus;
-    return matchesSearch && matchesFilter;
+      order.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      order.id.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus =
+      statusFilter === "all" || order.status === statusFilter;
+    return matchesSearch && matchesStatus;
   });
 
-  const stats = {
-    total: orders.length,
-    pending: orders.filter((o) => o.status === "pending").length,
-    inProgress: orders.filter((o) =>
-      ["reviewing", "quoted", "accepted", "in_progress"].includes(o.status)
-    ).length,
-    completed: orders.filter((o) => o.status === "completed").length,
-  };
+  const pendingCount = orders.filter((o) => o.status === "pending").length;
+  const inProgressCount = orders.filter(
+    (o) => o.status === "in_progress",
+  ).length;
+  const shippedCount = orders.filter((o) => o.status === "shipped").length;
+  const totalRevenue = orders
+    .filter((o) =>
+      ["paid", "in_progress", "shipped", "delivered"].includes(o.status),
+    )
+    .reduce((sum, o) => sum + (o.quoted_price || 0), 0);
 
   return (
-    <div className="relative min-h-screen">
-      {/* Animated Background */}
-      <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-        {/* Light mode gradients */}
-        <div className="dark:opacity-0 opacity-100 transition-opacity duration-500">
-          <div className="absolute -top-40 -right-40 w-[500px] h-[500px] bg-linear-to-br from-violet-200/50 via-purple-200/50 to-fuchsia-200/50 rounded-full blur-3xl animate-blob" />
-          <div className="absolute top-1/3 -left-32 w-[400px] h-[400px] bg-linear-to-br from-blue-200/40 via-cyan-200/40 to-teal-200/40 rounded-full blur-3xl animate-blob animation-delay-2000" />
-          <div className="absolute -bottom-32 right-1/4 w-[450px] h-[450px] bg-linear-to-br from-amber-200/30 via-orange-200/30 to-rose-200/30 rounded-full blur-3xl animate-blob animation-delay-4000" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-linear-to-br from-pink-100/20 via-purple-100/20 to-indigo-100/20 rounded-full blur-3xl" />
+    <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
+      {/* ══════════════════════════════════════════
+          PAGE HEADER
+         ══════════════════════════════════════════ */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-display font-bold text-gray-900 dark:text-white">
+            Custom Orders Management
+          </h1>
+          <p className="text-sm text-gray-500 mt-1">
+            Build bespoke crochet items for your customers
+          </p>
         </div>
-        {/* Dark mode gradients */}
-        <div className="dark:opacity-100 opacity-0 transition-opacity duration-500">
-          <div className="absolute -top-40 -right-40 w-[500px] h-[500px] bg-linear-to-br from-violet-900/30 via-purple-900/20 to-fuchsia-900/30 rounded-full blur-3xl animate-blob" />
-          <div className="absolute top-1/3 -left-32 w-[400px] h-[400px] bg-linear-to-br from-blue-900/20 via-cyan-900/20 to-teal-900/20 rounded-full blur-3xl animate-blob animation-delay-2000" />
-          <div className="absolute -bottom-32 right-1/4 w-[450px] h-[450px] bg-linear-to-br from-amber-900/20 via-orange-900/20 to-rose-900/20 rounded-full blur-3xl animate-blob animation-delay-4000" />
-        </div>
-        {/* Grid pattern */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.02)_1px,transparent_1px)] dark:bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-size-[60px_60px]" />
-      </div>
-
-      {/* Header Section */}
-      <div className="relative mb-8 animate-fade-in-down">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-          {/* Title */}
-          <div className="flex items-center gap-4">
-            <div className="relative group">
-              <div className="absolute inset-0 bg-linear-to-br from-violet-600 to-purple-600 rounded-2xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity duration-500 animate-pulse-slow" />
-              <div className="relative w-14 h-14 rounded-2xl bg-linear-to-br from-violet-500 via-purple-500 to-fuchsia-500 flex items-center justify-center shadow-2xl shadow-violet-500/30 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
-                <Sparkles className="w-7 h-7 text-white animate-sparkle" />
-              </div>
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-linear-to-br from-amber-400 to-orange-500 rounded-full border-2 border-white dark:border-gray-900 animate-bounce shadow-lg shadow-amber-500/50" />
-            </div>
-            <div>
-              <h1 className="text-4xl font-display font-bold bg-linear-to-r from-gray-900 via-violet-800 to-purple-900 dark:from-white dark:via-violet-200 dark:to-purple-200 bg-clip-text text-transparent animate-gradient-x">
-                Custom Orders
-              </h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-2">
-                <span className="inline-flex items-center gap-1">
-                  <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />
-                  <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
-                    {stats.inProgress} active
-                  </span>
-                </span>
-                <span className="text-gray-300 dark:text-gray-600">•</span>
-                <span>{stats.total} total orders</span>
-              </p>
-            </div>
-          </div>
-
-          {/* Actions */}
-          <div className="flex items-center gap-3">
-            <button
-              onClick={handleRefresh}
-              disabled={isRefreshing}
-              className="group relative px-4 py-2.5 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 rounded-xl text-gray-600 dark:text-gray-300 hover:border-violet-300 dark:hover:border-violet-600 hover:text-violet-600 dark:hover:text-violet-400 transition-all duration-300 shadow-sm hover:shadow-lg hover:shadow-violet-500/10"
-            >
-              <RefreshCw
-                className={`w-4 h-4 ${isRefreshing ? "animate-spin" : "group-hover:rotate-180 transition-transform duration-500"}`}
-              />
-            </button>
-          </div>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium
+              bg-white/50 dark:bg-gray-800/50 hover:bg-white dark:hover:bg-gray-800 
+              border border-gray-200/50 dark:border-gray-700/50
+              shadow-sm hover:shadow-md transition-all duration-300"
+          >
+            <RefreshCcw
+              className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`}
+            />
+            Refresh
+          </button>
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div
-        className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
-        style={{ animationDelay: "100ms" }}
-      >
+      {/* ══════════════════════════════════════════
+          MINI STAT CARDS
+         ══════════════════════════════════════════ */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
         {[
           {
-            label: "Total Orders",
-            value: stats.total,
-            icon: Package,
-            gradient: "from-indigo-500 via-blue-500 to-cyan-500",
-            bg: "bg-indigo-50 dark:bg-indigo-500/10",
-            iconBg: "bg-indigo-100 dark:bg-indigo-500/20",
-            text: "text-indigo-600 dark:text-indigo-400",
-            change: "+12%",
-            changeType: "up",
+            label: "Total Quotes Won",
+            value: formatPrice(totalRevenue),
+            icon: IndianRupee,
+            color: "from-emerald-500 to-teal-500",
+            iconBg:
+              "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400",
           },
           {
-            label: "Pending",
-            value: stats.pending,
+            label: "Pending Quotes",
+            value: pendingCount,
             icon: Clock,
-            gradient: "from-amber-500 via-orange-500 to-yellow-500",
-            bg: "bg-amber-50 dark:bg-amber-500/10",
-            iconBg: "bg-amber-100 dark:bg-amber-500/20",
-            text: "text-amber-600 dark:text-amber-400",
-            change: "3 new",
-            changeType: "neutral",
+            color: "from-amber-500 to-orange-500",
+            iconBg:
+              "bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400",
           },
           {
-            label: "In Progress",
-            value: stats.inProgress,
-            icon: Zap,
-            gradient: "from-violet-500 via-purple-500 to-fuchsia-500",
-            bg: "bg-violet-50 dark:bg-violet-500/10",
-            iconBg: "bg-violet-100 dark:bg-violet-500/20",
-            text: "text-violet-600 dark:text-violet-400",
-            change: "Active",
-            changeType: "active",
+            label: "Crafting",
+            value: inProgressCount,
+            icon: Package,
+            color: "from-violet-500 to-purple-500",
+            iconBg:
+              "bg-violet-100 text-violet-600 dark:bg-violet-900/40 dark:text-violet-400",
           },
           {
-            label: "Completed",
-            value: stats.completed,
-            icon: CheckCircle2,
-            gradient: "from-emerald-500 via-green-500 to-teal-500",
-            bg: "bg-emerald-50 dark:bg-emerald-500/10",
-            iconBg: "bg-emerald-100 dark:bg-emerald-500/20",
-            text: "text-emerald-600 dark:text-emerald-400",
-            change: "+8%",
-            changeType: "up",
+            label: "Shipped",
+            value: shippedCount,
+            icon: Truck,
+            color: "from-indigo-500 to-blue-500",
+            iconBg:
+              "bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-400",
           },
-        ].map((stat, index) => (
+        ].map((stat, i) => (
           <div
             key={stat.label}
-            className="group relative animate-fade-in-up"
-            style={{ animationDelay: `${150 + index * 50}ms` }}
+            className="stat-card group relative overflow-hidden rounded-2xl p-4 shadow-sm border bg-white border-gray-100/60 dark:bg-gray-900 dark:border-gray-800"
           >
             <div
-              className={`absolute inset-0 bg-linear-to-r ${stat.gradient} rounded-2xl blur-xl opacity-0 group-hover:opacity-20 transition-opacity duration-500`}
+              className={`absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r ${stat.color} opacity-60 group-hover:opacity-100 transition-opacity duration-500`}
             />
-
-            <div
-              className={`relative ${stat.bg} backdrop-blur-xl border border-white/60 dark:border-gray-700/50 rounded-2xl p-5 hover:scale-[1.02] hover:-translate-y-1 transition-all duration-500 cursor-default overflow-hidden`}
-            >
-              {/* Background pattern */}
-              <div className="absolute top-0 right-0 w-32 h-32 bg-linear-to-br from-white/40 to-transparent dark:from-white/5 rounded-full -translate-y-16 translate-x-16" />
-
-              <div className="relative flex items-start justify-between">
-                <div>
-                  <div
-                    className={`w-12 h-12 ${stat.iconBg} rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-sm`}
-                  >
-                    <stat.icon className={`w-5 h-5 ${stat.text}`} />
-                  </div>
-                  <p
-                    className={`text-3xl font-bold ${stat.text} tracking-tight`}
-                  >
-                    {stat.value}
-                  </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mt-0.5 uppercase tracking-wider">
-                    {stat.label}
-                  </p>
-                </div>
-
-                <span
-                  className={`text-[10px] font-bold px-2 py-1 rounded-full ${
-                    stat.changeType === "up"
-                      ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400"
-                      : stat.changeType === "active"
-                        ? "bg-violet-100 text-violet-700 dark:bg-violet-500/20 dark:text-violet-400 animate-pulse"
-                        : "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400"
-                  }`}
-                >
-                  {stat.change}
-                </span>
-              </div>
-
-              {/* Decorative gradient line */}
+            <div className="flex items-center gap-3">
               <div
-                className={`absolute bottom-0 left-0 right-0 h-1 bg-linear-to-r ${stat.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
-              />
+                className={`flex h-9 w-9 items-center justify-center rounded-lg ${stat.iconBg} group-hover:scale-110 transition-transform duration-300`}
+              >
+                <stat.icon className="h-4 w-4" />
+              </div>
+              <div>
+                <p className="text-lg font-bold text-gray-900 dark:text-white">
+                  {stat.value}
+                </p>
+                <p className="text-[11px] font-medium text-gray-400 dark:text-gray-500">
+                  {stat.label}
+                </p>
+              </div>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Search & Filter Bar */}
-      <div
-        className="flex flex-col sm:flex-row gap-3 mb-6 animate-fade-in-up"
-        style={{ animationDelay: "200ms" }}
-      >
-        {/* Search */}
-        <div className="relative flex-1 group">
-          <div className="absolute inset-0 bg-linear-to-r from-violet-500/20 to-purple-500/20 rounded-xl blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-300" />
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-violet-500 transition-colors duration-200" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search orders by title, description, or ID..."
-              className="w-full pl-11 pr-4 py-3 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 rounded-xl text-sm text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:border-violet-300 dark:focus:border-violet-600 focus:ring-4 focus:ring-violet-500/10 transition-all duration-300"
-            />
-          </div>
+      {/* ══════════════════════════════════════════
+          SEARCH & FILTER BAR
+         ══════════════════════════════════════════ */}
+      <div className="flex flex-col sm:flex-row gap-3 mb-6">
+        <div className="relative flex-1">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
+          <input
+            type="text"
+            placeholder="Search by title or ID..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm border bg-white border-gray-200 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-200 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:focus:ring-violet-800"
+          />
         </div>
-
-        {/* Filter */}
         <div className="relative">
-          <div className="flex items-center gap-2 px-4 py-3 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 rounded-xl">
-            <Filter className="w-4 h-4 text-gray-400" />
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className="bg-transparent text-sm text-gray-700 dark:text-gray-300 font-medium focus:outline-none cursor-pointer appearance-none pr-6"
-            >
-              <option value="all">All Status</option>
-              {allStatuses.map((s) => (
-                <option key={s} value={s}>
-                  {s.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase())}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="w-4 h-4 text-gray-400 -ml-4" />
-          </div>
+          <Filter className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="appearance-none pl-10 pr-10 py-2.5 rounded-xl text-sm border capitalize cursor-pointer bg-white border-gray-200 text-gray-900 focus:outline-none focus:ring-2 focus:ring-violet-200 dark:bg-gray-900 dark:border-gray-700 dark:text-white dark:focus:ring-violet-800"
+          >
+            {FILTER_OPTIONS.map((opt) => (
+              <option key={opt} value={opt} className="capitalize">
+                {opt === "all" ? "All Statuses" : opt.replace("_", " ")}
+              </option>
+            ))}
+          </select>
+          <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500 pointer-events-none" />
         </div>
       </div>
 
-      {/* Loading State */}
-      {loading && (
-        <div className="space-y-4 animate-fade-in-up">
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl rounded-2xl border border-white/60 dark:border-gray-700/50 p-6 animate-pulse"
-              style={{ animationDelay: `${i * 100}ms` }}
-            >
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-xl" />
-                <div className="flex-1 space-y-3">
-                  <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded-lg w-1/3" />
-                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
-                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full" />
-                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-2/3" />
-                </div>
-              </div>
+      {/* ══════════════════════════════════════════
+          ORDERS TABLE
+         ══════════════════════════════════════════ */}
+      <div className="rounded-2xl shadow-sm border overflow-hidden bg-white border-gray-100/60 dark:bg-gray-900 dark:border-gray-800">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 shadow-lg">
+              <ShoppingBag className="h-5 w-5 text-white" />
             </div>
-          ))}
-        </div>
-      )}
-
-      {/* Empty State */}
-      {!loading && filteredOrders.length === 0 && (
-        <div className="animate-fade-in-up">
-          <div className="relative bg-white/60 dark:bg-gray-800/60 backdrop-blur-xl rounded-3xl border border-white/60 dark:border-gray-700/50 p-12 text-center overflow-hidden">
-            {/* Background decoration */}
-            <div className="absolute inset-0 bg-linear-to-br from-violet-500/5 via-transparent to-purple-500/5" />
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-linear-to-br from-violet-200/30 to-purple-200/30 dark:from-violet-500/10 dark:to-purple-500/10 rounded-full blur-3xl" />
-
-            <div className="relative">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-linear-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 mb-6 animate-float">
-                <Inbox className="w-9 h-9 text-gray-400 dark:text-gray-500" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                {searchQuery || filterStatus !== "all"
-                  ? "No orders found"
-                  : "No custom orders yet"}
-              </h3>
-              <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto">
-                {searchQuery || filterStatus !== "all"
-                  ? "Try adjusting your search or filter to find what you're looking for."
-                  : "When customers submit custom order requests, they'll appear here for you to manage."}
+            <div>
+              <h2 className="font-display font-semibold text-gray-900 dark:text-white">
+                Custom Orders
+              </h2>
+              <p className="text-xs text-gray-400 dark:text-gray-500">
+                {filteredOrders.length} order
+                {filteredOrders.length !== 1 ? "s" : ""} found
               </p>
-              {(searchQuery || filterStatus !== "all") && (
-                <button
-                  onClick={() => {
-                    setSearchQuery("");
-                    setFilterStatus("all");
-                  }}
-                  className="mt-6 px-6 py-2.5 bg-linear-to-r from-violet-500 to-purple-500 text-white text-sm font-semibold rounded-xl hover:shadow-lg hover:shadow-violet-500/25 hover:scale-105 transition-all duration-300"
-                >
-                  Clear Filters
-                </button>
-              )}
             </div>
           </div>
         </div>
-      )}
 
-      {/* Orders List */}
-      <div className="space-y-4">
-        {filteredOrders.map((order, index) => {
-          const config = statusConfig[order.status] || statusConfig.pending;
-          const StatusIcon = config.icon;
-          const isUpdating = updatingId === order.id;
-          const hasImages = order.reference_images?.length > 0;
-          const isImagesExpanded = expandedImages === order.id;
-
-          return (
-            <div
-              key={`${order.id}-${index}`}
-              className="group relative animate-fade-in-up"
-              style={{ animationDelay: `${250 + index * 60}ms` }}
-            >
-              {/* Card glow effect */}
-              <div
-                className={`absolute inset-0 bg-linear-to-r ${config.gradient} rounded-2xl blur-xl opacity-0 group-hover:opacity-10 transition-opacity duration-700`}
-              />
-
-              <div className="relative bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-2xl border border-white/60 dark:border-gray-700/50 shadow-sm hover:shadow-2xl hover:shadow-purple-500/10 dark:hover:shadow-purple-500/5 transition-all duration-500 overflow-hidden group-hover:-translate-y-1">
-                {/* Status accent bar */}
-                <div
-                  className={`absolute top-0 left-0 w-1.5 h-full bg-linear-to-b ${config.gradient} rounded-l-2xl`}
-                />
-
-                {/* Animated shine effect */}
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
-                  <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-linear-to-r from-transparent via-white/10 to-transparent" />
-                </div>
-
-                <div className="relative p-6 pl-8">
-                  {/* Top row */}
-                  <div className="flex items-start justify-between gap-4 mb-4">
-                    <div className="flex items-start gap-4 min-w-0">
-                      {/* Status icon */}
-                      <div className="relative">
-                        <div
-                          className={`absolute inset-0 bg-linear-to-br ${config.gradient} rounded-xl blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-500`}
-                        />
-                        <div
-                          className={`relative w-12 h-12 rounded-xl ${config.bg} ${config.darkBg} ${config.border} ${config.darkBorder} border-2 flex items-center justify-center group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 ${config.glow} shadow-lg`}
-                        >
-                          <StatusIcon
-                            className={`w-5 h-5 ${config.text} ${config.darkText} ${order.status === "in_progress" ? "animate-pulse" : ""}`}
-                          />
+        <div className="overflow-x-auto premium-scroll">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-gray-50/60 dark:bg-gray-800/40">
+                {["Order", "Date", "Budget / Quote", "Status"].map((h) => (
+                  <th
+                    key={h}
+                    className="py-3 px-6 text-left text-[11px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500"
+                  >
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {filteredOrders.length > 0 ? (
+                filteredOrders.map((order, idx) => (
+                  <tr
+                    key={`${order.id}-${idx}`}
+                    onClick={() => handleSelectOrder(order)}
+                    className="order-row group border-b border-gray-50 dark:border-gray-800/60 cursor-pointer hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors"
+                  >
+                    <td className="py-4 px-6">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 text-[10px] font-bold text-white shadow-sm">
+                          {idx + 1}
                         </div>
-                      </div>
-
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-display font-bold text-lg text-gray-900 dark:text-white group-hover:text-violet-700 dark:group-hover:text-violet-400 transition-colors duration-300 truncate">
+                        <div>
+                          <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 line-clamp-1">
                             {order.title}
-                          </h3>
-                        </div>
-
-                        <div className="flex items-center gap-3 flex-wrap">
-                          <div className="flex items-center gap-1.5 text-xs text-gray-400">
-                            <Clock className="w-3 h-3" />
-                            <span>{formatDate(order.created_at)}</span>
-                          </div>
-                          <button
-                            onClick={() => copyOrderId(order.id)}
-                            className="flex items-center gap-1 text-xs text-gray-400 hover:text-violet-500 dark:hover:text-violet-400 transition-colors duration-200 group/copy"
-                          >
-                            <span className="font-mono bg-gray-100 dark:bg-gray-700/50 px-2 py-0.5 rounded">
-                              #{order.id.slice(0, 8)}
-                            </span>
-                            <Copy className="w-3 h-3 opacity-0 group-hover/copy:opacity-100 transition-opacity" />
-                          </button>
+                          </p>
+                          <p className="font-mono text-[10px] text-gray-400 dark:text-gray-500">
+                            #{order.id.slice(0, 8)}
+                          </p>
                         </div>
                       </div>
-                    </div>
-
-                    {/* Status select & actions */}
-                    <div className="flex items-center gap-2">
-                      <div className="relative">
-                        <div
-                          className={`relative ${config.bg} ${config.darkBg} ${config.border} ${config.darkBorder} border rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg ${config.glow} ${isUpdating ? "opacity-60 pointer-events-none" : ""}`}
-                        >
-                          <select
-                            value={order.status}
-                            onChange={(e) =>
-                              updateStatus(order.id, e.target.value)
-                            }
-                            className={`appearance-none bg-transparent pl-4 pr-10 py-2.5 text-xs font-bold ${config.text} ${config.darkText} uppercase tracking-wide cursor-pointer focus:outline-none focus:ring-2 focus:ring-violet-500/20 rounded-xl`}
-                          >
-                            {allStatuses.map((s) => (
-                              <option key={s} value={s}>
-                                {s.replace("_", " ")}
-                              </option>
-                            ))}
-                          </select>
-                          <ChevronDown
-                            className={`absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 ${config.text} ${config.darkText} pointer-events-none`}
-                          />
-                        </div>
-                        {isUpdating && (
-                          <div className="absolute inset-0 flex items-center justify-center bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-xl">
-                            <Loader2 className="w-5 h-5 text-violet-500 animate-spin" />
-                          </div>
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="flex items-center gap-1.5">
+                        <Clock className="w-3 h-3 text-gray-300 dark:text-gray-600" />
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          {formatDate(order.created_at)}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="flex flex-col">
+                        <span className="text-[10px] text-gray-400 uppercase tracking-wider">
+                          Requested Budget
+                        </span>
+                        <span className="text-sm font-bold text-gray-900 dark:text-white">
+                          {order.budget_min
+                            ? `${formatPrice(order.budget_min)} - ${formatPrice(order.budget_max || 0)}`
+                            : "No limit"}
+                        </span>
+                        {order.quoted_price && (
+                          <span className="text-[10px] text-violet-500 font-bold mt-1">
+                            Quoted: {formatPrice(order.quoted_price)}
+                          </span>
                         )}
                       </div>
-                      <div className="flex items-center gap-2">
-                        <div className="relative">
-                          <button
-                            onClick={() =>
-                              setActiveMenuId(
-                                activeMenuId === order.id ? null : order.id
-                              )
-                            }
-                            className="p-2.5 bg-gray-100/50 dark:bg-gray-700/50 rounded-xl text-gray-400 hover:text-violet-500 dark:hover:text-violet-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200"
-                          >
-                            <MoreHorizontal className="w-4 h-4" />
-                          </button>
+                    </td>
+                    <td className="py-4 px-6">
+                      <span
+                        className={`inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-md border 
+                        ${
+                          order.status === "paid"
+                            ? "bg-emerald-50 text-emerald-600 border-emerald-200"
+                            : order.status === "quoted"
+                              ? "bg-cyan-50 text-cyan-600 border-cyan-200"
+                              : order.status === "shipped" ||
+                                  order.status === "delivered"
+                                ? "bg-blue-50 text-blue-600 border-blue-200"
+                                : "bg-amber-50 text-amber-600 border-amber-200"
+                        }`}
+                      >
+                        {order.status.replace("_", " ")}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td
+                    colSpan={4}
+                    className="py-12 text-center text-gray-500 border-b border-white h-full relative"
+                  >
+                    No orders match your filters.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
-                          {activeMenuId === order.id && (
-                            <>
-                              <div
-                                className="fixed inset-0 z-10"
-                                onClick={() => setActiveMenuId(null)}
-                              />
-                              <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700 py-2 z-20 animate-in fade-in zoom-in duration-200 origin-top-right">
-                                <button
-                                  onClick={() => {
-                                    setReplyingOrder(order);
-                                    setActiveMenuId(null);
-                                  }}
-                                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 dark:text-gray-300 hover:bg-violet-50 dark:hover:bg-violet-900/30 hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
-                                >
-                                  <MessageSquare className="w-4 h-4" />
-                                  Reply to Customer
-                                </button>
-                                <button
-                                  onClick={() => {
-                                    copyOrderId(order.id);
-                                    setActiveMenuId(null);
-                                  }}
-                                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-600 dark:text-gray-300 hover:bg-violet-50 dark:hover:bg-violet-900/30 hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
-                                >
-                                  <Copy className="w-4 h-4" />
-                                  Copy Order ID
-                                </button>
-                                <div className="mx-2 my-1 border-t border-gray-100 dark:border-gray-700" />
-                                <button
-                                  onClick={() => {
-                                    /* Any other action */
-                                    setActiveMenuId(null);
-                                  }}
-                                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
-                                >
-                                  <X className="w-4 h-4" />
-                                  Close Details
-                                </button>
-                              </div>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    </div>
+      {/* ══════════════════════════════════════════
+          ORDER DETAILS MODAL
+         ══════════════════════════════════════════ */}
+      {selectedOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-end">
+          <div
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity"
+            onClick={() => setSelectedOrder(null)}
+          />
+          <div className="relative w-full max-w-2xl h-full bg-white dark:bg-gray-900 shadow-2xl overflow-y-auto premium-scroll animate-in slide-in-from-right duration-300">
+            <div className="sticky top-0 z-10 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 p-6 flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-display font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                  Custom Order Details
+                  <span className="text-sm font-mono font-normal text-gray-400">
+                    #{selectedOrder.id.slice(0, 8)}
+                  </span>
+                </h2>
+                <p className="text-xs text-gray-500 mt-1">
+                  Requested on {formatDate(selectedOrder.created_at)}
+                </p>
+              </div>
+              <button
+                onClick={() => setSelectedOrder(null)}
+                className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              >
+                <X className="w-6 h-6 text-gray-400" />
+              </button>
+            </div>
+
+            <div className="p-8 space-y-8">
+              {/* Status Header */}
+              <div className="flex flex-wrap gap-4 items-center justify-between p-4 rounded-2xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800">
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`w-10 h-10 rounded-xl flex items-center justify-center bg-violet-100 text-violet-600`}
+                  >
+                    <Package className="w-5 h-5" />
                   </div>
-
-
-                  {/* Description */}
-                  <div className="flex items-start gap-3 mb-5 p-4 bg-gray-50/50 dark:bg-gray-900/30 rounded-xl border border-gray-100/50 dark:border-gray-700/30">
-                    <MessageSquare className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" />
-                    <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
-                      {order.description}
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                      Order Status
+                    </p>
+                    <p className="text-sm font-bold text-gray-900 dark:text-white uppercase">
+                      {selectedOrder.status.replace("_", " ")}
                     </p>
                   </div>
+                </div>
+                {selectedOrder.status === "paid" ||
+                selectedOrder.status === "in_progress" ||
+                selectedOrder.status === "shipped" ||
+                selectedOrder.status === "delivered" ? (
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-emerald-100 text-emerald-600">
+                      <CreditCard className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                        Payment
+                      </p>
+                      <p className="text-sm font-bold text-emerald-600 uppercase">
+                        Paid - {formatPrice(selectedOrder.quoted_price || 0)}
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-amber-100 text-amber-600">
+                      <CreditCard className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                        Payment
+                      </p>
+                      <p className="text-sm font-bold text-amber-600 uppercase">
+                        Pending
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
 
-                  {/* Meta tags */}
-                  <div className="flex flex-wrap gap-2">
-                    {order.preferred_colors && (
-                      <span className="inline-flex items-center gap-2 px-4 py-2 bg-linear-to-r from-pink-50 to-fuchsia-50 dark:from-pink-500/10 dark:to-fuchsia-500/10 border border-pink-200/50 dark:border-pink-500/30 rounded-xl text-xs font-semibold text-pink-700 dark:text-pink-400 hover:scale-105 transition-transform duration-200">
-                        <Palette className="w-3.5 h-3.5" />
-                        {order.preferred_colors}
-                      </span>
+              {/* Shipping Address */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <h3 className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-violet-500" />
+                    Shipping Address
+                  </h3>
+                  <div className="text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/30 p-4 rounded-xl border border-gray-100 dark:border-gray-800 h-full">
+                    {selectedOrder.shipping_address ? (
+                      <>
+                        <p className="font-bold text-gray-900 dark:text-white text-base mb-1">
+                          {selectedOrder.shipping_address?.name}
+                        </p>
+                        {selectedOrder.shipping_address?.phone && (
+                          <p className="flex items-center gap-2 text-violet-600 dark:text-violet-400 font-medium mb-3">
+                            <Phone className="w-3.5 h-3.5" />
+                            {selectedOrder.shipping_address.phone}
+                          </p>
+                        )}
+                        <p>{selectedOrder.shipping_address?.line1}</p>
+                        {selectedOrder.shipping_address?.line2 && (
+                          <p>{selectedOrder.shipping_address.line2}</p>
+                        )}
+                        <p>
+                          {selectedOrder.shipping_address?.city},{" "}
+                          {selectedOrder.shipping_address?.state}
+                        </p>
+                        <p className="font-semibold text-gray-700 dark:text-gray-300">
+                          {selectedOrder.shipping_address?.pincode}
+                        </p>
+                        <p>{selectedOrder.shipping_address?.country}</p>
+                      </>
+                    ) : (
+                      <div className="flex flex-col items-center justify-center h-full text-gray-400">
+                        <MapPin className="w-8 h-8 mb-2 opacity-20" />
+                        <p className="text-center text-xs">
+                          Customer has not provided a shipping address yet.
+                          <br />
+                          (Collected at payment)
+                        </p>
+                      </div>
                     )}
+                  </div>
+                </div>
 
-                    {order.budget_min && (
-                      <span className="inline-flex items-center gap-2 px-4 py-2 bg-linear-to-r from-emerald-50 to-teal-50 dark:from-emerald-500/10 dark:to-teal-500/10 border border-emerald-200/50 dark:border-emerald-500/30 rounded-xl text-xs font-semibold text-emerald-700 dark:text-emerald-400 hover:scale-105 transition-transform duration-200">
-                        {/* No DollarSign icon needed, formatPrice adds ₹ */}
-                        {formatPrice(order.budget_min)} –{" "}
-                        {formatPrice(order.budget_max || 0)}
-                      </span>
+                <div className="space-y-4">
+                  <h3 className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                    <MessageSquare className="w-4 h-4 text-violet-500" />
+                    Requirement Brief
+                  </h3>
+                  <div className="bg-gray-50 dark:bg-gray-800/30 p-4 rounded-xl border border-gray-100 dark:border-gray-800 h-full">
+                    <p className="text-sm font-bold text-gray-800 dark:text-gray-100 mb-2">
+                      {selectedOrder.title}
+                    </p>
+                    <p className="text-xs text-gray-600 dark:text-gray-300 italic mb-3">
+                      "{selectedOrder.description}"
+                    </p>
+                    {selectedOrder.size_details && (
+                      <p className="text-xs mb-1">
+                        <strong>Size:</strong> {selectedOrder.size_details}
+                      </p>
                     )}
+                    {selectedOrder.preferred_colors && (
+                      <p className="text-xs mb-1">
+                        <strong>Colors:</strong>{" "}
+                        {selectedOrder.preferred_colors}
+                      </p>
+                    )}
+                    {selectedOrder.deadline && (
+                      <p className="text-xs">
+                        <strong>Deadline:</strong>{" "}
+                        {formatDate(selectedOrder.deadline)}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
 
-                    {hasImages && (
-                      <button
-                        onClick={() =>
-                          setExpandedImages(isImagesExpanded ? null : order.id)
-                        }
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-linear-to-r from-blue-50 to-indigo-50 dark:from-blue-500/10 dark:to-indigo-500/10 border border-blue-200/50 dark:border-blue-500/30 rounded-xl text-xs font-semibold text-blue-700 dark:text-blue-400 hover:shadow-md hover:scale-105 transition-all duration-200"
+              {/* Reference Images */}
+              {selectedOrder.reference_images &&
+                selectedOrder.reference_images.length > 0 && (
+                  <div className="space-y-4">
+                    <h3 className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                      <ImageIcon className="w-4 h-4 text-violet-500" />
+                      Reference Images
+                    </h3>
+                    <div className="flex gap-4 overflow-x-auto pb-2">
+                      {selectedOrder.reference_images.map((img, i) => (
+                        <a
+                          key={i}
+                          href={img}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="relative shrink-0 border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden block group"
+                        >
+                          <img
+                            src={img}
+                            alt={`Ref ${i}`}
+                            className="w-24 h-24 object-cover"
+                          />
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                            <Eye className="text-white w-6 h-6" />
+                          </div>
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+              <hr className="border-gray-200 dark:border-gray-800" />
+
+              {/* Action Update Section */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                  <Edit className="w-4 h-4 text-violet-500" />
+                  Process & Update Order
+                </h3>
+                <div className="bg-violet-50/50 dark:bg-violet-900/10 p-6 rounded-2xl border border-violet-100 dark:border-violet-900/30 space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-violet-600 dark:text-violet-400">
+                        Order Stage
+                      </label>
+                      <select
+                        value={newStatus}
+                        onChange={(e) => setNewStatus(e.target.value)}
+                        className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-violet-500 outline-none"
                       >
-                        <ImageIcon className="w-3.5 h-3.5" />
-                        {order.reference_images.length} reference
-                        {order.reference_images.length !== 1 && "s"}
-                        <ChevronDown
-                          className={`w-3.5 h-3.5 transition-transform duration-300 ${isImagesExpanded ? "rotate-180" : ""}`}
+                        {FILTER_OPTIONS.slice(1).map((opt) => (
+                          <option key={opt} value={opt}>
+                            {opt.replace("_", " ").toUpperCase()}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {newStatus === "quoted" && (
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-violet-600 dark:text-violet-400">
+                          Quoted Price (₹)
+                        </label>
+                        <input
+                          type="number"
+                          value={quotedPriceInput}
+                          onChange={(e) => setQuotedPriceInput(e.target.value)}
+                          className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-violet-500"
+                          placeholder="Ex: 1500"
                         />
-                      </button>
+                      </div>
                     )}
                   </div>
 
-                  {/* Reference images */}
-                  {hasImages && isImagesExpanded && (
-                    <div className="mt-5 pt-5 border-t border-gray-100 dark:border-gray-700/50 animate-accordion-down">
-                      <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-700">
-                        {order.reference_images.map(
-                          (img: string, i: number) => (
-                            <div
-                              key={i}
-                              className="shrink-0 relative group/img animate-fade-in-up"
-                              style={{ animationDelay: `${i * 80}ms` }}
-                            >
-                              <div className="absolute inset-0 bg-linear-to-br from-violet-500/20 to-purple-500/20 rounded-2xl blur-xl opacity-0 group-hover/img:opacity-100 transition-opacity duration-300" />
-                              <div className="relative w-24 h-24 rounded-2xl overflow-hidden bg-gray-100 dark:bg-gray-700 border-2 border-white dark:border-gray-600 shadow-lg hover:shadow-2xl hover:scale-110 hover:-translate-y-2 hover:rotate-2 transition-all duration-500 cursor-pointer">
-                                <img
-                                  src={img}
-                                  alt=""
-                                  className="w-full h-full object-cover"
-                                />
-                                <div className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors duration-300 flex items-center justify-center opacity-0 hover:opacity-100">
-                                  <ExternalLink className="w-5 h-5 text-white drop-shadow-lg" />
-                                </div>
-                              </div>
-                            </div>
-                          )
-                        )}
+                  <div className="space-y-1.5 mt-4">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-violet-600 dark:text-violet-400 flex items-center gap-1.5 mb-2">
+                      <StickyNote className="w-3 h-3" /> Admin Note / Message to
+                      Customer
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={adminNotesInput}
+                      onChange={(e) => setAdminNotesInput(e.target.value)}
+                      className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-sm focus:border-violet-500 outline-none"
+                      placeholder="Enter tracking details, instructions, or a warm note!"
+                    />
+                  </div>
+
+                  <button
+                    onClick={handleUpdateStatus}
+                    disabled={isUpdatingStatus}
+                    className="w-full flex items-center justify-center gap-2 bg-violet-600 hover:bg-violet-700 text-white rounded-xl py-3 text-sm font-bold shadow-lg shadow-violet-500/25 transition-all outline-none"
+                  >
+                    {isUpdatingStatus ? (
+                      <RefreshCcw className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Check className="w-4 h-4" />
+                    )}
+                    Save Changes & Notify Customer
+                  </button>
+                </div>
+              </div>
+
+              <hr className="border-gray-200 dark:border-gray-800" />
+
+              {/* Shipment Tracking Section */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                  <Truck className="w-4 h-4 text-violet-500" />
+                  Shipment Tracking
+                </h3>
+                <div className="bg-violet-50/50 dark:bg-violet-900/10 p-6 rounded-2xl border border-violet-100 dark:border-violet-900/30 space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-violet-600 dark:text-violet-400">
+                        Tracking Number (India Post)
+                      </label>
+                      <input 
+                        type="text"
+                        placeholder="e.g. EW123456789IN"
+                        value={trackingNumber}
+                        onChange={(e) => setTrackingNumber(e.target.value)}
+                        className="w-full px-4 py-2.5 rounded-xl text-sm border 
+                          bg-white dark:bg-gray-900 border-violet-200 dark:border-violet-800
+                          focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500
+                          transition-all outline-none"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-violet-600 dark:text-violet-400">
+                        Courier
+                      </label>
+                      <div className="px-4 py-2.5 rounded-xl text-sm border bg-gray-100/50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700 text-gray-500 font-medium">
+                        India Post (Speed Post)
                       </div>
                     </div>
-                  )}
-                </div>
-
-                {/* Bottom gradient line */}
-                <div
-                  className={`absolute bottom-0 left-0 right-0 h-0.5 bg-linear-to-r ${config.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
-                />
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Process Order Modal (Quote / Ship) */}
-      {processingOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
-          <div
-            className="absolute inset-0 bg-gray-900/40 backdrop-blur-md animate-fade-in"
-            onClick={() => !isProcessingAction && setProcessingOrder(null)}
-          />
-          <div
-            className="relative w-full max-w-lg bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-white/60 dark:border-gray-700/50 overflow-hidden animate-zoom-in"
-          >
-            <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700/50 flex items-center justify-between bg-linear-to-r from-violet-500/5 to-purple-500/5">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-linear-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/20">
-                  {(() => {
-                    const config = statusConfig[newStatus] || statusConfig.pending;
-                    const Icon = config.icon;
-                    return <Icon className="w-5 h-5 text-white" />;
-                  })()}
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                    {newStatus === "quoted" ? "Finalize Quote" : "Shipping Details"}
-                  </h3>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[200px]">
-                    Order: {processingOrder.title}
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => setProcessingOrder(null)}
-                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full text-gray-400 transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="p-6 space-y-4">
-              {newStatus === "quoted" && (
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                    Quoted Price (₹)
-                  </label>
-                  <div className="relative">
-                    <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <input
-                      type="number"
-                      value={quotedPriceInput}
-                      onChange={(e) => setQuotedPriceInput(e.target.value)}
-                      placeholder="e.g. 1500"
-                      className="w-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all font-bold"
-                    />
+                  </div>
+                  
+                  <div className="flex items-center justify-between gap-4 pt-2">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+                      <AlertCircle className="w-3.5 h-3.5 text-amber-500" />
+                      Updating tracking will mark the order as <span className="font-bold text-indigo-600">Shipped</span>
+                    </p>
+                    <button 
+                      onClick={handleUpdateTracking}
+                      disabled={isUpdatingTracking || !trackingNumber.trim() || trackingNumber === selectedOrder?.tracking_id}
+                      className="px-6 py-2.5 bg-violet-600 text-white rounded-xl text-sm font-bold 
+                        hover:bg-violet-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed
+                        flex items-center gap-2 shadow-lg shadow-violet-600/20"
+                    >
+                      {isUpdatingTracking ? (
+                        <>
+                          <RefreshCcw className="w-4 h-4 animate-spin" />
+                          Updating...
+                        </>
+                      ) : (
+                        <>
+                          <Truck className="w-4 h-4" />
+                          Update Tracking
+                        </>
+                      )}
+                    </button>
                   </div>
                 </div>
-              )}
-
-              {newStatus === "shipped" && (
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                    Tracking ID (India Post)
-                  </label>
-                  <div className="relative">
-                    <Package className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <input
-                      type="text"
-                      value={trackingIdInput}
-                      onChange={(e) => setTrackingIdInput(e.target.value)}
-                      placeholder="e.g. RC123456789IN"
-                      className="w-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all font-mono"
-                    />
-                  </div>
-                </div>
-              )}
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                  Admin Notes {newStatus === "quoted" ? "(Visible to customer)" : ""}
-                </label>
-                <textarea
-                  value={adminNotesInput}
-                  onChange={(e) => setAdminNotesInput(e.target.value)}
-                  placeholder="Add any specific notes for this order stage..."
-                  rows={3}
-                  className="w-full p-4 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all resize-none"
-                />
               </div>
-            </div>
 
-            <div className="px-6 py-4 bg-gray-50 dark:bg-gray-900/30 border-t border-gray-100 dark:border-gray-700/50 flex justify-end gap-3">
-              <button
-                onClick={() => setProcessingOrder(null)}
-                className="px-5 py-2 text-sm font-semibold text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleProcessSubmit}
-                disabled={isProcessingAction || (newStatus === "quoted" && !quotedPriceInput) || (newStatus === "shipped" && !trackingIdInput)}
-                className="flex items-center gap-2 px-6 py-2 bg-linear-to-r from-violet-600 to-purple-600 text-white text-sm font-bold rounded-xl shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 hover:scale-105 disabled:opacity-50 disabled:scale-100 transition-all"
-              >
-                {isProcessingAction ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <CheckCircle2 className="w-4 h-4" />
-                )}
-                {isProcessingAction ? "Processing..." : `Confirm ${newStatus.replace("_", " ")}`}
-              </button>
+              <div className="h-10" />
             </div>
           </div>
         </div>
       )}
-
-      {/* Reply Modal */}
-      {replyingOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
-          <div
-            className="absolute inset-0 bg-gray-900/40 backdrop-blur-md animate-fade-in"
-            onClick={() => !isSendingReply && setReplyingOrder(null)}
-          />
-          <div
-            className="relative w-full max-w-lg bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-white/60 dark:border-gray-700/50 overflow-hidden animate-zoom-in"
-          >
-            {/* Modal Header */}
-            <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700/50 flex items-center justify-between bg-linear-to-r from-violet-500/5 to-purple-500/5">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-linear-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/20">
-                  <MessageSquare className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                    Reply to Customer
-                  </h3>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    Order: {replyingOrder.title}
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => setReplyingOrder(null)}
-                disabled={isSendingReply}
-                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full text-gray-400 transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Modal Body */}
-            <div className="p-6">
-              <div className="mb-4 p-3 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-800">
-                <p className="text-xs font-semibold text-gray-400 mb-1 uppercase tracking-wider text-[10px]">
-                  Customer Request
-                </p>
-                <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-3 italic">
-                  &quot;{replyingOrder.description}&quot;
-                </p>
-              </div>
-
-              <textarea
-                value={replyText}
-                onChange={(e) => setReplyText(e.target.value)}
-                placeholder="Type your message here..."
-                rows={5}
-                className="w-full p-4 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all resize-none"
-              />
-            </div>
-
-            {/* Modal Footer */}
-            <div className="px-6 py-4 bg-gray-50 dark:bg-gray-900/30 border-t border-gray-100 dark:border-gray-700/50 flex justify-end gap-3">
-              <button
-                onClick={() => setReplyingOrder(null)}
-                disabled={isSendingReply}
-                className="px-5 py-2 text-sm font-semibold text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSendReply}
-                disabled={isSendingReply || !replyText.trim()}
-                className="flex items-center gap-2 px-6 py-2 bg-linear-to-r from-violet-600 to-purple-600 text-white text-sm font-bold rounded-xl shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 hover:scale-105 disabled:opacity-50 disabled:scale-100 transition-all"
-              >
-                {isSendingReply ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Send className="w-4 h-4" />
-                )}
-                {isSendingReply ? "Sending..." : "Send Message"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Animations */}
-      <style>{`
-        @keyframes fade-in-up {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes fade-in-down {
-          from {
-            opacity: 0;
-            transform: translateY(-20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes blob {
-          0%, 100% {
-            transform: translate(0, 0) scale(1);
-          }
-          25% {
-            transform: translate(20px, -30px) scale(1.1);
-          }
-          50% {
-            transform: translate(-20px, 20px) scale(0.9);
-          }
-          75% {
-            transform: translate(30px, 20px) scale(1.05);
-          }
-        }
-
-        @keyframes float {
-          0%, 100% {
-            transform: translateY(0);
-          }
-          50% {
-            transform: translateY(-10px);
-          }
-        }
-
-        @keyframes sparkle {
-          0%, 100% {
-            transform: scale(1) rotate(0deg);
-          }
-          50% {
-            transform: scale(1.1) rotate(5deg);
-          }
-        }
-
-        @keyframes gradient-x {
-          0%, 100% {
-            background-position: 0% 50%;
-          }
-          50% {
-            background-position: 100% 50%;
-          }
-        }
-
-        @keyframes accordion-down {
-          from {
-            opacity: 0;
-            max-height: 0;
-          }
-          to {
-            opacity: 1;
-            max-height: 200px;
-          }
-        }
-
-        @keyframes pulse-slow {
-          0%, 100% {
-            opacity: 0.5;
-          }
-          50% {
-            opacity: 0.8;
-          }
-        }
-
-        .animate-fade-in-up {
-          animation: fade-in-up 0.6s ease-out forwards;
-          opacity: 0;
-        }
-
-        .animate-fade-in-down {
-          animation: fade-in-down 0.6s ease-out forwards;
-        }
-
-        .animate-blob {
-          animation: blob 12s ease-in-out infinite;
-        }
-
-        .animate-float {
-          animation: float 4s ease-in-out infinite;
-        }
-
-        .animate-sparkle {
-          animation: sparkle 3s ease-in-out infinite;
-        }
-
-        .animate-gradient-x {
-          background-size: 200% 100%;
-          animation: gradient-x 4s ease infinite;
-        }
-
-        .animate-accordion-down {
-          animation: accordion-down 0.3s ease-out forwards;
-        }
-
-        .animate-pulse-slow {
-          animation: pulse-slow 4s ease-in-out infinite;
-        }
-
-        .animation-delay-2000 {
-          animation-delay: 2s;
-        }
-
-        .animation-delay-4000 {
-          animation-delay: 4s;
-        }
-
-        .scrollbar-thin::-webkit-scrollbar {
-          height: 6px;
-        }
-
-        .scrollbar-thin::-webkit-scrollbar-track {
-          background: transparent;
-        }
-
-        .scrollbar-thumb-gray-200::-webkit-scrollbar-thumb {
-          background: #e5e7eb;
-          border-radius: 3px;
-        }
-
-        .dark .scrollbar-thumb-gray-700::-webkit-scrollbar-thumb {
-          background: #374151;
-        }
-      `}</style>
     </div>
   );
 }
