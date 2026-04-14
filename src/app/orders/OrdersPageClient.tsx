@@ -120,11 +120,11 @@ const statusConfig: Record<string, {
 };
 
 export default function OrdersPageClient({ orders, customOrders, stats }: Props) {
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const currentTab = searchParams.get("tab");
@@ -142,6 +142,15 @@ export default function OrdersPageClient({ orders, customOrders, stats }: Props)
 
   useEffect(() => {
     setIsLoaded(true);
+    
+    // Close dropdown on click outside
+    const handleClickOutside = (e: MouseEvent) => {
+      if (!(e.target as HTMLElement).closest(".dropdown-container")) {
+        setActiveDropdown(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   // Filter and sort orders
@@ -241,15 +250,14 @@ export default function OrdersPageClient({ orders, customOrders, stats }: Props)
               value: stats.shipped, 
               icon: Truck, 
               gradient: "from-purple-500 to-pink-500",
-              bgGradient: "from-purple-50 to-pink-50 dark:from-purple-500/10 dark:to-pink-500/10",
+              bgGradient: "from-purple-50 to-pink-50 dark:from-purple-500/10 dark:to-purple-500/10",
             },
             { 
-              label: "Total Spent", 
-              value: formatPrice(stats.totalSpent), 
-              icon: TrendingUp, 
+              label: "Delivered", 
+              value: stats.delivered, 
+              icon: CheckCircle, 
               gradient: "from-emerald-500 to-teal-500",
               bgGradient: "from-emerald-50 to-teal-50 dark:from-emerald-500/10 dark:to-teal-500/10",
-              isPrice: true,
             },
           ].map((stat, idx) => (
             <div
@@ -310,7 +318,7 @@ export default function OrdersPageClient({ orders, customOrders, stats }: Props)
           <>
             {/* Search & Filter Bar */}
             <div 
-              className={`mb-6 transition-all duration-700 delay-200 ${
+              className={`mb-6 relative z-10 transition-all duration-700 delay-200 ${
                 isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
               }`}
             >
@@ -338,20 +346,34 @@ export default function OrdersPageClient({ orders, customOrders, stats }: Props)
                 {/* Filters */}
                 <div className="flex items-center gap-3">
                   {/* Status Filter */}
-                  <div className="relative group">
-                    <button className="flex items-center gap-2 px-4 py-3 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
+                  <div className="relative dropdown-container">
+                    <button 
+                      onClick={() => setActiveDropdown(activeDropdown === "status" ? null : "status")}
+                      className={cn(
+                        "flex items-center gap-2 px-4 py-3 rounded-xl transition-all duration-200 border",
+                        activeDropdown === "status" 
+                          ? "bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800" 
+                          : "bg-gray-50 dark:bg-gray-800 border-transparent hover:bg-gray-100 dark:hover:bg-gray-700"
+                      )}
+                    >
                       <Filter className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                       <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
                         {statusFilter ? statusConfig[statusFilter]?.label : "All Status"}
                       </span>
-                      <ChevronDown className="w-4 h-4 text-gray-400" />
+                      <ChevronDown className={cn("w-4 h-4 text-gray-400 transition-transform", activeDropdown === "status" && "rotate-180")} />
                     </button>
                     
                     {/* Dropdown */}
-                    <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-gray-100 dark:border-gray-800 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                    <div className={cn(
+                      "absolute right-0 top-full mt-2 w-48 bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-gray-100 dark:border-gray-800 transition-all duration-300 z-50",
+                      activeDropdown === "status" ? "opacity-100 visible translate-y-0" : "opacity-0 invisible -translate-y-2"
+                    )}>
                       <div className="p-2">
                         <button
-                          onClick={() => setStatusFilter(null)}
+                          onClick={() => {
+                            setStatusFilter(null);
+                            setActiveDropdown(null);
+                          }}
                           className={cn(
                             "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-left",
                             !statusFilter ? "bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400" : "hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"
@@ -365,7 +387,10 @@ export default function OrdersPageClient({ orders, customOrders, stats }: Props)
                           return (
                             <button
                               key={key}
-                              onClick={() => setStatusFilter(key)}
+                              onClick={() => {
+                                setStatusFilter(key);
+                                setActiveDropdown(null);
+                              }}
                               className={cn(
                                 "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-left",
                                 statusFilter === key ? "bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400" : "hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"
@@ -381,16 +406,27 @@ export default function OrdersPageClient({ orders, customOrders, stats }: Props)
                   </div>
 
                   {/* Sort */}
-                  <div className="relative group">
-                    <button className="flex items-center gap-2 px-4 py-3 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
+                  <div className="relative dropdown-container">
+                    <button 
+                      onClick={() => setActiveDropdown(activeDropdown === "sort" ? null : "sort")}
+                      className={cn(
+                        "flex items-center gap-2 px-4 py-3 rounded-xl transition-all duration-200 border",
+                        activeDropdown === "sort" 
+                          ? "bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800" 
+                          : "bg-gray-50 dark:bg-gray-800 border-transparent hover:bg-gray-100 dark:hover:bg-gray-700"
+                      )}
+                    >
                       <Calendar className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                       <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
                         {sortOrder === "newest" ? "Newest" : "Oldest"}
                       </span>
-                      <ChevronDown className="w-4 h-4 text-gray-400" />
+                      <ChevronDown className={cn("w-4 h-4 text-gray-400 transition-transform", activeDropdown === "sort" && "rotate-180")} />
                     </button>
                     
-                    <div className="absolute right-0 top-full mt-2 w-40 bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-gray-100 dark:border-gray-800 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                    <div className={cn(
+                      "absolute right-0 top-full mt-2 w-40 bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-gray-100 dark:border-gray-800 transition-all duration-300 z-50",
+                      activeDropdown === "sort" ? "opacity-100 visible translate-y-0" : "opacity-0 invisible -translate-y-2"
+                    )}>
                       <div className="p-2">
                         {[
                           { value: "newest", label: "Newest First" },
@@ -398,7 +434,10 @@ export default function OrdersPageClient({ orders, customOrders, stats }: Props)
                         ].map((option) => (
                           <button
                             key={option.value}
-                            onClick={() => setSortOrder(option.value as any)}
+                            onClick={() => {
+                              setSortOrder(option.value as any);
+                              setActiveDropdown(null);
+                            }}
                             className={cn(
                               "w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
                               sortOrder === option.value

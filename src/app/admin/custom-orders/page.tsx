@@ -491,114 +491,150 @@ export default function AdminCustomOrdersPage() {
                 )}
               </div>
 
-              {/* Shipping Address */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Redesigned Info Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Shipping Address - Contact Card Style */}
                 <div className="space-y-4">
-                  <h3 className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-violet-500" />
-                    Shipping Address
+                  <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest flex items-center gap-2 px-1">
+                    <MapPin className="w-3.5 h-3.5 text-violet-500" />
+                    Shipping Destination
                   </h3>
-                  <div className="text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/30 p-4 rounded-xl border border-gray-100 dark:border-gray-800 h-full">
-                    {selectedOrder.shipping_address ? (
-                      <>
-                        <p className="font-bold text-gray-900 dark:text-white text-base mb-1">
-                          {selectedOrder.shipping_address?.name}
-                        </p>
-                        {selectedOrder.shipping_address?.phone && (
-                          <p className="flex items-center gap-2 text-violet-600 dark:text-violet-400 font-medium mb-3">
-                            <Phone className="w-3.5 h-3.5" />
-                            {selectedOrder.shipping_address.phone}
+                  <div className="relative group overflow-hidden">
+                    <div className="absolute inset-0 bg-linear-to-br from-violet-500/5 to-purple-500/5 dark:from-violet-500/10 dark:to-purple-500/10 rounded-3xl -z-10" />
+                    <div className="relative bg-white/50 dark:bg-gray-800/40 backdrop-blur-xl p-6 rounded-3xl border border-gray-100 dark:border-gray-800 hover:border-violet-200 dark:hover:border-violet-800/50 transition-all duration-300 shadow-sm hover:shadow-xl">
+                      {selectedOrder.shipping_address ? (
+                        <>
+                          <div className="flex items-start justify-between mb-4">
+                            <div>
+                              <p className="text-xl font-bold bg-linear-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400 bg-clip-text text-transparent">
+                                {selectedOrder.shipping_address?.name}
+                              </p>
+                              {selectedOrder.shipping_address?.phone && (
+                                <a 
+                                  href={`tel:${selectedOrder.shipping_address.phone}`}
+                                  className="inline-flex items-center gap-2 mt-1 text-sm font-medium text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 transition-colors"
+                                >
+                                  <Phone className="w-3.5 h-3.5" />
+                                  {selectedOrder.shipping_address.phone}
+                                </a>
+                              )}
+                            </div>
+                            <div className="w-12 h-12 bg-violet-100 dark:bg-violet-900/30 rounded-2xl flex items-center justify-center text-violet-600 dark:text-violet-400">
+                              <MapPin className="w-6 h-6" />
+                            </div>
+                          </div>
+                          <div className="space-y-1 text-sm text-gray-600 dark:text-gray-400 leading-relaxed pt-3 border-t border-gray-100/50 dark:border-gray-700/50">
+                            <p className="font-medium">{selectedOrder.shipping_address?.line1}</p>
+                            {selectedOrder.shipping_address?.line2 && (
+                              <p>{selectedOrder.shipping_address.line2}</p>
+                            )}
+                            <p>
+                              {selectedOrder.shipping_address?.city},{" "}
+                              <span className="text-gray-900 dark:text-gray-200 font-semibold">{selectedOrder.shipping_address?.state}</span>
+                            </p>
+                            <div className="flex items-center justify-between mt-4">
+                              <span className="px-3 py-1 bg-gray-100 dark:bg-gray-700/50 rounded-lg font-mono font-bold text-gray-900 dark:text-white">
+                                {selectedOrder.shipping_address?.pincode}
+                              </span>
+                              <span className="text-xs font-bold uppercase tracking-wider text-gray-400">
+                                {selectedOrder.shipping_address?.country || "Inida"}
+                              </span>
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="py-10 flex flex-col items-center justify-center text-gray-400">
+                          <div className="w-16 h-16 bg-gray-50 dark:bg-gray-900/50 rounded-full flex items-center justify-center mb-4">
+                            <MapPin className="w-8 h-8 opacity-20" />
+                          </div>
+                          <p className="text-center text-sm font-medium">
+                            No shipping address provided yet.
                           </p>
-                        )}
-                        <p>{selectedOrder.shipping_address?.line1}</p>
-                        {selectedOrder.shipping_address?.line2 && (
-                          <p>{selectedOrder.shipping_address.line2}</p>
-                        )}
-                        <p>
-                          {selectedOrder.shipping_address?.city},{" "}
-                          {selectedOrder.shipping_address?.state}
-                        </p>
-                        <p className="font-semibold text-gray-700 dark:text-gray-300">
-                          {selectedOrder.shipping_address?.pincode}
-                        </p>
-                        <p>{selectedOrder.shipping_address?.country}</p>
-                      </>
-                    ) : (
-                      <div className="flex flex-col items-center justify-center h-full text-gray-400">
-                        <MapPin className="w-8 h-8 mb-2 opacity-20" />
-                        <p className="text-center text-xs">
-                          Customer has not provided a shipping address yet.
-                          <br />
-                          (Collected at payment)
-                        </p>
-                      </div>
-                    )}
+                          <p className="text-center text-[10px] mt-1 opacity-60 px-6">
+                            Shipping details are typically collected during the payment phase.
+                          </p>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
 
+                {/* Requirement Brief - Structured Specs Style */}
                 <div className="space-y-4">
-                  <h3 className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                    <MessageSquare className="w-4 h-4 text-violet-500" />
+                  <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest flex items-center gap-2 px-1">
+                    <MessageSquare className="w-3.5 h-3.5 text-amber-500" />
                     Requirement Brief
                   </h3>
-                  <div className="bg-gray-50 dark:bg-gray-800/30 p-4 rounded-xl border border-gray-100 dark:border-gray-800 h-full">
-                    <p className="text-sm font-bold text-gray-800 dark:text-gray-100 mb-2">
-                      {selectedOrder.title}
-                    </p>
-                    <p className="text-xs text-gray-600 dark:text-gray-300 italic mb-3">
-                      "{selectedOrder.description}"
-                    </p>
-                    {selectedOrder.size_details && (
-                      <p className="text-xs mb-1">
-                        <strong>Size:</strong> {selectedOrder.size_details}
-                      </p>
-                    )}
-                    {selectedOrder.preferred_colors && (
-                      <p className="text-xs mb-1">
-                        <strong>Colors:</strong>{" "}
-                        {selectedOrder.preferred_colors}
-                      </p>
-                    )}
-                    {selectedOrder.deadline && (
-                      <p className="text-xs">
-                        <strong>Deadline:</strong>{" "}
-                        {formatDate(selectedOrder.deadline)}
-                      </p>
-                    )}
+                  <div className="bg-white/50 dark:bg-gray-800/40 backdrop-blur-xl p-6 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl transition-all duration-300">
+                    <div className="mb-6">
+                      <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-3">
+                        {selectedOrder.title}
+                      </h4>
+                      <div className="relative">
+                        <div className="absolute -left-3 top-0 bottom-0 w-1 bg-amber-200 dark:bg-amber-900/50 rounded-full" />
+                        <p className="text-sm text-gray-600 dark:text-gray-400 italic leading-relaxed">
+                          "{selectedOrder.description}"
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      {selectedOrder.size_details && (
+                        <div className="p-3 bg-gray-50/50 dark:bg-gray-900/30 rounded-2xl border border-gray-100 dark:border-gray-800">
+                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Size</p>
+                          <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">{selectedOrder.size_details}</p>
+                        </div>
+                      )}
+                      {selectedOrder.preferred_colors && (
+                        <div className="p-3 bg-gray-50/50 dark:bg-gray-900/30 rounded-2xl border border-gray-100 dark:border-gray-800">
+                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Colors</p>
+                          <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">{selectedOrder.preferred_colors}</p>
+                        </div>
+                      )}
+                      {selectedOrder.deadline && (
+                        <div className="col-span-2 p-3 bg-amber-50/50 dark:bg-amber-900/10 rounded-2xl border border-amber-100/50 dark:border-amber-900/30 flex items-center justify-between">
+                          <div>
+                            <p className="text-[10px] font-bold text-amber-600/70 dark:text-amber-400/70 uppercase tracking-wider">Target Deadline</p>
+                            <p className="text-sm font-bold text-amber-700 dark:text-amber-300">{formatDate(selectedOrder.deadline)}</p>
+                          </div>
+                          <Clock className="w-5 h-5 text-amber-500 opacity-50" />
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* Reference Images */}
-              {selectedOrder.reference_images &&
-                selectedOrder.reference_images.length > 0 && (
-                  <div className="space-y-4">
-                    <h3 className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                      <ImageIcon className="w-4 h-4 text-violet-500" />
-                      Reference Images
-                    </h3>
-                    <div className="flex gap-4 overflow-x-auto pb-2">
-                      {selectedOrder.reference_images.map((img, i) => (
+              {/* Reference Images Gallery */}
+              {selectedOrder.reference_images && selectedOrder.reference_images.length > 0 && (
+                <div className="space-y-4 pt-4">
+                  <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest flex items-center gap-2 px-1">
+                    <ImageIcon className="w-3.5 h-3.5 text-blue-500" />
+                    Visual References ({selectedOrder.reference_images.length})
+                  </h3>
+                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
+                    {selectedOrder.reference_images.map((img, i) => (
+                      <div key={i} className="group relative aspect-square">
                         <a
-                          key={i}
                           href={img}
                           target="_blank"
                           rel="noreferrer"
-                          className="relative shrink-0 border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden block group"
+                          className="block w-full h-full relative border-2 border-white dark:border-gray-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
                         >
                           <img
                             src={img}
-                            alt={`Ref ${i}`}
-                            className="w-24 h-24 object-cover"
+                            alt={`Reference ${i}`}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                           />
-                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                            <Eye className="text-white w-6 h-6" />
+                          <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <Eye className="text-white w-6 h-6 drop-shadow-lg" />
                           </div>
                         </a>
-                      ))}
-                    </div>
+                      </div>
+                    ))}
                   </div>
-                )}
+                </div>
+              )}
 
               <hr className="border-gray-200 dark:border-gray-800" />
 

@@ -26,14 +26,20 @@ export default async function OrdersPage() {
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
-  // Get order statistics (regular only for now)
+  // Get comprehensive order statistics (Regular + Custom)
   const stats = {
-    total: regularOrders?.length || 0,
-    pending: regularOrders?.filter(o => o.status === 'pending').length || 0,
-    processing: regularOrders?.filter(o => o.status === 'processing').length || 0,
-    shipped: regularOrders?.filter(o => o.status === 'shipped').length || 0,
-    delivered: regularOrders?.filter(o => o.status === 'delivered').length || 0,
-    totalSpent: regularOrders?.reduce((sum, o) => sum + (o.total || 0), 0) || 0,
+    total: (regularOrders?.length || 0) + (customOrders?.length || 0),
+    pending: (regularOrders?.filter(o => o.status === 'pending').length || 0) + 
+             (customOrders?.filter(o => o.status === 'pending' || o.status === 'quoted').length || 0),
+    processing: (regularOrders?.filter(o => o.status === 'processing').length || 0) + 
+                (customOrders?.filter(o => o.status === 'paid' || o.status === 'in_progress').length || 0),
+    shipped: (regularOrders?.filter(o => o.status === 'shipped').length || 0) + 
+             (customOrders?.filter(o => o.status === 'shipped').length || 0),
+    delivered: (regularOrders?.filter(o => o.status === 'delivered').length || 0) + 
+               (customOrders?.filter(o => o.status === 'delivered').length || 0),
+    totalSpent: (regularOrders?.reduce((sum, o) => sum + (o.total || 0), 0) || 0) + 
+                (customOrders?.filter(o => ['paid', 'in_progress', 'shipped', 'delivered'].includes(o.status))
+                             .reduce((sum, o) => sum + (o.quoted_price || 0), 0) || 0),
   };
 
   return <OrdersPageClient orders={regularOrders || []} customOrders={customOrders || []} stats={stats} />;
