@@ -6,6 +6,8 @@ import { useAuthStore } from "@/store/useAuthStore";
 import ChatWindow from "@/components/chat/ChatWindow";
 import { Conversation } from "@/types";
 import { formatDateTime } from "@/lib/utils";
+import { deleteConversationAction } from "@/actions/admin_chat";
+import toast from "react-hot-toast";
 import {
   MessageCircle,
   MessagesSquare,
@@ -88,6 +90,31 @@ export default function AdminChatPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showMobileChat, setShowMobileChat] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDeleteConversation = async () => {
+    if (!selectedConv || isDeleting) return;
+    
+    if (!window.confirm("Are you sure you want to permanently delete this conversation and all its messages? This cannot be undone.")) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      const res = await deleteConversationAction(selectedConv);
+      if (res.success) {
+        toast.success("Conversation deleted successfully");
+        setConversations(prev => prev.filter(c => c.id !== selectedConv));
+        setSelectedConv(null);
+      } else {
+        toast.error(res.error || "Failed to delete conversation");
+      }
+    } catch (err) {
+      toast.error("An error occurred while deleting");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   useEffect(() => {
     if (authLoading) return;
@@ -100,6 +127,17 @@ export default function AdminChatPage() {
       try {
         setUserId(user.id);
 
+        // 1. Fetch all conversation IDs used for custom orders
+        const { data: customOrderData } = await supabase
+          .from("custom_orders")
+          .select("conversation_id")
+          .not("conversation_id", "is", null);
+
+        const customOrderConvIds = new Set(
+          customOrderData?.map((co) => co.conversation_id).filter(Boolean) || []
+        );
+
+        // 2. Fetch all conversations
         const { data, error } = await supabase
           .from("conversations")
           .select("*, profile:profiles!customer_id(full_name), messages(is_read, sender_id)")
@@ -107,11 +145,20 @@ export default function AdminChatPage() {
 
         if (error) throw error;
         if (data) {
-          // Calculate unread count for each conversation
-          const enhancedData = data.map((conv: any) => ({
-            ...conv,
-            unread_count: conv.messages?.filter((m: any) => !m.is_read && m.sender_id !== user.id).length || 0
-          }));
+          // 3. Filter out custom order conversations and calculate unread count
+          const enhancedData = data
+            .filter((conv: any) => {
+              const subject = (conv.subject || "").toLowerCase();
+              const isCustomOrder = 
+                customOrderConvIds.has(conv.id) || 
+                subject.includes("custom order");
+              return !isCustomOrder;
+            })
+            .map((conv: any) => ({
+              ...conv,
+              unread_count: conv.messages?.filter((m: any) => !m.is_read && m.sender_id !== user.id).length || 0
+            }));
+
           setConversations(enhancedData);
           if (enhancedData.length > 0 && !selectedConv) setSelectedConv(enhancedData[0].id);
         }
@@ -519,6 +566,18 @@ export default function AdminChatPage() {
                       </div>
 
                       <div className="flex items-center gap-2">
+                        <button 
+                          onClick={handleDeleteConversation}
+                          disabled={isDeleting}
+                          className="p-2.5 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/40 hover:text-red-600 transition-all group"
+                          title="Delete Conversation"
+                        >
+                          {isDeleting ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                          )}
+                        </button>
                         <button className="p-2.5 rounded-xl bg-gray-100/80 dark:bg-gray-800/80 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-all">
                           <MoreVertical className="w-4 h-4" />
                         </button>

@@ -86,6 +86,18 @@ export default function ChatPage() {
       setIsLoading(true);
       setUserId(user.id);
 
+      // 1. Fetch conversation IDs used for custom orders
+      const { data: customOrderData } = await supabase
+        .from("custom_orders")
+        .select("conversation_id")
+        .eq("user_id", user.id)
+        .not("conversation_id", "is", null);
+
+      const customOrderConvIds = new Set(
+        customOrderData?.map((co) => co.conversation_id).filter(Boolean) || []
+      );
+
+      // 2. Fetch all conversations
       const { data } = await supabase
         .from("conversations")
         .select("*")
@@ -93,9 +105,18 @@ export default function ChatPage() {
         .order("last_message_at", { ascending: false });
 
       if (data) {
-        setConversations(data);
+        // 3. Filter out custom order conversations
+        const filteredData = data.filter((conv: any) => {
+          const subject = (conv.subject || "").toLowerCase();
+          const isCustomOrder = 
+            customOrderConvIds.has(conv.id) || 
+            subject.includes("custom order");
+          return !isCustomOrder;
+        });
+        setConversations(filteredData);
+        
         // Only auto-select the first conversation if none is selected
-        if (data.length > 0 && !selectedConv) setSelectedConv(data[0].id);
+        if (filteredData.length > 0 && !selectedConv) setSelectedConv(filteredData[0].id);
       }
       setIsLoading(false);
     };

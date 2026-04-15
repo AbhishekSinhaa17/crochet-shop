@@ -625,7 +625,7 @@ function OrderCard({ order, index }: { order: any; index: number }) {
 
   return (
     <Link
-      href={isCustom ? `/admin/custom-orders` : `/admin/orders`}
+      href={isCustom ? `/admin/custom-orders?id=${order.id}` : `/admin/orders?id=${order.id}`}
       className="block group"
       style={{
         animation: `fadeInUp 0.5s ease-out ${index * 0.1}s both`,

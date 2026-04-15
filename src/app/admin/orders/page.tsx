@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense, useRef } from "react";
+import ProductPreviewModal from "@/components/admin/ProductPreviewModal";
+import { useSearchParams } from "next/navigation";
 import { Order } from "@/types";
 import { formatPrice, formatDate } from "@/lib/utils";
 import toast from "react-hot-toast";
@@ -46,6 +48,18 @@ import {
 } from "@/actions/admin_orders";
 
 export default function AdminOrdersPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-10 h-10 text-violet-600 animate-spin" />
+      </div>
+    }>
+      <AdminOrdersPageContent />
+    </Suspense>
+  );
+}
+
+function AdminOrdersPageContent() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -55,6 +69,20 @@ export default function AdminOrdersPage() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [trackingNumber, setTrackingNumber] = useState("");
   const [isUpdatingTracking, setIsUpdatingTracking] = useState(false);
+  const [previewProductId, setPreviewProductId] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+  const highlightId = searchParams.get("id");
+  const hasAutoOpened = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (highlightId && orders.length > 0 && highlightId !== hasAutoOpened.current) {
+      const order = orders.find(o => o.id === highlightId);
+      if (order) {
+        setSelectedOrder(order);
+        hasAutoOpened.current = highlightId;
+      }
+    }
+  }, [highlightId, orders]);
 
   useEffect(() => {
     fetchOrders();
@@ -954,7 +982,8 @@ export default function AdminOrdersPage() {
                   {selectedOrder.items.map((item, i) => (
                     <div
                       key={i}
-                      className="flex items-center gap-4 p-3 bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 hover:border-violet-200 dark:hover:border-violet-900/50 transition-colors group"
+                      onClick={() => setPreviewProductId(item.product_id)}
+                      className="flex items-center gap-4 p-3 bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 hover:border-violet-400 dark:hover:border-violet-700 transition-all cursor-pointer group hover:scale-[1.02] shadow-sm hover:shadow-md"
                     >
                       <div className="relative w-16 h-16 rounded-lg overflow-hidden border border-gray-100 dark:border-gray-800 shrink-0">
                         <img
@@ -1011,6 +1040,13 @@ export default function AdminOrdersPage() {
           </div>
         </div>
       )}
+
+      {/* Product Preview Modal */}
+      <ProductPreviewModal
+        productId={previewProductId || undefined}
+        isOpen={!!previewProductId}
+        onClose={() => setPreviewProductId(null)}
+      />
 
       {/* Global Animations */}
       <style jsx global>{`

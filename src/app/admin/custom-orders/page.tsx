@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense, useRef } from "react";
+import ProductPreviewModal from "@/components/admin/ProductPreviewModal";
+import { useSearchParams } from "next/navigation";
 import { formatPrice, formatDate } from "@/lib/utils";
 import { CustomOrder } from "@/types";
 import {
@@ -45,6 +47,18 @@ const FILTER_OPTIONS = [
 ];
 
 export default function AdminCustomOrdersPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <RefreshCcw className="w-10 h-10 text-pink-600 animate-spin" />
+      </div>
+    }>
+      <AdminCustomOrdersPageContent />
+    </Suspense>
+  );
+}
+
+function AdminCustomOrdersPageContent() {
   const [orders, setOrders] = useState<CustomOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -60,6 +74,20 @@ export default function AdminCustomOrdersPage() {
   const [quotedPriceInput, setQuotedPriceInput] = useState<string>("");
   const [trackingNumber, setTrackingNumber] = useState<string>("");
   const [adminNotesInput, setAdminNotesInput] = useState<string>("");
+  const [previewCustomOrder, setPreviewCustomOrder] = useState<any>(null);
+  const searchParams = useSearchParams();
+  const highlightId = searchParams.get("id");
+  const hasAutoOpened = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (highlightId && orders.length > 0 && highlightId !== hasAutoOpened.current) {
+      const order = orders.find(o => o.id === highlightId);
+      if (order) {
+        handleSelectOrder(order);
+        hasAutoOpened.current = highlightId;
+      }
+    }
+  }, [highlightId, orders]);
 
   useEffect(() => {
     fetchOrders();
@@ -576,7 +604,10 @@ export default function AdminCustomOrdersPage() {
                   </h3>
                   <div className="bg-white/50 dark:bg-gray-800/40 backdrop-blur-xl p-6 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl transition-all duration-300">
                     <div className="mb-6">
-                      <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-3">
+                      <h4 
+                        onClick={() => setPreviewCustomOrder(selectedOrder)}
+                        className="text-lg font-bold text-gray-900 dark:text-white mb-3 cursor-pointer hover:text-violet-600 dark:hover:text-violet-400 transition-colors inline-block"
+                      >
                         {selectedOrder.title}
                       </h4>
                       <div className="relative">
@@ -638,11 +669,9 @@ export default function AdminCustomOrdersPage() {
                     <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
                       {selectedOrder.reference_images.map((img, i) => (
                         <div key={i} className="group relative aspect-square">
-                          <a
-                            href={img}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="block w-full h-full relative border-2 border-white dark:border-gray-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                          <div
+                            onClick={() => setPreviewCustomOrder(selectedOrder)}
+                            className="block w-full h-full relative border-2 border-white dark:border-gray-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer"
                           >
                             <img
                               src={img}
@@ -652,7 +681,7 @@ export default function AdminCustomOrdersPage() {
                             <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                               <Eye className="text-white w-6 h-6 drop-shadow-lg" />
                             </div>
-                          </a>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -824,6 +853,12 @@ export default function AdminCustomOrdersPage() {
           </div>
         </div>
       )}
+      {/* Product Preview Modal */}
+      <ProductPreviewModal
+        productData={previewCustomOrder}
+        isOpen={!!previewCustomOrder}
+        onClose={() => setPreviewCustomOrder(null)}
+      />
     </div>
   );
 }

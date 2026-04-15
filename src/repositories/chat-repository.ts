@@ -60,4 +60,12 @@ export class ChatRepository {
     if (error) throw error;
     return message;
   }
+  async deleteConversation(id: string) {
+    const supabase = await this.getClient();
+    // Delete messages first to handle foreign key constraints if not cascading
+    await supabase.from("messages").delete().eq("conversation_id", id);
+    const { error } = await supabase.from("conversations").delete().eq("id", id);
+    if (error) throw error;
+    return true;
+  }
 }

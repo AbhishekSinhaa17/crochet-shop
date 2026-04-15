@@ -103,10 +103,36 @@ export default function AdminLayout({
   useEffect(() => {
     setMounted(true);
     fetchCounts();
-    // Refresh counts every 30 seconds
-    const interval = setInterval(fetchCounts, 30000);
-    return () => clearInterval(interval);
-  }, []);
+
+    // 1. Subscribe to messages changes (new messages, mark as read)
+    const messagesChannel = supabase
+      .channel("admin-layout-messages")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "messages" },
+        () => fetchCounts()
+      )
+      .subscribe();
+
+    // 2. Subscribe to conversations changes (new conversations, status changes)
+    const conversationsChannel = supabase
+      .channel("admin-layout-conversations")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "conversations" },
+        () => fetchCounts()
+      )
+      .subscribe();
+
+    // 3. Fallback polling (every 60s)
+    const interval = setInterval(fetchCounts, 60000);
+
+    return () => {
+      supabase.removeChannel(messagesChannel);
+      supabase.removeChannel(conversationsChannel);
+      clearInterval(interval);
+    };
+  }, [profile?.id]); // Re-subscribe if profile changes to ensure correct sender_id check
 
   // Scroll to top on pathname change
   useEffect(() => {
@@ -116,6 +142,9 @@ export default function AdminLayout({
   }, [pathname]);
 
   const fetchCounts = async () => {
+    // If profile is not loaded, we can't correctly filter sender_id for unread messages
+    if (!profile?.id) return;
+
     try {
       // 1. Pending Orders
       const { count: orderCount } = await supabase
@@ -129,15 +158,34 @@ export default function AdminLayout({
         .select("*", { count: "exact", head: true })
         .eq("status", "pending");
 
-      // 3. Conversations with Unread Messages
+      // 3. Conversations with Unread Messages (Excluding Custom Order Inquiries)
+      const { data: customOrderConvs } = await supabase
+        .from("custom_orders")
+        .select("conversation_id")
+        .not("conversation_id", "is", null);
+
+      const customOrderConvIds = new Set(
+        customOrderConvs?.map((co) => co.conversation_id).filter(Boolean) || []
+      );
+
       const { data: chatData } = await supabase
         .from("conversations")
         .select("id, messages(is_read, sender_id)")
         .eq("is_closed", false);
 
-      const realChatCount = chatData?.filter((conv: any) => 
-        conv.messages?.some((m: any) => !m.is_read && m.sender_id !== profile?.id)
-      ).length || 0;
+      const realChatCount =
+        chatData?.filter((conv: any) => {
+          const subject = (conv.subject || "").toLowerCase();
+          const isCustomOrder =
+            customOrderConvIds.has(conv.id) ||
+            subject.includes("custom order");
+          return (
+            !isCustomOrder &&
+            conv.messages?.some(
+              (m: any) => !m.is_read && m.sender_id !== profile?.id
+            )
+          );
+        }).length || 0;
 
       setCounts({
         orders: orderCount || 0,
@@ -145,18 +193,29 @@ export default function AdminLayout({
         chat: realChatCount,
       });
 
-      // 4. Today's Revenue
+      // 4. Today's Revenue (Standard + Paid Custom Orders)
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      
-      const { data: revenueData } = await supabase
-        .from("orders")
-        .select("total")
-        .gte("created_at", today.toISOString())
-        .neq("status", "cancelled");
 
-      const total = revenueData?.reduce((sum, o) => sum + (Number(o.total) || 0), 0) || 0;
-      setTodayRevenue(total);
+      const [stdRev, custRev] = await Promise.all([
+        supabase
+          .from("orders")
+          .select("total")
+          .gte("created_at", today.toISOString())
+          .neq("status", "cancelled"),
+        supabase
+          .from("custom_orders")
+          .select("quoted_price")
+          .gte("updated_at", today.toISOString())
+          .in("status", ["paid", "in_progress", "shipped", "delivered"]),
+      ]);
+
+      const stdTotal =
+        stdRev.data?.reduce((sum, o) => sum + (Number(o.total) || 0), 0) || 0;
+      const custTotal =
+        custRev.data?.reduce((sum, o) => sum + (Number(o.quoted_price) || 0), 0) || 0;
+
+      setTodayRevenue(stdTotal + custTotal);
     } catch (err) {
       console.error("Error fetching admin counts:", err);
     }
