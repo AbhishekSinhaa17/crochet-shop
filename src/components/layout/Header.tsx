@@ -5,7 +5,30 @@ import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/lib/supabase/client";
 import { useCartStore } from "@/store/cartStore";
 import { useRouter, usePathname } from "next/navigation";
-import { ShoppingBag, Heart, User, Menu, X, Search, LogOut, Package, MessageCircle, LayoutDashboard, ChevronDown, Sparkles, Crown, ArrowRight, Flower2, Star, Gift, Zap, TrendingUp, Clock, ChevronRight, Scissors } from "lucide-react";
+import {
+  ShoppingBag,
+  Heart,
+  User,
+  Menu,
+  X,
+  Search,
+  LogOut,
+  Package,
+  MessageCircle,
+  LayoutDashboard,
+  ChevronDown,
+  Sparkles,
+  Crown,
+  ArrowRight,
+  Flower2,
+  Star,
+  Gift,
+  Zap,
+  TrendingUp,
+  Clock,
+  ChevronRight,
+  Scissors,
+} from "lucide-react";
 import { useWishlistStore } from "@/store/wishlistStore";
 import { useAuthStore } from "@/store/useAuthStore";
 import { cn } from "@/lib/utils";
@@ -104,7 +127,7 @@ export default function Header() {
     // Clear local state only - don't sync-delete from DB before the session is actually closed
     clearCart(false);
     clearWishlist();
-    
+
     const form = document.createElement("form");
     form.method = "POST";
     form.action = "/auth/signout";
@@ -121,21 +144,32 @@ export default function Header() {
     }
   };
 
+  const userInitial = profile?.full_name?.charAt(0)?.toUpperCase();
+  const isAdmin = profile?.role?.toLowerCase()?.trim() === "admin";
+
   const navLinks = [
     { href: "/products", label: "Shop", icon: ShoppingBag },
     { href: "/#about-us", label: "About", icon: Star },
-    {
-      href: "/custom-order",
-      label: "Custom Order",
-      icon: Sparkles,
-      highlight: true,
-    },
+    ...(isAdmin
+      ? [
+          {
+            href: "/admin/dashboard",
+            label: "Admin Dashboard",
+            icon: LayoutDashboard,
+            highlight: false,
+          },
+        ]
+      : [
+          {
+            href: "/custom-order",
+            label: "Custom Order",
+            icon: Sparkles,
+            highlight: true,
+          },
+        ]),
   ];
 
   if (pathname?.startsWith("/admin")) return null;
-
-  const userInitial = profile?.full_name?.charAt(0)?.toUpperCase();
-  const isAdmin = profile?.role?.toLowerCase()?.trim() === "admin";
 
   return (
     <>
@@ -274,58 +308,63 @@ export default function Header() {
           className={cn(
             "absolute inset-0 transition-all duration-500",
             scrolled
-              ? "bg-white/70 dark:bg-slate-950/80 backdrop-blur-2xl border-b border-slate-200/50 dark:border-slate-800/50"
+              ? "bg-white/90 dark:bg-[#1a1c35]/90 backdrop-blur-2xl border-b border-slate-200/50 dark:border-indigo-500/20 shadow-lg"
               : "bg-transparent",
           )}
         />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="relative px-6 md:px-12 w-full">
           <div className="flex items-center justify-between gap-4">
             {/* ========== LOGO ========== */}
-            <Link
-              href="/"
-              className="relative flex items-center gap-3 group z-10"
-            >
-              {/* Logo Glow */}
-              <div className="absolute -inset-4 bg-linear-to-r from-pink-500/20 via-purple-500/20 to-violet-500/20 rounded-3xl blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+            <div className="flex-1 flex justify-start">
+              <Link
+                href="/"
+                className="relative flex items-center gap-3 group z-10"
+              >
+                {/* Logo Glow */}
+                <div className="absolute -inset-4 bg-linear-to-r from-pink-500/20 via-purple-500/20 to-violet-500/20 rounded-3xl blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
 
-              {/* Logo Icon */}
-              <div className="relative">
-                {/* Spinning Border */}
-                <div className="absolute -inset-1 bg-linear-to-r from-pink-500 via-purple-500 to-violet-500 rounded-2xl opacity-75 group-hover:opacity-100 blur-sm transition-opacity duration-500 animate-spin-slow" />
+                {/* Logo Icon */}
+                <div className="relative">
+                  {/* Spinning Border */}
+                  <div className="absolute -inset-1 bg-linear-to-r from-pink-500 via-purple-500 to-violet-500 rounded-2xl opacity-75 group-hover:opacity-100 blur-sm transition-opacity duration-500 animate-spin-slow" />
 
-                {/* Icon Container */}
-                <div className="relative w-12 h-12 rounded-xl bg-linear-to-br from-[#C2185B] to-[#9C27B0] flex items-center justify-center shadow-xl shadow-purple-500/25 group-hover:shadow-purple-500/50 transition-all duration-500 group-hover:scale-105 overflow-hidden">
-                  {/* Shine Effect */}
-                  <div className="absolute inset-0 bg-linear-to-tr from-white/0 via-white/30 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                  {/* Icon Container */}
+                  <div className="relative w-12 h-12 rounded-xl bg-linear-to-br from-[#C2185B] to-[#9C27B0] flex items-center justify-center shadow-xl shadow-purple-500/25 group-hover:shadow-purple-500/50 transition-all duration-500 group-hover:scale-105 overflow-hidden">
+                    {/* Shine Effect */}
+                    <div className="absolute inset-0 bg-linear-to-tr from-white/0 via-white/30 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
 
-                  <Scissors className="w-6 h-6 text-white relative z-10" />
+                    <Scissors className="w-6 h-6 text-white relative z-10" />
+                  </div>
+
+                  {/* Floating Sparkle */}
+                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-linear-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg animate-bounce">
+                    <Sparkles className="w-2.5 h-2.5 text-white" />
+                  </div>
                 </div>
 
-                {/* Floating Sparkle */}
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-linear-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg animate-bounce">
-                  <Sparkles className="w-2.5 h-2.5 text-white" />
-                </div>
-              </div>
-
-              {/* Logo Text */}
-              <div className="hidden sm:flex flex-col">
-                <div className="flex items-baseline gap-0.5">
-                  <span className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-                    Strokes
+                {/* Logo Text */}
+                <div className="hidden sm:flex flex-col">
+                  <div className="flex items-baseline gap-0.5">
+                    <span className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+                      Strokes
+                    </span>
+                    <span className="text-3xl font-black bg-linear-to-r from-pink-500 via-purple-500 to-violet-500 bg-clip-text text-transparent tracking-tight">
+                      of Craft
+                    </span>
+                  </div>
+                  <span className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">
+                    Handmade with love
                   </span>
-                  <span className="text-3xl font-black bg-linear-to-r from-pink-500 via-purple-500 to-violet-500 bg-clip-text text-transparent tracking-tight">
-                    of Craft
-                  </span>
                 </div>
-                <span className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">
-                  Handmade with love
-                </span>
-              </div>
-            </Link>
+              </Link>
+            </div>
 
             {/* ========== DESKTOP NAVIGATION ========== */}
-            <nav ref={navRef} className="hidden lg:flex items-center">
+            <nav
+              ref={navRef}
+              className="hidden lg:flex items-center justify-center"
+            >
               <div className="relative flex items-center bg-slate-100/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-full p-1 border border-slate-200/50 dark:border-slate-700/50">
                 {/* Animated Hover Background */}
                 <div
@@ -383,210 +422,227 @@ export default function Header() {
             </nav>
 
             {/* ========== ACTIONS ========== */}
-            <div className="flex items-center gap-2">
-              {/* Theme Toggle */}
-              <div className="hidden sm:block">
-                <ThemeToggle />
-              </div>
+            <div className="flex-1 flex justify-end">
+              <div className="flex items-center gap-2">
+                {/* Theme Toggle */}
+                <div className="hidden sm:block">
+                  <ThemeToggle />
+                </div>
 
-              {/* Search Button */}
-              <button
-                onClick={() => setSearchOpen(true)}
-                className="relative p-2.5 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-300 group"
-              >
-                <Search className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
-
-                {/* Keyboard Shortcut Hint */}
-                <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[10px] font-medium rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap pointer-events-none">
-                  ⌘K
-                </span>
-              </button>
-
-              {/* Wishlist */}
-              {!isAdmin && (
-                <Link
-                  href="/wishlist"
-                  className="relative hidden sm:flex p-2.5 rounded-xl text-slate-500 dark:text-slate-400 hover:text-pink-500 hover:bg-pink-50 dark:hover:bg-pink-500/10 transition-all duration-300 group"
+                {/* Search Button */}
+                <button
+                  onClick={() => setSearchOpen(true)}
+                  className="relative p-2.5 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-300 group"
                 >
-                  <Heart className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
-                  <Heart className="absolute inset-0 m-auto w-5 h-5 text-pink-500 opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-125 transition-all duration-500 fill-pink-500" />
-                  
-                  {/* Wishlist Badge */}
-                  {mounted && wishlistCount > 0 && (
-                    <span className="absolute -top-1 -right-1 flex items-center justify-center">
-                      <span className="absolute w-4 h-4 bg-pink-500 rounded-full animate-ping opacity-75" />
-                      <span className="relative w-4 h-4 bg-pink-500 rounded-full flex items-center justify-center text-[9px] font-bold text-white shadow-lg">
-                        {wishlistCount}
-                      </span>
-                    </span>
-                  )}
-                </Link>
-              )}
+                  <Search className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
 
-              {/* Cart */}
-              {!isAdmin && (
-                <Link
-                  href="/cart"
-                  className="relative p-2.5 rounded-xl text-slate-500 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-500/10 transition-all duration-300 group"
-                >
-                  <ShoppingBag className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
+                  {/* Keyboard Shortcut Hint */}
+                  <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[10px] font-medium rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap pointer-events-none">
+                    ⌘K
+                  </span>
+                </button>
 
-                  {/* Cart Badge */}
-                  {mounted && itemCount > 0 && (
-                    <span className="absolute -top-1 -right-1 flex items-center justify-center">
-                      <span className="absolute w-5 h-5 bg-linear-to-r from-pink-500 to-purple-600 rounded-full animate-ping opacity-75" />
-                      <span className="relative w-5 h-5 bg-linear-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-lg">
-                        {itemCount}
-                      </span>
-                    </span>
-                  )}
-                </Link>
-              )}
-
-              {/* Divider */}
-              <div className="hidden md:block w-px h-8 bg-linear-to-b from-transparent via-slate-300 dark:via-slate-600 to-transparent mx-1" />
-
-              {/* ========== USER MENU ========== */}
-              {mounted && user ? (
-                <div className="relative" ref={dropdownRef}>
-                  <button
-                    onClick={() => setUserMenuOpen(!userMenuOpen)}
-                    className={cn(
-                      "flex items-center gap-3 p-1 rounded-2xl transition-all duration-300 group",
-                      userMenuOpen
-                        ? "bg-slate-100 dark:bg-slate-800 ring-2 ring-purple-500/30"
-                        : "hover:bg-slate-100 dark:hover:bg-slate-800",
-                    )}
+                {/* Wishlist */}
+                {!isAdmin && (
+                  <Link
+                    href="/wishlist"
+                    className="relative hidden sm:flex p-2.5 rounded-xl text-slate-500 dark:text-slate-400 hover:text-pink-500 hover:bg-pink-50 dark:hover:bg-pink-500/10 transition-all duration-300 group"
                   >
-                    {/* Avatar */}
-                    <div className="relative">
-                      <div className="relative w-9 h-9 rounded-lg bg-linear-to-br from-pink-500 via-purple-600 to-violet-600 flex items-center justify-center text-white font-bold text-sm shadow-lg overflow-hidden">
-                        {userInitial || <User className="w-4 h-4" />}
-                      </div>
-                    </div>
-                  </button>
+                    <Heart className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
+                    <Heart className="absolute inset-0 m-auto w-5 h-5 text-pink-500 opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-125 transition-all duration-500 fill-pink-500" />
 
-                  {/* ========== DROPDOWN MENU ========== */}
-                  {userMenuOpen && (
-                    <>
-                      {/* Backdrop */}
-                      <div
-                        className="fixed inset-0 z-40"
-                        onClick={() => setUserMenuOpen(false)}
-                      />
+                    {/* Wishlist Badge */}
+                    {mounted && wishlistCount > 0 && (
+                      <span className="absolute -top-1 -right-1 flex items-center justify-center">
+                        <span className="absolute w-4 h-4 bg-pink-500 rounded-full animate-ping opacity-75" />
+                        <span className="relative w-4 h-4 bg-pink-500 rounded-full flex items-center justify-center text-[9px] font-bold text-white shadow-lg">
+                          {wishlistCount}
+                        </span>
+                      </span>
+                    )}
+                  </Link>
+                )}
 
-                      {/* Dropdown */}
-                      <div className="absolute right-0 top-full mt-3 w-72 z-50 animate-in fade-in slide-in-from-top-3 duration-300">
-                        <div className="relative bg-[#0F172A] rounded-2xl shadow-2xl border border-white/5 overflow-hidden">
-                          {/* Top Section */}
-                          <div className="p-5 border-b border-white/5">
-                            <div className="flex items-center gap-4">
-                              <div className="w-14 h-14 rounded-full bg-linear-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-xl">
-                                {userInitial || "A"}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="font-bold text-white text-lg truncate">{profile?.full_name || "Abhishek Sinha"}</p>
-                                <p className="text-sm text-slate-500 truncate">{user.email}</p>
-                              </div>
-                            </div>
-                          </div>
+                {/* Cart */}
+                {!isAdmin && (
+                  <Link
+                    href="/cart"
+                    className="relative p-2.5 rounded-xl text-slate-500 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-500/10 transition-all duration-300 group"
+                  >
+                    <ShoppingBag className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
 
-                          {/* Menu Links */}
-                          <div className="py-2 border-b border-white/5">
-                            {[
-                              { label: "Profile", icon: User, href: "/profile" },
-                              { label: "Orders", icon: Package, href: "/orders" },
-                              ...(!isAdmin ? [{ label: "Wishlist", icon: Heart, href: "/wishlist" }] : []),
-                              { label: "Messages", icon: MessageCircle, href: "/chat" },
-                            ].map((item) => (
-                              <Link
-                                key={item.label}
-                                href={item.href}
-                                onClick={() => setUserMenuOpen(false)}
-                                className="flex items-center gap-3 px-5 py-3 text-slate-400 hover:text-white hover:bg-white/5 transition-all duration-200"
-                              >
-                                <item.icon className="w-5 h-5" />
-                                <span className="text-sm font-medium">{item.label}</span>
-                              </Link>
-                            ))}
-                          </div>
+                    {/* Cart Badge */}
+                    {mounted && itemCount > 0 && (
+                      <span className="absolute -top-1 -right-1 flex items-center justify-center">
+                        <span className="absolute w-5 h-5 bg-linear-to-r from-pink-500 to-purple-600 rounded-full animate-ping opacity-75" />
+                        <span className="relative w-5 h-5 bg-linear-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-lg">
+                          {itemCount}
+                        </span>
+                      </span>
+                    )}
+                  </Link>
+                )}
 
-                          {/* Admin Section */}
-                          {isAdmin && (
-                            <div className="py-2 border-b border-white/5">
-                              <Link
-                                href="/admin/dashboard"
-                                onClick={() => setUserMenuOpen(false)}
-                                className="flex items-center justify-between px-5 py-3 text-purple-400 hover:text-purple-300 hover:bg-white/5 transition-all duration-200"
-                              >
-                                <div className="flex items-center gap-3">
-                                  <LayoutDashboard className="w-5 h-5" />
-                                  <span className="text-sm font-bold">Admin Dashboard</span>
-                                </div>
-                                <Zap className="w-4 h-4 text-amber-500 fill-amber-500" />
-                              </Link>
-                            </div>
-                          )}
+                {/* Divider */}
+                <div className="hidden md:block w-px h-8 bg-linear-to-b from-transparent via-slate-300 dark:via-slate-600 to-transparent mx-1" />
 
-                          {/* Footer / Logout */}
-                          <div className="py-2">
-                            <button
-                              onClick={handleLogout}
-                              className="flex items-center gap-3 w-full px-5 py-3 text-red-500 hover:bg-red-500/5 transition-all duration-200"
-                            >
-                              <LogOut className="w-5 h-5" />
-                              <span className="text-sm font-bold">Sign out</span>
-                            </button>
-                          </div>
+                {/* ========== USER MENU ========== */}
+                {mounted && user ? (
+                  <div className="relative" ref={dropdownRef}>
+                    <button
+                      onClick={() => setUserMenuOpen(!userMenuOpen)}
+                      className={cn(
+                        "flex items-center gap-3 p-1 rounded-2xl transition-all duration-300 group",
+                        userMenuOpen
+                          ? "bg-slate-100 dark:bg-slate-800 ring-2 ring-purple-500/30"
+                          : "hover:bg-slate-100 dark:hover:bg-slate-800",
+                      )}
+                    >
+                      {/* Avatar */}
+                      <div className="relative">
+                        <div className="relative w-9 h-9 rounded-lg bg-linear-to-br from-pink-500 via-purple-600 to-violet-600 flex items-center justify-center text-white font-bold text-sm shadow-lg overflow-hidden">
+                          {userInitial || <User className="w-4 h-4" />}
                         </div>
                       </div>
-                    </>
-                  )}
-                </div>
-              ) : mounted ? (
-                <Link
-                  href="/auth/login"
-                  className="relative flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold text-white overflow-hidden group transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40"
+                    </button>
+
+                    {/* ========== DROPDOWN MENU ========== */}
+                    {userMenuOpen && (
+                      <>
+                        {/* Backdrop */}
+                        <div
+                          className="fixed inset-0 z-40"
+                          onClick={() => setUserMenuOpen(false)}
+                        />
+
+                        {/* Dropdown */}
+                        <div className="absolute right-0 top-full mt-3 w-72 z-50 animate-in fade-in slide-in-from-top-3 duration-300">
+                          <div className="relative bg-[#0F172A] rounded-2xl shadow-2xl border border-white/5 overflow-hidden">
+                            {/* Top Section */}
+                            <div className="p-5 border-b border-white/5">
+                              <div className="flex items-center gap-4">
+                                <div className="w-14 h-14 rounded-full bg-linear-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-xl">
+                                  {userInitial || "A"}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-bold text-white text-lg truncate">
+                                    {profile?.full_name || "Abhishek Sinha"}
+                                  </p>
+                                  <p className="text-sm text-slate-500 truncate">
+                                    {user.email}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Menu Links */}
+                            <div className="py-2 border-b border-white/5">
+                              {[
+                                {
+                                  label: "Profile",
+                                  icon: User,
+                                  href: "/profile",
+                                },
+                                ...(!isAdmin
+                                  ? [
+                                      {
+                                        label: "Orders",
+                                        icon: Package,
+                                        href: "/orders",
+                                      },
+                                    ]
+                                  : []),
+                                ...(!isAdmin
+                                  ? [
+                                      {
+                                        label: "Wishlist",
+                                        icon: Heart,
+                                        href: "/wishlist",
+                                      },
+                                    ]
+                                  : []),
+                                {
+                                  label: "Messages",
+                                  icon: MessageCircle,
+                                  href: "/chat",
+                                },
+                              ].map((item) => (
+                                <Link
+                                  key={item.label}
+                                  href={item.href}
+                                  onClick={() => setUserMenuOpen(false)}
+                                  className="flex items-center gap-3 px-5 py-3 text-slate-400 hover:text-white hover:bg-white/5 transition-all duration-200"
+                                >
+                                  <item.icon className="w-5 h-5" />
+                                  <span className="text-sm font-medium">
+                                    {item.label}
+                                  </span>
+                                </Link>
+                              ))}
+                            </div>
+
+                            {/* Footer / Logout */}
+                            <div className="py-2">
+                              <button
+                                onClick={handleLogout}
+                                className="flex items-center gap-3 w-full px-5 py-3 text-red-500 hover:bg-red-500/5 transition-all duration-200"
+                              >
+                                <LogOut className="w-5 h-5" />
+                                <span className="text-sm font-bold">
+                                  Sign out
+                                </span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                ) : mounted ? (
+                  <Link
+                    href="/auth/login"
+                    className="relative flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold text-white overflow-hidden group transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40"
+                  >
+                    {/* Animated Gradient Background */}
+                    <div className="absolute inset-0 bg-linear-to-r from-pink-500 via-purple-600 to-violet-600 bg-size-[200%_100%] animate-gradient-x" />
+
+                    {/* Shine Effect */}
+                    <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+
+                    <Sparkles className="w-4 h-4 relative z-10" />
+                    <span className="relative z-10">Sign In</span>
+                  </Link>
+                ) : (
+                  <div className="w-24 h-10 bg-slate-200 dark:bg-slate-700 rounded-xl animate-pulse" />
+                )}
+
+                {/* Mobile Menu Toggle */}
+                <button
+                  onClick={() => setMenuOpen(!menuOpen)}
+                  className="lg:hidden p-2.5 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-300"
                 >
-                  {/* Animated Gradient Background */}
-                  <div className="absolute inset-0 bg-linear-to-r from-pink-500 via-purple-600 to-violet-600 bg-size-[200%_100%] animate-gradient-x" />
-
-                  {/* Shine Effect */}
-                  <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-
-                  <Sparkles className="w-4 h-4 relative z-10" />
-                  <span className="relative z-10">Sign In</span>
-                </Link>
-              ) : (
-                <div className="w-24 h-10 bg-slate-200 dark:bg-slate-700 rounded-xl animate-pulse" />
-              )}
-
-              {/* Mobile Menu Toggle */}
-              <button
-                onClick={() => setMenuOpen(!menuOpen)}
-                className="lg:hidden p-2.5 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-300"
-              >
-                <div className="relative w-5 h-5">
-                  <span
-                    className={cn(
-                      "absolute top-1 left-0 w-5 h-0.5 bg-current rounded-full transition-all duration-300",
-                      menuOpen && "top-[9px] rotate-45",
-                    )}
-                  />
-                  <span
-                    className={cn(
-                      "absolute top-[9px] left-0 w-5 h-0.5 bg-current rounded-full transition-all duration-300",
-                      menuOpen && "opacity-0 translate-x-2",
-                    )}
-                  />
-                  <span
-                    className={cn(
-                      "absolute bottom-1 left-0 w-5 h-0.5 bg-current rounded-full transition-all duration-300",
-                      menuOpen && "bottom-[9px] -rotate-45",
-                    )}
-                  />
-                </div>
-              </button>
+                  <div className="relative w-5 h-5">
+                    <span
+                      className={cn(
+                        "absolute top-1 left-0 w-5 h-0.5 bg-current rounded-full transition-all duration-300",
+                        menuOpen && "top-[9px] rotate-45",
+                      )}
+                    />
+                    <span
+                      className={cn(
+                        "absolute top-[9px] left-0 w-5 h-0.5 bg-current rounded-full transition-all duration-300",
+                        menuOpen && "opacity-0 translate-x-2",
+                      )}
+                    />
+                    <span
+                      className={cn(
+                        "absolute bottom-1 left-0 w-5 h-0.5 bg-current rounded-full transition-all duration-300",
+                        menuOpen && "bottom-[9px] -rotate-45",
+                      )}
+                    />
+                  </div>
+                </button>
+              </div>
             </div>
           </div>
         </div>
