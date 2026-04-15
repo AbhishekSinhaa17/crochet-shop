@@ -429,18 +429,7 @@ export default function Header() {
                   <ThemeToggle />
                 </div>
 
-                {/* Search Button */}
-                <button
-                  onClick={() => setSearchOpen(true)}
-                  className="relative p-2.5 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-300 group"
-                >
-                  <Search className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
 
-                  {/* Keyboard Shortcut Hint */}
-                  <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[10px] font-medium rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap pointer-events-none">
-                    ⌘K
-                  </span>
-                </button>
 
                 {/* Wishlist */}
                 {!isAdmin && (
