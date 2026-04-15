@@ -160,6 +160,8 @@ export const useWishlistStore = create<WishlistState>()(
 
           const localItemIds = get().items;
           const inFlightItemIds = get().processingIds;
+          const pendingOpIds = Object.keys(get().pendingOps);
+          const allLocalPending = Array.from(new Set([...inFlightItemIds, ...pendingOpIds]));
 
           // ✅ Merge Logic
           let mergedItemIds: string[];
@@ -169,13 +171,13 @@ export const useWishlistStore = create<WishlistState>()(
             );
           } else {
             const safeDbItems = dbItemIds.filter(
-              (id) => !inFlightItemIds.includes(id)
+              (id) => !allLocalPending.includes(id)
             );
-            const pendingLocalItems = localItemIds.filter((id) =>
-              inFlightItemIds.includes(id)
+            const activeLocalItems = localItemIds.filter((id) =>
+              allLocalPending.includes(id)
             );
             mergedItemIds = Array.from(
-              new Set([...safeDbItems, ...pendingLocalItems])
+              new Set([...safeDbItems, ...activeLocalItems])
             );
           }
 

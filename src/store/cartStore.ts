@@ -44,12 +44,14 @@ const mergeCart = (
   local: CartProduct[],
   db: CartProduct[],
   isMergingGuest: boolean = false,
-  processingIds: string[] = []
+  processingIds: string[] = [],
+  pendingOpIds: string[] = []
 ): CartProduct[] => {
   if (!isMergingGuest) {
-    const safeDbItems = db.filter(item => !processingIds.includes(item.id));
-    const pendingLocalItems = local.filter(item => processingIds.includes(item.id));
-    return [...safeDbItems, ...pendingLocalItems];
+    const allLocalPending = Array.from(new Set([...processingIds, ...pendingOpIds]));
+    const safeDbItems = db.filter(item => !allLocalPending.includes(item.id));
+    const activeLocalItems = local.filter(item => allLocalPending.includes(item.id));
+    return [...safeDbItems, ...activeLocalItems];
   }
 
   const map = new Map<string, CartProduct>();
@@ -267,11 +269,14 @@ export const useCartStore = create<CartState>()(
 
           const localItems = get().items;
           const inFlightItemIds = get().processingIds;
+          const pendingOpIds = Object.keys(get().pendingOps);
+
           const mergedItems = mergeCart(
             localItems,
             mappedDbItems,
             isMergingGuest,
-            inFlightItemIds
+            inFlightItemIds,
+            pendingOpIds
           );
 
           set({ items: mergedItems });

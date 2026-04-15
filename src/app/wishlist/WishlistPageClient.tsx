@@ -106,8 +106,6 @@ export default function WishlistPageClient({ products: initialProducts, wishlist
       // Update local state for immediate visual removal
       setProducts(prev => prev.filter(p => p.id !== productId));
       setWishlist(prev => prev.filter(w => w.product_id !== productId));
-      
-      router.refresh();
     } catch (err) {
       console.error(`Remove from wishlist error [${productId}]:`, err);
     }
@@ -161,7 +159,6 @@ export default function WishlistPageClient({ products: initialProducts, wishlist
       setWishlist(prev => prev.filter(w => !selectedItems.has(w.product_id)));
       setSelectedItems(new Set());
       setIsSelectMode(false);
-      router.refresh();
     } catch (err) {
       console.error("Remove selected items error:", err);
       toast.error("Failed to remove some items");
