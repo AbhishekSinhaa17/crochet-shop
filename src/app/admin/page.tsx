@@ -55,7 +55,7 @@ export default async function AdminDashboard() {
   const totalRevenue =
     (paidOrders as any)?.reduce(
       (sum: number, o: any) => sum + Number(o.total),
-      0
+      0,
     ) || 0;
 
   const stats = [
@@ -420,12 +420,12 @@ export default async function AdminDashboard() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-                    {(recentOrders as any || []).length > 0 ? (
-                      (recentOrders as any || []).map(
+                    {((recentOrders as any) || []).length > 0 ? (
+                      ((recentOrders as any) || []).map(
                         (order: any, idx: number) => {
                           const statusConfig = getStatusConfig(order.status);
                           const paymentConfig = getPaymentConfig(
-                            order.payment_status
+                            order.payment_status,
                           );
                           const StatusIcon = statusConfig.icon;
 
@@ -454,7 +454,7 @@ export default async function AdminDashboard() {
                                     <p className="text-xs text-gray-400 dark:text-gray-500 flex items-center gap-1.5 mt-0.5">
                                       <Clock className="w-3 h-3" />
                                       {new Date(
-                                        order.created_at
+                                        order.created_at,
                                       ).toLocaleDateString("en-IN", {
                                         day: "numeric",
                                         month: "short",
@@ -501,7 +501,7 @@ export default async function AdminDashboard() {
                               </td>
                             </tr>
                           );
-                        }
+                        },
                       )
                     ) : (
                       <tr>
@@ -536,7 +536,7 @@ export default async function AdminDashboard() {
               </div>
 
               {/* Footer */}
-              {(recentOrders as any || []).length > 0 && (
+              {((recentOrders as any) || []).length > 0 && (
                 <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100 dark:border-gray-800 bg-gradient-to-r from-gray-50/80 via-gray-50/50 to-gray-100/80 dark:from-gray-800/80 dark:via-gray-800/50 dark:to-gray-800/80">
                   <p className="text-sm text-gray-500 dark:text-gray-400">
                     Showing{" "}

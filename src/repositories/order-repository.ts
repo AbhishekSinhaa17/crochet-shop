@@ -14,7 +14,14 @@ export class OrderRepository {
     return await createServerSupabaseClient();
   }
 
-  async createOrder(order: OrderCreateInput & { user_id: string; order_number: string; total: number; subtotal: number }) {
+  async createOrder(
+    order: OrderCreateInput & {
+      user_id: string;
+      order_number: string;
+      total: number;
+      subtotal: number;
+    },
+  ) {
     const supabase = await this.getClient();
     const { data, error } = await supabase
       .from("orders")
@@ -41,7 +48,6 @@ export class OrderRepository {
     if (error) throw error;
     return data;
   }
-
 
   async getOrderById(id: string) {
     const supabase = await this.getClient();
@@ -74,11 +80,8 @@ export class OrderRepository {
   }) {
     const supabase = await this.getClient();
     const { status, page = 1, limit = 20 } = options || {};
-    
-    let query = supabase
-      .from("orders")
-      .select("*", { count: "exact" });
 
+    let query = supabase.from("orders").select("*", { count: "exact" });
 
     if (status) {
       query = query.eq("status", status);
@@ -92,19 +95,18 @@ export class OrderRepository {
       .range(from, to);
 
     if (error) throw error;
-    
+
     return {
       data,
       count: count || 0,
       totalPages: Math.ceil((count || 0) / limit),
-      currentPage: page
+      currentPage: page,
     };
   }
 
-
   async updateOrderStatus(id: string, status: string, note?: string) {
     const supabase = await this.getClient();
-    
+
     // Update order status
     const { data: order, error: orderError } = await supabase
       .from("orders")
@@ -182,11 +184,8 @@ export class OrderRepository {
   }) {
     const supabase = await this.getClient();
     const { status, page = 1, limit = 20 } = options || {};
-    
-    let query = supabase
-      .from("custom_orders")
-      .select("*", { count: "exact" });
 
+    let query = supabase.from("custom_orders").select("*", { count: "exact" });
 
     if (status) {
       query = query.eq("status", status);
@@ -200,26 +199,31 @@ export class OrderRepository {
       .range(from, to);
 
     if (error) throw error;
-    
+
     return {
       data,
       count: count || 0,
       totalPages: Math.ceil((count || 0) / limit),
-      currentPage: page
+      currentPage: page,
     };
   }
 
-
-  async updateCustomOrderStatus(id: string, status: string, admin_notes?: string, quoted_price?: number, additionalData?: any) {
+  async updateCustomOrderStatus(
+    id: string,
+    status: string,
+    admin_notes?: string,
+    quoted_price?: number,
+    additionalData?: any,
+  ) {
     const supabase = await this.getClient();
     const { data, error } = await supabase
       .from("custom_orders")
-      .update({ 
-        status, 
-        admin_notes, 
-        quoted_price, 
+      .update({
+        status,
+        admin_notes,
+        quoted_price,
         ...additionalData,
-        updated_at: new Date().toISOString() 
+        updated_at: new Date().toISOString(),
       })
       .eq("id", id)
       .select()
@@ -244,8 +248,8 @@ export class OrderRepository {
 
   async getDashboardStats() {
     const supabase = await this.getClient();
-    
-    // Total Revenue (excluding cancelled)
+
+    // 1. Standard Orders Revenue (excluding cancelled)
     const { data: revenueData, error: revenueError } = await supabase
       .from("orders")
       .select("total")
@@ -253,30 +257,77 @@ export class OrderRepository {
 
     if (revenueError) throw revenueError;
 
-    const totalRevenue = revenueData?.reduce((sum, order) => sum + (Number(order.total) || 0), 0) || 0;
+    const standardRevenue =
+      revenueData?.reduce(
+        (sum, order) => sum + (Number(order.total) || 0),
+        0,
+      ) || 0;
 
-    // Total Orders (count)
-    const { count, error: countError } = await supabase
-      .from("orders")
-      .select("*", { count: "exact", head: true });
+    // 2. Custom Orders Revenue (only PAID and beyond)
+    const { data: customRevenueData, error: customRevenueError } = await supabase
+      .from("custom_orders")
+      .select("quoted_price")
+      .in("status", ["paid", "in_progress", "shipped", "delivered"]);
 
-    if (countError) throw countError;
+    if (customRevenueError) throw customRevenueError;
+
+    const customRevenue =
+      customRevenueData?.reduce(
+        (sum, order) => sum + (Number(order.quoted_price) || 0),
+        0,
+      ) || 0;
+
+    // 3. Total Counts
+    const [{ count: orderCount }, { count: customOrderCount }] = await Promise.all([
+      supabase.from("orders").select("*", { count: "exact", head: true }),
+      supabase.from("custom_orders").select("*", { count: "exact", head: true })
+    ]);
 
     return {
-      totalRevenue,
-      totalOrders: count || 0
+      totalRevenue: standardRevenue + customRevenue,
+      totalOrders: (orderCount || 0) + (customOrderCount || 0),
     };
   }
 
   async getRecentOrders(limit = 5) {
     const supabase = await this.getClient();
-    const { data, error } = await supabase
-      .from("orders")
-      .select("id, order_number, total, created_at, status")
-      .order("created_at", { ascending: false })
-      .limit(limit);
+    
+    // Fetch latest from both
+    const [standardRes, customRes] = await Promise.all([
+      supabase
+        .from("orders")
+        .select("id, order_number, total, created_at, status")
+        .order("created_at", { ascending: false })
+        .limit(limit),
+      supabase
+        .from("custom_orders")
+        .select("id, title, quoted_price, created_at, status")
+        .order("created_at", { ascending: false })
+        .limit(limit)
+    ]);
 
-    if (error) throw error;
-    return data;
+    if (standardRes.error) throw standardRes.error;
+    if (customRes.error) throw customRes.error;
+
+    // Map to unified format
+    const standardOrders = (standardRes.data || []).map(o => ({
+      ...o,
+      type: 'standard' as const,
+      display_name: `Order #${o.order_number?.slice(-6) || o.id.slice(0,6)}`
+    }));
+
+    const customOrders = (customRes.data || []).map(o => ({
+      ...o,
+      type: 'custom' as const,
+      display_name: `Custom: ${o.title}`,
+      total: o.quoted_price || 0 // Map quoted_price to total for UI consistency
+    }));
+
+    // Merge and sort
+    const combined = [...standardOrders, ...customOrders]
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      .slice(0, limit);
+
+    return combined;
   }
 }

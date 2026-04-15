@@ -39,10 +39,10 @@ const STATUS_OPTIONS = [
 
 const FILTER_OPTIONS = ["all", ...STATUS_OPTIONS] as const;
 
-import { 
-  getAdminOrdersAction, 
+import {
+  getAdminOrdersAction,
   updateOrderStatusAction,
-  updateOrderTrackingAction
+  updateOrderTrackingAction,
 } from "@/actions/admin_orders";
 
 export default function AdminOrdersPage() {
@@ -116,21 +116,23 @@ export default function AdminOrdersPage() {
     setIsUpdatingTracking(true);
     try {
       const response = await updateOrderTrackingAction(
-        selectedOrder.id, 
-        trackingNumber.trim(), 
+        selectedOrder.id,
+        trackingNumber.trim(),
         "INDIA_POST",
-        "shipped" // Automatically mark as shipped
+        "shipped", // Automatically mark as shipped
       );
 
       if (response.success) {
-        toast.success("Tracking information updated & order marked as shipped!");
+        toast.success(
+          "Tracking information updated & order marked as shipped!",
+        );
         await fetchOrders();
         // Update local state to reflect changes in modal
         setSelectedOrder({
           ...selectedOrder,
           tracking_number: trackingNumber.trim(),
           courier: "INDIA_POST",
-          status: "shipped" as any
+          status: "shipped" as any,
         });
       } else {
         throw new Error(response.error);
@@ -143,12 +145,13 @@ export default function AdminOrdersPage() {
     }
   };
 
-
   // Filter & search
   const filteredOrders = orders.filter((order) => {
     const matchesSearch =
       searchQuery === "" ||
-      (order.order_number?.toLowerCase() || "").includes(searchQuery.toLowerCase());
+      (order.order_number?.toLowerCase() || "").includes(
+        searchQuery.toLowerCase(),
+      );
 
     const matchesStatus =
       statusFilter === "all" || order.status === statusFilter;
@@ -533,7 +536,8 @@ export default function AdminOrdersPage() {
                           </div>
                           <div>
                             <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 line-clamp-1">
-                              {(order.shipping_address as any)?.name || "Customer"}
+                              {(order.shipping_address as any)?.name ||
+                                "Customer"}
                             </p>
                             <p className="font-mono text-[10px] text-gray-400 dark:text-gray-500">
                               {order.order_number}
@@ -559,7 +563,8 @@ export default function AdminOrdersPage() {
                             text-gray-600 dark:text-gray-400"
                         >
                           <Package className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500" />
-                          {Array.isArray(order.items) ? order.items.length : 0} items
+                          {Array.isArray(order.items) ? order.items.length : 0}{" "}
+                          items
                         </span>
                       </td>
 
@@ -601,7 +606,10 @@ export default function AdminOrdersPage() {
 
                       {/* Action dropdown */}
                       <td className="py-4 px-6">
-                        <div className="relative" onClick={(e) => e.stopPropagation()}>
+                        <div
+                          className="relative"
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           {updatingId === order.id && (
                             <div className="absolute -left-6 top-1/2 -translate-y-1/2">
                               <Loader2 className="w-3.5 h-3.5 animate-spin text-violet-500" />
@@ -627,9 +635,9 @@ export default function AdminOrdersPage() {
                               capitalize"
                           >
                             {STATUS_OPTIONS.map((s) => (
-                              <option 
-                                key={s} 
-                                value={s} 
+                              <option
+                                key={s}
+                                value={s}
                                 className="bg-white text-gray-900 dark:bg-gray-800 dark:text-gray-100 capitalize"
                               >
                                 {s}
@@ -733,11 +741,11 @@ export default function AdminOrdersPage() {
       {selectedOrder && (
         <div className="fixed inset-0 z-50 flex items-center justify-end">
           {/* Backdrop */}
-          <div 
+          <div
             className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity"
             onClick={() => setSelectedOrder(null)}
           />
-          
+
           {/* Sidebar */}
           <div className="relative w-full max-w-2xl h-full bg-white dark:bg-gray-900 shadow-2xl animate-slide-in-right overflow-y-auto premium-scroll">
             <div className="sticky top-0 z-10 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 p-6 flex items-center justify-between">
@@ -748,9 +756,11 @@ export default function AdminOrdersPage() {
                     {selectedOrder.order_number}
                   </span>
                 </h2>
-                <p className="text-xs text-gray-500 mt-1">Placed on {formatDate(selectedOrder.created_at)}</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Placed on {formatDate(selectedOrder.created_at)}
+                </p>
               </div>
-              <button 
+              <button
                 onClick={() => setSelectedOrder(null)}
                 className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               >
@@ -762,21 +772,33 @@ export default function AdminOrdersPage() {
               {/* Status Header */}
               <div className="flex flex-wrap gap-4 items-center justify-between p-4 rounded-2xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800">
                 <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${getStatusStyle(selectedOrder.status).bg}`}>
+                  <div
+                    className={`w-10 h-10 rounded-xl flex items-center justify-center ${getStatusStyle(selectedOrder.status).bg}`}
+                  >
                     <Package className="w-5 h-5" />
                   </div>
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Order Status</p>
-                    <p className="text-sm font-bold text-gray-900 dark:text-white capitalize">{selectedOrder.status}</p>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                      Order Status
+                    </p>
+                    <p className="text-sm font-bold text-gray-900 dark:text-white capitalize">
+                      {selectedOrder.status}
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${getPaymentStyle(selectedOrder.payment_status)}`}>
+                  <div
+                    className={`w-10 h-10 rounded-xl flex items-center justify-center ${getPaymentStyle(selectedOrder.payment_status)}`}
+                  >
                     <CreditCard className="w-5 h-5" />
                   </div>
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Payment</p>
-                    <p className="text-sm font-bold text-gray-900 dark:text-white capitalize">{selectedOrder.payment_status}</p>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                      Payment
+                    </p>
+                    <p className="text-sm font-bold text-gray-900 dark:text-white capitalize">
+                      {selectedOrder.payment_status}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -799,12 +821,16 @@ export default function AdminOrdersPage() {
                       </p>
                     )}
                     <p>{selectedOrder.shipping_address?.line1}</p>
-                    {selectedOrder.shipping_address?.line2 && <p>{selectedOrder.shipping_address.line2}</p>}
+                    {selectedOrder.shipping_address?.line2 && (
+                      <p>{selectedOrder.shipping_address.line2}</p>
+                    )}
                     <p>
-                      {selectedOrder.shipping_address?.city}, {selectedOrder.shipping_address?.state}
+                      {selectedOrder.shipping_address?.city},{" "}
+                      {selectedOrder.shipping_address?.state}
                     </p>
                     <p className="font-semibold text-gray-700 dark:text-gray-300">
-                      {selectedOrder.shipping_address?.postal_code || selectedOrder.shipping_address?.pincode}
+                      {selectedOrder.shipping_address?.postal_code ||
+                        selectedOrder.shipping_address?.pincode}
                     </p>
                     <p>{selectedOrder.shipping_address?.country}</p>
                   </div>
@@ -818,11 +844,19 @@ export default function AdminOrdersPage() {
                   <div className="bg-gray-50 dark:bg-gray-800/30 p-4 rounded-xl border border-gray-100 dark:border-gray-800 space-y-3">
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-500">Subtotal</span>
-                      <span className="font-medium text-gray-900 dark:text-white">{formatPrice(selectedOrder.subtotal || selectedOrder.total - (selectedOrder.shipping_fee || 0))}</span>
+                      <span className="font-medium text-gray-900 dark:text-white">
+                        {formatPrice(
+                          selectedOrder.subtotal ||
+                            selectedOrder.total -
+                              (selectedOrder.shipping_fee || 0),
+                        )}
+                      </span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-500">Shipping</span>
-                      <span className="font-medium text-gray-900 dark:text-white">{formatPrice(selectedOrder.shipping_fee || 0)}</span>
+                      <span className="font-medium text-gray-900 dark:text-white">
+                        {formatPrice(selectedOrder.shipping_fee || 0)}
+                      </span>
                     </div>
                     {selectedOrder.discount > 0 && (
                       <div className="flex justify-between text-sm text-emerald-600">
@@ -831,8 +865,12 @@ export default function AdminOrdersPage() {
                       </div>
                     )}
                     <div className="pt-3 border-t border-gray-200 dark:border-gray-700 flex justify-between">
-                      <span className="font-bold text-gray-900 dark:text-white">Total</span>
-                      <span className="font-bold text-xl text-violet-600 dark:text-violet-400">{formatPrice(selectedOrder.total)}</span>
+                      <span className="font-bold text-gray-900 dark:text-white">
+                        Total
+                      </span>
+                      <span className="font-bold text-xl text-violet-600 dark:text-violet-400">
+                        {formatPrice(selectedOrder.total)}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -850,7 +888,7 @@ export default function AdminOrdersPage() {
                       <label className="text-[10px] font-bold uppercase tracking-wider text-violet-600 dark:text-violet-400">
                         Tracking Number (India Post)
                       </label>
-                      <input 
+                      <input
                         type="text"
                         placeholder="e.g. EW123456789IN"
                         value={trackingNumber}
@@ -870,15 +908,20 @@ export default function AdminOrdersPage() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center justify-between gap-4 pt-2">
                     <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
                       <AlertCircle className="w-3.5 h-3.5 text-amber-500" />
-                      Updating tracking will mark the order as <span className="font-bold text-indigo-600">Shipped</span>
+                      Updating tracking will mark the order as{" "}
+                      <span className="font-bold text-indigo-600">Shipped</span>
                     </p>
-                    <button 
+                    <button
                       onClick={handleUpdateTracking}
-                      disabled={isUpdatingTracking || !trackingNumber.trim() || trackingNumber === selectedOrder?.tracking_number}
+                      disabled={
+                        isUpdatingTracking ||
+                        !trackingNumber.trim() ||
+                        trackingNumber === selectedOrder?.tracking_number
+                      }
                       className="px-6 py-2.5 bg-violet-600 text-white rounded-xl text-sm font-bold 
                         hover:bg-violet-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed
                         flex items-center gap-2 shadow-lg shadow-violet-600/20"
@@ -899,33 +942,45 @@ export default function AdminOrdersPage() {
                 </div>
               </div>
 
-
               {/* Items List */}
               <div className="space-y-4">
                 <h3 className="text-sm font-bold text-gray-900 dark:text-white flex items-center justify-between">
                   Ordered Items ({selectedOrder.items.length})
-                  <span className="text-[10px] font-normal text-gray-400 italic">Scroll for more</span>
+                  <span className="text-[10px] font-normal text-gray-400 italic">
+                    Scroll for more
+                  </span>
                 </h3>
                 <div className="space-y-3">
                   {selectedOrder.items.map((item, i) => (
-                    <div 
+                    <div
                       key={i}
                       className="flex items-center gap-4 p-3 bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 hover:border-violet-200 dark:hover:border-violet-900/50 transition-colors group"
                     >
                       <div className="relative w-16 h-16 rounded-lg overflow-hidden border border-gray-100 dark:border-gray-800 shrink-0">
-                        <img 
-                          src={item.image || "https://images.unsplash.com/photo-1615529151169-7b1ff50dc7f2?w=100"} 
+                        <img
+                          src={
+                            item.image ||
+                            "https://images.unsplash.com/photo-1615529151169-7b1ff50dc7f2?w=100"
+                          }
                           alt={item.name}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                         />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold text-gray-900 dark:text-white line-clamp-1">{item.name}</p>
-                        <p className="text-xs text-gray-500 mt-0.5">Quantity: {item.quantity}</p>
+                        <p className="text-sm font-bold text-gray-900 dark:text-white line-clamp-1">
+                          {item.name}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-0.5">
+                          Quantity: {item.quantity}
+                        </p>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm font-bold text-gray-900 dark:text-white">{formatPrice(item.price * item.quantity)}</p>
-                        <p className="text-[10px] text-gray-400">{formatPrice(item.price)} each</p>
+                        <p className="text-sm font-bold text-gray-900 dark:text-white">
+                          {formatPrice(item.price * item.quantity)}
+                        </p>
+                        <p className="text-[10px] text-gray-400">
+                          {formatPrice(item.price)} each
+                        </p>
                       </div>
                     </div>
                   ))}
@@ -935,14 +990,18 @@ export default function AdminOrdersPage() {
               {/* Notes */}
               {selectedOrder.notes && (
                 <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-100 dark:border-amber-900/50">
-                  <p className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider mb-1">Customer Note</p>
-                  <p className="text-sm text-amber-800 dark:text-amber-200 italic">&ldquo;{selectedOrder.notes}&rdquo;</p>
+                  <p className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider mb-1">
+                    Customer Note
+                  </p>
+                  <p className="text-sm text-amber-800 dark:text-amber-200 italic">
+                    &ldquo;{selectedOrder.notes}&rdquo;
+                  </p>
                 </div>
               )}
             </div>
 
             <div className="sticky bottom-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-t border-gray-100 dark:border-gray-800 p-6">
-              <button 
+              <button
                 onClick={() => setSelectedOrder(null)}
                 className="w-full py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl font-bold hover:opacity-90 transition-opacity"
               >
@@ -956,8 +1015,12 @@ export default function AdminOrdersPage() {
       {/* Global Animations */}
       <style jsx global>{`
         @keyframes slide-in-right {
-          from { transform: translateX(100%); }
-          to { transform: translateX(0); }
+          from {
+            transform: translateX(100%);
+          }
+          to {
+            transform: translateX(0);
+          }
         }
         .animate-slide-in-right {
           animation: slide-in-right 0.4s cubic-bezier(0.16, 1, 0.3, 1);

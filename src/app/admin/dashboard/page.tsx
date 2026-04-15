@@ -181,7 +181,7 @@ export default function AdminDashboardPage() {
                   <RefreshCcw
                     className={cn(
                       "w-5 h-5 transition-transform",
-                      loading ? "animate-spin" : "group-hover:rotate-180"
+                      loading ? "animate-spin" : "group-hover:rotate-180",
                     )}
                   />
                 </button>
@@ -506,10 +506,7 @@ function StatCard({
   loading,
 }: any) {
   return (
-    <div
-      className="animate-fade-in-up group"
-      style={{ animationDelay: delay }}
-    >
+    <div className="animate-fade-in-up group" style={{ animationDelay: delay }}>
       <div className="relative h-full">
         {/* Glow effect */}
         <div
@@ -537,7 +534,7 @@ function StatCard({
                   "flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold",
                   trend === "up"
                     ? "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400"
-                    : "bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-400"
+                    : "bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-400",
                 )}
               >
                 {trend === "up" ? (
@@ -601,14 +598,34 @@ function OrderCard({ order, index }: { order: any; index: number }) {
       badge:
         "bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-400 border-purple-200 dark:border-purple-800",
     },
+    // Custom Order Statuses
+    quoted: {
+      icon: DollarSign,
+      bg: "bg-cyan-100 dark:bg-cyan-900/30",
+      text: "text-cyan-600 dark:text-cyan-400",
+      badge: "bg-cyan-100 dark:bg-cyan-900/40 text-cyan-700 dark:text-cyan-400 border-cyan-200 dark:border-cyan-800",
+    },
+    paid: {
+      icon: CheckCircle,
+      bg: "bg-emerald-100 dark:bg-emerald-900/30",
+      text: "text-emerald-600 dark:text-emerald-400",
+      badge: "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800",
+    },
+    in_progress: {
+      icon: RefreshCcw,
+      bg: "bg-violet-100 dark:bg-violet-900/30",
+      text: "text-violet-600 dark:text-violet-400",
+      badge: "bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-400 border-violet-200 dark:border-violet-800",
+    }
   };
 
   const config = statusConfig[order.status] || statusConfig.pending;
   const StatusIcon = config.icon;
+  const isCustom = order.type === 'custom';
 
   return (
     <Link
-      href={`/admin/orders`}
+      href={isCustom ? `/admin/custom-orders` : `/admin/orders`}
       className="block group"
       style={{
         animation: `fadeInUp 0.5s ease-out ${index * 0.1}s both`,
@@ -620,7 +637,7 @@ function OrderCard({ order, index }: { order: any; index: number }) {
           <div
             className={cn(
               "w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:scale-110",
-              config.bg
+              config.bg,
             )}
           >
             <StatusIcon className={cn("w-7 h-7", config.text)} />
@@ -629,16 +646,21 @@ function OrderCard({ order, index }: { order: any; index: number }) {
           {/* Order Info */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-3 mb-1">
-              <p className="font-bold text-gray-900 dark:text-white group-hover:text-purple-700 dark:group-hover:text-purple-400 transition-colors">
-                Order #{order.order_number}
+              <p className="font-bold text-gray-900 dark:text-white group-hover:text-purple-700 dark:group-hover:text-purple-400 transition-colors truncate">
+                {order.display_name}
               </p>
+              {isCustom && (
+                <span className="px-2 py-0.5 rounded-md bg-pink-100 dark:bg-pink-900/40 text-pink-600 dark:text-pink-400 text-[9px] font-black uppercase tracking-tighter border border-pink-200 dark:border-pink-800">
+                  Custom
+                </span>
+              )}
               <span
                 className={cn(
                   "px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider border",
-                  config.badge
+                  config.badge,
                 )}
               >
-                {order.status}
+                {order.status.replace('_', ' ')}
               </span>
             </div>
             <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">

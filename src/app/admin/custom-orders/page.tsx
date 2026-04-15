@@ -89,7 +89,7 @@ export default function AdminCustomOrdersPage() {
     setIsUpdatingStatus(true);
     try {
       const additionalData: any = {};
-      
+
       const response = await updateCustomOrderStatusAction(
         selectedOrder.id,
         newStatus,
@@ -97,7 +97,7 @@ export default function AdminCustomOrdersPage() {
         newStatus === "quoted"
           ? Number(quotedPriceInput)
           : selectedOrder.quoted_price || undefined,
-        additionalData
+        additionalData,
       );
 
       if (response.error) throw new Error(response.error);
@@ -122,7 +122,10 @@ export default function AdminCustomOrdersPage() {
         "shipped",
         undefined,
         selectedOrder.quoted_price || undefined,
-        { tracking_id: trackingNumber, courier_name: "India Post (Speed Post)" }
+        {
+          tracking_id: trackingNumber,
+          courier_name: "India Post (Speed Post)",
+        },
       );
 
       if (response.error) throw new Error(response.error);
@@ -510,7 +513,7 @@ export default function AdminCustomOrdersPage() {
                                 {selectedOrder.shipping_address?.name}
                               </p>
                               {selectedOrder.shipping_address?.phone && (
-                                <a 
+                                <a
                                   href={`tel:${selectedOrder.shipping_address.phone}`}
                                   className="inline-flex items-center gap-2 mt-1 text-sm font-medium text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 transition-colors"
                                 >
@@ -524,20 +527,25 @@ export default function AdminCustomOrdersPage() {
                             </div>
                           </div>
                           <div className="space-y-1 text-sm text-gray-600 dark:text-gray-400 leading-relaxed pt-3 border-t border-gray-100/50 dark:border-gray-700/50">
-                            <p className="font-medium">{selectedOrder.shipping_address?.line1}</p>
+                            <p className="font-medium">
+                              {selectedOrder.shipping_address?.line1}
+                            </p>
                             {selectedOrder.shipping_address?.line2 && (
                               <p>{selectedOrder.shipping_address.line2}</p>
                             )}
                             <p>
                               {selectedOrder.shipping_address?.city},{" "}
-                              <span className="text-gray-900 dark:text-gray-200 font-semibold">{selectedOrder.shipping_address?.state}</span>
+                              <span className="text-gray-900 dark:text-gray-200 font-semibold">
+                                {selectedOrder.shipping_address?.state}
+                              </span>
                             </p>
                             <div className="flex items-center justify-between mt-4">
                               <span className="px-3 py-1 bg-gray-100 dark:bg-gray-700/50 rounded-lg font-mono font-bold text-gray-900 dark:text-white">
                                 {selectedOrder.shipping_address?.pincode}
                               </span>
                               <span className="text-xs font-bold uppercase tracking-wider text-gray-400">
-                                {selectedOrder.shipping_address?.country || "Inida"}
+                                {selectedOrder.shipping_address?.country ||
+                                  "Inida"}
                               </span>
                             </div>
                           </div>
@@ -551,7 +559,8 @@ export default function AdminCustomOrdersPage() {
                             No shipping address provided yet.
                           </p>
                           <p className="text-center text-[10px] mt-1 opacity-60 px-6">
-                            Shipping details are typically collected during the payment phase.
+                            Shipping details are typically collected during the
+                            payment phase.
                           </p>
                         </div>
                       )}
@@ -581,21 +590,33 @@ export default function AdminCustomOrdersPage() {
                     <div className="grid grid-cols-2 gap-4">
                       {selectedOrder.size_details && (
                         <div className="p-3 bg-gray-50/50 dark:bg-gray-900/30 rounded-2xl border border-gray-100 dark:border-gray-800">
-                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Size</p>
-                          <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">{selectedOrder.size_details}</p>
+                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
+                            Size
+                          </p>
+                          <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">
+                            {selectedOrder.size_details}
+                          </p>
                         </div>
                       )}
                       {selectedOrder.preferred_colors && (
                         <div className="p-3 bg-gray-50/50 dark:bg-gray-900/30 rounded-2xl border border-gray-100 dark:border-gray-800">
-                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Colors</p>
-                          <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">{selectedOrder.preferred_colors}</p>
+                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">
+                            Colors
+                          </p>
+                          <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">
+                            {selectedOrder.preferred_colors}
+                          </p>
                         </div>
                       )}
                       {selectedOrder.deadline && (
                         <div className="col-span-2 p-3 bg-amber-50/50 dark:bg-amber-900/10 rounded-2xl border border-amber-100/50 dark:border-amber-900/30 flex items-center justify-between">
                           <div>
-                            <p className="text-[10px] font-bold text-amber-600/70 dark:text-amber-400/70 uppercase tracking-wider">Target Deadline</p>
-                            <p className="text-sm font-bold text-amber-700 dark:text-amber-300">{formatDate(selectedOrder.deadline)}</p>
+                            <p className="text-[10px] font-bold text-amber-600/70 dark:text-amber-400/70 uppercase tracking-wider">
+                              Target Deadline
+                            </p>
+                            <p className="text-sm font-bold text-amber-700 dark:text-amber-300">
+                              {formatDate(selectedOrder.deadline)}
+                            </p>
                           </div>
                           <Clock className="w-5 h-5 text-amber-500 opacity-50" />
                         </div>
@@ -606,35 +627,37 @@ export default function AdminCustomOrdersPage() {
               </div>
 
               {/* Reference Images Gallery */}
-              {selectedOrder.reference_images && selectedOrder.reference_images.length > 0 && (
-                <div className="space-y-4 pt-4">
-                  <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest flex items-center gap-2 px-1">
-                    <ImageIcon className="w-3.5 h-3.5 text-blue-500" />
-                    Visual References ({selectedOrder.reference_images.length})
-                  </h3>
-                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
-                    {selectedOrder.reference_images.map((img, i) => (
-                      <div key={i} className="group relative aspect-square">
-                        <a
-                          href={img}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="block w-full h-full relative border-2 border-white dark:border-gray-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
-                        >
-                          <img
-                            src={img}
-                            alt={`Reference ${i}`}
-                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                          />
-                          <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                            <Eye className="text-white w-6 h-6 drop-shadow-lg" />
-                          </div>
-                        </a>
-                      </div>
-                    ))}
+              {selectedOrder.reference_images &&
+                selectedOrder.reference_images.length > 0 && (
+                  <div className="space-y-4 pt-4">
+                    <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest flex items-center gap-2 px-1">
+                      <ImageIcon className="w-3.5 h-3.5 text-blue-500" />
+                      Visual References ({selectedOrder.reference_images.length}
+                      )
+                    </h3>
+                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
+                      {selectedOrder.reference_images.map((img, i) => (
+                        <div key={i} className="group relative aspect-square">
+                          <a
+                            href={img}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="block w-full h-full relative border-2 border-white dark:border-gray-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                          >
+                            <img
+                              src={img}
+                              alt={`Reference ${i}`}
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                            />
+                            <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                              <Eye className="text-white w-6 h-6 drop-shadow-lg" />
+                            </div>
+                          </a>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
               <hr className="border-gray-200 dark:border-gray-800" />
 
@@ -655,19 +678,31 @@ export default function AdminCustomOrdersPage() {
                         onChange={(e) => setNewStatus(e.target.value)}
                         className="w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-violet-500 outline-none"
                       >
-                        {FILTER_OPTIONS.slice(1).filter(opt => {
-                          // If order is paid or beyond, don't allow going back to pending or quoted
-                          const postPaymentStatuses = ["paid", "in_progress", "shipped", "delivered"];
-                          const isAlreadyPaid = postPaymentStatuses.includes(selectedOrder.status);
-                          if (isAlreadyPaid && (opt === "pending" || opt === "quoted")) {
-                            return false;
-                          }
-                          return true;
-                        }).map((opt) => (
-                          <option key={opt} value={opt}>
-                            {opt.replace("_", " ").toUpperCase()}
-                          </option>
-                        ))}
+                        {FILTER_OPTIONS.slice(1)
+                          .filter((opt) => {
+                            // If order is paid or beyond, don't allow going back to pending or quoted
+                            const postPaymentStatuses = [
+                              "paid",
+                              "in_progress",
+                              "shipped",
+                              "delivered",
+                            ];
+                            const isAlreadyPaid = postPaymentStatuses.includes(
+                              selectedOrder.status,
+                            );
+                            if (
+                              isAlreadyPaid &&
+                              (opt === "pending" || opt === "quoted")
+                            ) {
+                              return false;
+                            }
+                            return true;
+                          })
+                          .map((opt) => (
+                            <option key={opt} value={opt}>
+                              {opt.replace("_", " ").toUpperCase()}
+                            </option>
+                          ))}
                       </select>
                     </div>
 
@@ -730,7 +765,7 @@ export default function AdminCustomOrdersPage() {
                       <label className="text-[10px] font-bold uppercase tracking-wider text-violet-600 dark:text-violet-400">
                         Tracking Number (India Post)
                       </label>
-                      <input 
+                      <input
                         type="text"
                         placeholder="e.g. EW123456789IN"
                         value={trackingNumber}
@@ -750,15 +785,20 @@ export default function AdminCustomOrdersPage() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center justify-between gap-4 pt-2">
                     <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
                       <AlertCircle className="w-3.5 h-3.5 text-amber-500" />
-                      Updating tracking will mark the order as <span className="font-bold text-indigo-600">Shipped</span>
+                      Updating tracking will mark the order as{" "}
+                      <span className="font-bold text-indigo-600">Shipped</span>
                     </p>
-                    <button 
+                    <button
                       onClick={handleUpdateTracking}
-                      disabled={isUpdatingTracking || !trackingNumber.trim() || trackingNumber === selectedOrder?.tracking_id}
+                      disabled={
+                        isUpdatingTracking ||
+                        !trackingNumber.trim() ||
+                        trackingNumber === selectedOrder?.tracking_id
+                      }
                       className="px-6 py-2.5 bg-violet-600 text-white rounded-xl text-sm font-bold 
                         hover:bg-violet-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed
                         flex items-center gap-2 shadow-lg shadow-violet-600/20"
