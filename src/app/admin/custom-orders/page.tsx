@@ -652,6 +652,20 @@ function AdminCustomOrdersPageContent() {
                           <Clock className="w-5 h-5 text-amber-500 opacity-50" />
                         </div>
                       )}
+                      {/* Customer's Offered Budget */}
+                      {selectedOrder.budget_min && (
+                        <div className="col-span-2 p-3 bg-emerald-50/50 dark:bg-emerald-900/10 rounded-2xl border border-emerald-100/50 dark:border-emerald-900/30 flex items-center justify-between">
+                          <div>
+                            <p className="text-[10px] font-bold text-emerald-600/70 dark:text-emerald-400/70 uppercase tracking-wider">
+                              💰 Customer&apos;s Offered Budget
+                            </p>
+                            <p className="text-sm font-bold text-emerald-700 dark:text-emerald-300">
+                              {formatPrice(selectedOrder.budget_min)}{selectedOrder.budget_max ? ` - ${formatPrice(selectedOrder.budget_max)}` : ''}
+                            </p>
+                          </div>
+                          <IndianRupee className="w-5 h-5 text-emerald-500 opacity-50" />
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

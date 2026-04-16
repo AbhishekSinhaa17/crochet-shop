@@ -303,6 +303,8 @@ export class OrderService {
                     customerEmail: customerEmail,
                     title: order.title,
                     description: order.description,
+                    budgetMin: order.budget_min,
+                    budgetMax: order.budget_max,
                     adminLink: `${siteUrl}/admin/custom-orders`
                 } as CustomOrderAdminAlertData
             }).then(() => Logger.info("Custom order admin email queued"))
@@ -385,22 +387,51 @@ private async triggerCustomOrderStatusUpdateEmail(order: any) {
         if (isDelivered) subject = "Your Custom Order has been delivered! 🎉";
 
         Logger.info(`Sending custom status update email to ${customerEmail} for order ${order.id} (status: ${order.status})`);
-        await pushToEmailQueue({
-            to: customerEmail,
-            subject: subject,
-            type: 'CUSTOM_ORDER_UPDATE',
-            // Append status to orderId so each status change gets its own idempotency key
-            orderId: `${order.id}-${order.status}`,
-            data: {
-                customerName: profile?.full_name || 'Customer',
-                title: order.title || 'Custom Project',
-                status: displayStatus,
-                message: order.admin_notes || "",
-                quotedPrice: order.quoted_price,
-                orderLink: `${siteUrl}/orders?tab=custom`,
-                showPayButton: isQuoted
-            } as CustomOrderUpdateData
-        });
+        
+        const adminEmail = process.env.ADMIN_EMAIL || 'hellostrokesofcraft@gmail.com';
+        const customerName = profile?.full_name || 'Customer';
+
+        // Send customer email + admin alert (for paid) in parallel
+        const emailTasks: Promise<any>[] = [
+            // 1. Always send customer email
+            pushToEmailQueue({
+                to: customerEmail,
+                subject: subject,
+                type: 'CUSTOM_ORDER_UPDATE',
+                orderId: `${order.id}-${order.status}`,
+                data: {
+                    customerName: customerName,
+                    title: order.title || 'Custom Project',
+                    status: displayStatus,
+                    message: order.admin_notes || "",
+                    quotedPrice: order.quoted_price,
+                    orderLink: `${siteUrl}/orders?tab=custom`,
+                    showPayButton: isQuoted
+                } as CustomOrderUpdateData
+            })
+        ];
+
+        // 2. Send admin alert when payment is received
+        if (isPaid) {
+            emailTasks.push(
+                pushToEmailQueue({
+                    to: adminEmail,
+                    subject: `💰 Payment Received: Custom Order - ${order.title}`,
+                    type: 'ADMIN_NOTIFICATION',
+                    orderId: `${order.id}-admin-paid`,
+                    data: {
+                        orderNumber: order.id.slice(0, 8).toUpperCase(),
+                        customerName: customerName,
+                        customerEmail: customerEmail,
+                        total: order.quoted_price || 0,
+                        items: [{ name: order.title || 'Custom Project', quantity: 1 }],
+                        adminLink: `${siteUrl}/admin/custom-orders`
+                    } as AdminNotificationData
+                }).then(() => Logger.info("Admin payment alert queued for custom order"))
+            );
+        }
+
+        await Promise.allSettled(emailTasks);
     } catch (error) {
         Logger.error("Error in triggerCustomOrderStatusUpdateEmail", error);
     }

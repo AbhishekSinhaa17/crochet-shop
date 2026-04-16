@@ -183,18 +183,25 @@ function renderAdminCustomOrderAlert(data: CustomOrderAdminAlertData) {
       <p style="margin: 4px 0 0 0; font-size: 14px; color: #64748b;">${data.customerEmail}</p>
     </div>
 
-    <div style="border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 32px;">
-      <h3 style="font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; margin: 0 0 8px 0;">Request Title</h3>
-      <p style="margin: 0; font-size: 14px; color: #1e293b;">${data.title}</p>
+    <div style="border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+      <h3 style="font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; margin: 0 0 8px 0;">Request Details</h3>
+      <p style="margin: 0; font-size: 14px; color: #1e293b; font-weight: 600;">${title}</p>
       <p style="margin: 8px 0 0 0; font-size: 12px; color: #64748b; line-height: 1.5;">${data.description}</p>
     </div>
+
+    ${data.budgetMin ? `
+    <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 20px; margin-bottom: 24px; text-align: center;">
+      <h3 style="font-size: 12px; font-weight: 700; color: #16a34a; text-transform: uppercase; margin: 0 0 8px 0;">💰 Customer's Offered Budget</h3>
+      <p style="margin: 0; font-size: 28px; font-weight: 800; color: #059669;">${formatPrice(data.budgetMin)}${data.budgetMax ? ` - ${formatPrice(data.budgetMax)}` : ''}</p>
+    </div>
+    ` : ''}
 
     <div style="text-align: center;">
       <a href="${data.adminLink}" class="btn">View in Admin Panel</a>
     </div>
   `;
 
-  return wrapInEmailTemplate(content, `Action Required: New Custom Request - ${data.title}`);
+  return wrapInEmailTemplate(content, `Action Required: New Custom Request - ${title}`);
 }
 
 function renderCustomOrderUpdate(data: CustomOrderUpdateData) {

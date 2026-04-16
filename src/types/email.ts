@@ -67,6 +67,8 @@ export interface CustomOrderAdminAlertData {
   title: string;
   description: string;
   adminLink: string;
+  budgetMin?: number | null;
+  budgetMax?: number | null;
 }
 
 export interface CustomOrderUpdateData {
