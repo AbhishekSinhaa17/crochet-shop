@@ -198,17 +198,41 @@ function renderAdminCustomOrderAlert(data: CustomOrderAdminAlertData) {
 }
 
 function renderCustomOrderUpdate(data: CustomOrderUpdateData) {
-  const isQuoted = data.status === 'quoted';
-  const displayStatus = (data.status || 'pending').toString().replace(/_/g, ' ');
-  
+  const status = (data.status || 'pending').toString().toLowerCase();
+  const isQuoted = status === 'quoted';
+  const isPaid = status === 'paid';
+  const isInProgress = status === 'in progress';
+  const isShipped = status === 'shipped';
+  const isDelivered = status === 'delivered';
+  const customerName = data.customerName || 'Customer';
+  const title = data.title || 'Custom Order';
+
+  // Pick the right heading and message for each status
+  let heading = 'Update on Your Custom Request';
+  let body = `Hi ${customerName}, your request for <strong>${title}</strong> has been updated.`;
+
+  if (isPaid) {
+    heading = 'Order Confirmed! 🎉';
+    body = `Hi ${customerName}, your payment for <strong>${title}</strong> has been received and your order is now confirmed. Our artisan will begin crafting your custom piece with love!`;
+  } else if (isQuoted) {
+    heading = 'Your Quote is Ready! 🏷️';
+    body = `Hi ${customerName}, we've reviewed your request for <strong>${title}</strong> and prepared a quote for you.`;
+  } else if (isInProgress) {
+    heading = 'Your Order is Being Crafted! 🧶';
+    body = `Hi ${customerName}, great news! Our artisan has started working on your custom piece <strong>${title}</strong>. Every stitch is made with care just for you.`;
+  } else if (isShipped) {
+    heading = 'Your Order is on the Way! 🚚';
+    body = `Hi ${customerName}, your custom order <strong>${title}</strong> has been shipped! It's on its way to you.`;
+  } else if (isDelivered) {
+    heading = 'Your Order Has Arrived! 📦✨';
+    body = `Hi ${customerName}, your custom order <strong>${title}</strong> has been delivered! We hope you absolutely love your handcrafted piece.`;
+  }
+
   const content = `
-    <h2 style="font-size: 24px; font-weight: 800; color: #111827; margin-bottom: 16px;">
-      ${isQuoted ? 'Your Quote is Ready! 🏷️' : 'Update on Your Custom Request'}
-    </h2>
+    <h2 style="font-size: 24px; font-weight: 800; color: #111827; margin-bottom: 8px;">${heading}</h2>
     
-    <p style="font-size: 16px; color: #4b5563; line-height: 1.6; margin-bottom: 24px;">
-      Hi ${data.customerName || 'Customer'}, your request for <strong>${data.title || 'Order'}</strong> has been updated to: 
-      <span style="color: #7c3aed; font-weight: 700; text-transform: capitalize;">${displayStatus}</span>.
+    <p style="font-size: 16px; color: #4b5563; line-height: 1.6; margin-bottom: 32px;">
+      ${body}
     </p>
 
     ${data.message ? `
@@ -217,10 +241,22 @@ function renderCustomOrderUpdate(data: CustomOrderUpdateData) {
       </div>
     ` : ''}
 
-    ${isQuoted && data.quotedPrice ? `
-      <div style="background-color: #f1f5f9; border-radius: 16px; padding: 24px; margin-bottom: 32px; text-align: center;">
-        <p style="margin: 0 0 8px 0; font-size: 12px; color: #64748b; font-weight: 700; text-transform: uppercase;">Quoted Price</p>
-        <p style="margin: 0; font-size: 32px; font-weight: 800; color: #7c3aed;">${formatPrice(data.quotedPrice)}</p>
+    ${(isPaid || isQuoted) && data.quotedPrice ? `
+      <div style="background-color: #f8fafc; border-radius: 16px; padding: 24px; margin-bottom: 32px;">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+          <tr>
+            <td style="padding: 8px 0; color: #64748b; font-size: 14px;">Custom Project</td>
+            <td style="padding: 8px 0; text-align: right; font-weight: 600; font-size: 14px; color: #1e293b;">${title}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #64748b; font-size: 14px;">Shipping</td>
+            <td style="padding: 8px 0; text-align: right; font-weight: 600; font-size: 14px; color: #059669;">FREE</td>
+          </tr>
+          <tr>
+            <td style="padding: 16px 0 0 0; border-top: 1px solid #e2e8f0; font-weight: 700; font-size: 18px; color: #1e293b;">Total</td>
+            <td style="padding: 16px 0 0 0; border-top: 1px solid #e2e8f0; text-align: right; font-weight: 800; font-size: 24px; color: #7c3aed;">${formatPrice(data.quotedPrice)}</td>
+          </tr>
+        </table>
       </div>
     ` : ''}
 
@@ -228,10 +264,15 @@ function renderCustomOrderUpdate(data: CustomOrderUpdateData) {
       ${data.showPayButton ? `
         <a href="${data.orderLink}" style="display: inline-block; padding: 16px 32px; background: #7c3aed; color: #ffffff; text-decoration: none; border-radius: 14px; font-weight: 700; font-size: 16px; box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.2);">Pay to Proceed</a>
       ` : `
-        <a href="${data.orderLink}" class="btn">View Request Details</a>
+        <a href="${data.orderLink}" class="btn">View Order Details</a>
       `}
     </div>
   `;
 
-  return wrapInEmailTemplate(content, `${isQuoted ? 'Quote Received' : 'Update'} for your Custom Order: ${data.title}`);
+  let previewText = `Update for your Custom Order: ${title}`;
+  if (isPaid) previewText = `Order Confirmed: ${title}`;
+  if (isQuoted) previewText = `Quote Ready: ${title}`;
+  if (isDelivered) previewText = `Delivered: ${title}`;
+
+  return wrapInEmailTemplate(content, previewText);
 }

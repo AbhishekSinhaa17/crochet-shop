@@ -351,6 +351,12 @@ export class OrderService {
 
 private async triggerCustomOrderStatusUpdateEmail(order: any) {
     try {
+        // 🛑 Skip emails for in_progress and shipped statuses as requested
+        if (['in_progress', 'shipped'].includes(order.status)) {
+            Logger.info(`Skipping status update email for ${order.status} status`, { orderId: order.id });
+            return;
+        }
+
         const profile = await this.userRepository.getProfile(order.user_id);
         // Fetch email from auth.users (profiles table often has null email)
         const authUserRes = await supabaseAdmin.auth.admin.getUserById(order.user_id);
@@ -365,12 +371,16 @@ private async triggerCustomOrderStatusUpdateEmail(order: any) {
 
         // Custom logic for status messages
         const isQuoted = order.status === 'quoted';
-        const isDelivered = order.status === 'delivered';
+        const isPaid = order.status === 'paid';
+        const isInProgress = order.status === 'in_progress';
         const isShipped = order.status === 'shipped';
+        const isDelivered = order.status === 'delivered';
         const displayStatus = (order.status || 'pending').toString().replace(/_/g, ' ');
 
         let subject = `Update on your request: ${order.title}`;
         if (isQuoted) subject = "Your Custom Quote is Ready! 🏷️";
+        if (isPaid) subject = "Order Confirmed! Payment Received 🎉";
+        if (isInProgress) subject = "Your Custom Order is Being Crafted! 🧶";
         if (isShipped) subject = "Your Custom Order is on the way! 🚚";
         if (isDelivered) subject = "Your Custom Order has been delivered! 🎉";
 
