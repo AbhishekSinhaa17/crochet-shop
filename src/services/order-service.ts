@@ -77,10 +77,12 @@ export class OrderService {
         shipping_address: validated.shipping_address
       };
 
-      // 📧 Async Email Trigger
-      this.triggerOrderEmails(userId, enrichedResult, itemsWithDetails).catch(err => 
-        Logger.error("Failed to trigger order emails", err)
-      );
+      // 📧 Async Email Trigger (Awaited for Serverless reliability)
+      try {
+        await this.triggerOrderEmails(userId, enrichedResult, itemsWithDetails);
+      } catch (err) {
+        Logger.error("Failed to trigger order emails", err);
+      }
 
       return enrichedResult;
     } catch (error: any) {

@@ -14,8 +14,12 @@ const MAX_RETRIES = 3;
 export async function pushToEmailQueue(payload: EmailPayload) {
   if (!redis) {
     Logger.error('Redis not configured, falling back to direct async delivery');
-    // Fallback if Redis is missing (not ideal for production)
-    processEmailJob(payload).catch(err => Logger.error('Fallback email job failed', err));
+    // Fallback if Redis is missing (Must await in Serverless)
+    try {
+      await processEmailJob(payload);
+    } catch (err) {
+      Logger.error('Fallback email job failed', err);
+    }
     return;
   }
 
@@ -32,8 +36,8 @@ export async function pushToEmailQueue(payload: EmailPayload) {
     await redis.lpush(QUEUE_KEY, JSON.stringify({ ...payload, retryCount: 0, refId: id }));
     Logger.info('Email pushed to queue', { id, type: payload.type });
 
-    // ⚡ Fire a background trigger to process the queue immediately (non-blocking)
-    triggerQueueProcessor();
+    // ⚡ Await the trigger to ensure Vercel doesn't kill the process
+    await triggerQueueProcessor();
   } catch (error) {
     Logger.error('Failed to push to email queue', error);
   }
@@ -44,14 +48,28 @@ export async function pushToEmailQueue(payload: EmailPayload) {
  * In a real-world prod app, this would be a CRON or a QStash call.
  * For this implementation, we'll use a fetch to an internal API route to spawn a separate execution context.
  */
-function triggerQueueProcessor() {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-  fetch(`${siteUrl}/api/mail/process`, { 
-    method: 'POST', 
-    headers: { 'x-action-token': process.env.SUPABASE_SERVICE_ROLE_KEY || '' } 
-  }).catch(() => {
-    // Fail silently, the next job will trigger it or a cron will
-  });
+async function triggerQueueProcessor() {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  
+  if (!siteUrl) {
+    Logger.warn('NEXT_PUBLIC_SITE_URL not set, background trigger might fail in production');
+    return;
+  }
+
+  try {
+    const response = await fetch(`${siteUrl}/api/mail/process`, { 
+      method: 'POST', 
+      headers: { 'x-action-token': process.env.SUPABASE_SERVICE_ROLE_KEY || '' },
+      cache: 'no-store'
+    });
+
+    if (!response.ok) {
+        const error = await response.text();
+        Logger.error('Queue Processor trigger failed', new Error(error));
+    }
+  } catch (error) {
+    Logger.error('Queue Processor network error', error);
+  }
 }
 
 /**
