@@ -110,41 +110,44 @@ export class OrderService {
       const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
       const orderLink = `${siteUrl}/orders/${order.id}`;
 
-      // 1. Send to Customer
-      await pushToEmailQueue({
-        to: userEmail,
-        subject: `Order Confirmed - #${order.order_number}`,
-        type: 'ORDER_CONFIRMATION',
-        orderId: order.id,
-        data: {
-          orderNumber: order.order_number,
-          customerName: profile.full_name || 'Customer',
-          items: items,
-          subtotal: order.subtotal,
-          shippingFee: order.shipping_fee || 0,
-          total: order.total,
-          shippingAddress: order.shipping_address || {},
-          orderLink
-        } as OrderConfirmationData
-      });
-
-      // 2. Send to Admin
       const adminEmail = process.env.ADMIN_EMAIL || 'hellostrokesofcraft@gmail.com';
-      await pushToEmailQueue({
-        to: adminEmail,
-        subject: `New Order Received - #${order.order_number}`,
-        type: 'ADMIN_NOTIFICATION',
-        orderId: order.id,
-        data: {
-          orderNumber: order.order_number,
-          customerName: profile.full_name || userEmail,
-          customerEmail: userEmail,
-          total: order.total,
-          items: items.map(i => ({ name: i.name, quantity: i.quantity })),
-          adminLink: `${siteUrl}/admin/orders?id=${order.id}`
-        } as AdminNotificationData
-      });
 
+      // 📧 Send both emails in parallel to ensure one doesn't block the other
+      await Promise.allSettled([
+        // 1. Send to Customer
+        pushToEmailQueue({
+          to: userEmail,
+          subject: `Order Confirmed - #${order.order_number}`,
+          type: 'ORDER_CONFIRMATION',
+          orderId: order.id,
+          data: {
+            orderNumber: order.order_number,
+            customerName: profile.full_name || 'Customer',
+            items: items,
+            subtotal: order.subtotal,
+            shippingFee: order.shipping_fee || 0,
+            total: order.total,
+            shippingAddress: order.shipping_address || {},
+            orderLink
+          } as OrderConfirmationData
+        }),
+        
+        // 2. Send to Admin
+        pushToEmailQueue({
+          to: adminEmail,
+          subject: `New Order Received - #${order.order_number}`,
+          type: 'ADMIN_NOTIFICATION',
+          orderId: order.id,
+          data: {
+            orderNumber: order.order_number,
+            customerName: profile.full_name || userEmail,
+            customerEmail: userEmail,
+            total: order.total,
+            items: items.map(i => ({ name: i.name, quantity: i.quantity })),
+            adminLink: `${siteUrl}/admin/orders?id=${order.id}`
+          } as AdminNotificationData
+        })
+      ]);
     } catch (error) {
       Logger.error("Error in triggerOrderEmails", error);
     }
@@ -262,35 +265,40 @@ export class OrderService {
         if (!profile) return;
 
         const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-
-        // 📧 Customer Confirmation
-        await pushToEmailQueue({
-            to: profile.email,
-            subject: `We've received your custom request!`,
-            type: 'CUSTOM_ORDER_RECEIVED',
-            orderId: order.id,
-            data: {
-                customerName: profile.full_name || 'Customer',
-                title: order.title,
-                orderLink: `${siteUrl}/orders/custom/${order.id}`
-            }
-        });
-
-        // 📧 Admin Alert
         const adminEmail = process.env.ADMIN_EMAIL || 'hellostrokesofcraft@gmail.com';
-        await pushToEmailQueue({
-            to: adminEmail,
-            subject: `Action Required: New Custom Request Received`,
-            type: 'CUSTOM_ORDER_ADMIN_ALERT',
-            orderId: order.id,
-            data: {
-                customerName: profile.full_name || 'Customer',
-                customerEmail: profile.email,
-                title: order.title,
-                description: order.description,
-                adminLink: `${siteUrl}/admin/custom-orders`
-            } as CustomOrderAdminAlertData
-        });
+
+        Logger.info("Triggering dual custom order emails", { orderId: order.id });
+
+        // 📧 Parallel isolated triggers
+        await Promise.allSettled([
+            // 1. Customer Confirmation
+            pushToEmailQueue({
+                to: profile.email,
+                subject: `We've received your custom request!`,
+                type: 'CUSTOM_ORDER_RECEIVED',
+                orderId: order.id,
+                data: {
+                    customerName: profile.full_name || 'Customer',
+                    title: order.title,
+                    orderLink: `${siteUrl}/orders/custom/${order.id}`
+                }
+            }).then(() => Logger.info("Custom order customer email queued")),
+
+            // 2. Admin Alert
+            pushToEmailQueue({
+                to: adminEmail,
+                subject: `Action Required: New Custom Request Received`,
+                type: 'CUSTOM_ORDER_ADMIN_ALERT',
+                orderId: order.id,
+                data: {
+                    customerName: profile.full_name || 'Customer',
+                    customerEmail: profile.email,
+                    title: order.title,
+                    description: order.description,
+                    adminLink: `${siteUrl}/admin/custom-orders`
+                } as CustomOrderAdminAlertData
+            }).then(() => Logger.info("Custom order admin email queued"))
+        ]);
     } catch (error) {
         Logger.error("Error in triggerCustomOrderEmail", error);
     }
@@ -323,10 +331,12 @@ export class OrderService {
 
     const updated = await this.repository.updateCustomOrderStatus(id, status, adminNotes, quotedPrice, additionalData);
 
-    // 📧 Trigger Status Update Email
-    this.triggerCustomOrderStatusUpdateEmail(updated).catch(err => 
-        Logger.error("Failed to trigger custom status update email", err)
-    );
+    // 📧 Trigger Status Update Email (Explicitly Awaited for reliability)
+    try {
+        await this.triggerCustomOrderStatusUpdateEmail(updated);
+    } catch (err) {
+        Logger.error("Failed to trigger custom status update email", err);
+    }
 
     return updated;
 }
@@ -339,9 +349,10 @@ private async triggerCustomOrderStatusUpdateEmail(order: any) {
         const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
         // Custom logic for status messages
-        let message = order.admin_notes || "";
         const isQuoted = order.status === 'quoted';
+        const displayStatus = (order.status || 'pending').toString().replace(/_/g, ' ');
 
+        Logger.info(`Attempting to send custom status update email to ${profile.email} for order ${order.id}`);
         await pushToEmailQueue({
             to: profile.email,
             subject: isQuoted ? "Your Custom Quote is Ready! 🏷️" : `Update on your request: ${order.title}`,
@@ -350,8 +361,8 @@ private async triggerCustomOrderStatusUpdateEmail(order: any) {
             data: {
                 customerName: profile.full_name || 'Customer',
                 title: order.title,
-                status: order.status,
-                message: message,
+                status: displayStatus,
+                message: order.admin_notes || "",
                 quotedPrice: order.quoted_price,
                 orderLink: `${siteUrl}/orders/custom/${order.id}`,
                 showPayButton: isQuoted

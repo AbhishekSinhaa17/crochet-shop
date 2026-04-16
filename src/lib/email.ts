@@ -28,17 +28,20 @@ export async function deliverEmail(payload: EmailPayload, html: string) {
     // Build mail options
     const mailOptions = {
       from: `"Strokes of Craft" <${process.env.GMAIL_USER}>`,
-      to: recipients.join(', '), // Nodemailer expects a comma-separated string or array
+      to: recipients.join(', '), 
       subject: subject,
       html: html,
       headers: {
-        'X-Entity-Ref-ID': payload.orderId || payload.type, // For deliverability & threading
+        // Ensure every email is treated as a unique message in Gmail
+        'X-Entity-Ref-ID': `${payload.orderId || 'system'}-${payload.type}-${Date.now()}`,
       },
     };
 
     // Send the email
     const info = await transporter.sendMail(mailOptions);
 
+    console.log(`[Email Success] ${payload.type} sent to ${recipients.join(', ')}`);
+    
     Logger.info('Email Delivered Successfully', { 
       to: recipients, 
       subject, 

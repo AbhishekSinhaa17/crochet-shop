@@ -194,6 +194,7 @@ function renderAdminCustomOrderAlert(data: CustomOrderAdminAlertData) {
 
 function renderCustomOrderUpdate(data: CustomOrderUpdateData) {
   const isQuoted = data.status === 'quoted';
+  const displayStatus = (data.status || 'pending').toString().replace(/_/g, ' ');
   
   const content = `
     <h2 style="font-size: 24px; font-weight: 800; color: #111827; margin-bottom: 16px;">
@@ -201,8 +202,8 @@ function renderCustomOrderUpdate(data: CustomOrderUpdateData) {
     </h2>
     
     <p style="font-size: 16px; color: #4b5563; line-height: 1.6; margin-bottom: 24px;">
-      Hi ${data.customerName}, your request for <strong>${data.title}</strong> has been updated to: 
-      <span style="color: #7c3aed; font-weight: 700; text-transform: capitalize;">${data.status.replace(/_/g, ' ')}</span>.
+      Hi ${data.customerName || 'Customer'}, your request for <strong>${data.title || 'Order'}</strong> has been updated to: 
+      <span style="color: #7c3aed; font-weight: 700; text-transform: capitalize;">${displayStatus}</span>.
     </p>
 
     ${data.message ? `
