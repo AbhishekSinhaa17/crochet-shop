@@ -61,17 +61,27 @@ export class OrderService {
           price: item.price,
           name: item.name
         })),
-        p_payment_method: validated.payment_method || 'razorpay'
+        p_payment_method: validated.payment_method || 'razorpay',
+        p_status: validated.status || 'confirmed',
+        p_payment_status: validated.payment_status || 'paid'
       });
 
       Logger.info("Order placed successfully", { userId, orderNumber, orderId: result.id });
 
+      // Enrich the result with data needed for emails since RPC only returns id & order_number
+      const enrichedResult = {
+        ...result,
+        total,
+        subtotal,
+        shipping_address: validated.shipping_address
+      };
+
       // 📧 Async Email Trigger
-      this.triggerOrderEmails(userId, result, itemsWithDetails).catch(err => 
+      this.triggerOrderEmails(userId, enrichedResult, itemsWithDetails).catch(err => 
         Logger.error("Failed to trigger order emails", err)
       );
 
-      return result;
+      return enrichedResult;
     } catch (error: any) {
       Logger.error("Failed to place order", error);
       throw error;
@@ -84,14 +94,20 @@ export class OrderService {
   private async triggerOrderEmails(userId: string, order: any, items: any[]) {
     try {
       const profile = await this.userRepository.getProfile(userId);
-      if (!profile) return;
+      const authUserRes = await supabaseAdmin.auth.admin.getUserById(userId);
+      const userEmail = authUserRes.data?.user?.email || profile?.email;
+
+      if (!profile || !userEmail) {
+        Logger.warn("Could not find profile or email for user, skipping order emails", { userId });
+        return;
+      }
 
       const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
       const orderLink = `${siteUrl}/orders/${order.id}`;
 
       // 1. Send to Customer
       await pushToEmailQueue({
-        to: profile.email,
+        to: userEmail,
         subject: `Order Confirmed - #${order.order_number}`,
         type: 'ORDER_CONFIRMATION',
         orderId: order.id,
@@ -111,13 +127,13 @@ export class OrderService {
       const adminEmail = process.env.ADMIN_EMAIL || 'hellostrokesofcraft@gmail.com';
       await pushToEmailQueue({
         to: adminEmail,
-        subject: `NEW SALE! - Order #${order.order_number}`,
+        subject: `New Order Received - #${order.order_number}`,
         type: 'ADMIN_NOTIFICATION',
         orderId: order.id,
         data: {
           orderNumber: order.order_number,
-          customerName: profile.full_name || profile.email,
-          customerEmail: profile.email,
+          customerName: profile.full_name || userEmail,
+          customerEmail: userEmail,
           total: order.total,
           items: items.map(i => ({ name: i.name, quantity: i.quantity })),
           adminLink: `${siteUrl}/admin/orders?id=${order.id}`
@@ -156,7 +172,10 @@ export class OrderService {
   private async triggerDeliveryEmail(order: any) {
     try {
       const profile = await this.userRepository.getProfile(order.user_id);
-      if (!profile) return;
+      const authUserRes = await supabaseAdmin.auth.admin.getUserById(order.user_id);
+      const userEmail = authUserRes.data?.user?.email || profile?.email;
+
+      if (!profile || !userEmail) return;
 
       const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
@@ -180,7 +199,7 @@ export class OrderService {
       }
 
       await pushToEmailQueue({
-        to: profile.email,
+        to: userEmail,
         subject: `Your order has been delivered! 🎉`,
         type: 'ORDER_DELIVERED',
         orderId: order.id,

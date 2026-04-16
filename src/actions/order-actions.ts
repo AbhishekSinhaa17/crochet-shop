@@ -34,33 +34,17 @@ export async function placeOrderAction(data: {
         quantity: item.quantity
       })),
       shipping_address: data.shipping_address,
-      payment_method: 'razorpay'
+      payment_method: 'razorpay',
+      status: 'confirmed',
+      payment_status: 'paid'
     };
 
-    // 1. Create Order via Service
+    // 1. Create Order via Service (Now with atomic Paid/Confirmed status)
     const order = await orderService.placeOrder(user.id, orderInput);
-
-    // 2. Update with Razorpay details (Post-Creation)
-    // Note: In real prod, we'd do this inside a transaction. 
-    // Since placeOrder handles atomicity via RPC, we update the metadata here.
-    const { error: updateError } = await supabase
-      .from("orders")
-      .update({
-        razorpay_order_id: data.order_id,
-        razorpay_payment_id: data.payment_id,
-        razorpay_signature: data.signature,
-        payment_status: 'paid',
-        status: 'confirmed'
-      })
-      .eq("id", order.id);
-
-    if (updateError) {
-      Logger.error("Failed to update payment details for order", updateError, { orderId: order.id });
-      // We don't throw here to avoid failing a successful payment, but we log the critical error
-    }
 
     revalidatePath("/orders");
     revalidatePath(`/orders/${order.id}`);
+    revalidatePath("/admin/orders");
     
     return { success: true, orderId: order.id };
   } catch (error: any) {

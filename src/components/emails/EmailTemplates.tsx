@@ -87,7 +87,7 @@ function renderOrderDelivered(data: OrderDeliveredData) {
     <h2 style="font-size: 24px; font-weight: 800; color: #111827; margin-bottom: 16px; text-align: center;">It's Arrived! 📦</h2>
     
     <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; padding: 40px 24px; text-align: center; margin-bottom: 32px;">
-      <img src="https://img.icons8.com/bubbles/200/delivery.png" width="100" height="100" alt="Delivered" style="margin-bottom: 24px;" />
+      <img src="https://img.icons8.com/color/200/shipped.png" width="100" height="100" alt="Delivered" style="margin-bottom: 24px;" />
       
       <p style="font-size: 16px; color: #1e293b; line-height: 1.6; margin: 0 0 16px 0;">
         Hi <strong>${data.customerName}</strong>, your order <strong style="color: #7c3aed;">#${data.orderNumber}</strong> has been successfully delivered. We hope it brings a smile to your face!
@@ -116,7 +116,7 @@ function renderAdminNotification(data: AdminNotificationData) {
   `).join('');
 
   const content = `
-    <h2 style="font-size: 20px; font-weight: 800; color: #111827; margin-bottom: 16px;">New Sales Alert! 🚀</h2>
+    <h2 style="font-size: 20px; font-weight: 800; color: #111827; margin-bottom: 16px;">New Order Received! 🚀</h2>
     <p style="font-size: 14px; color: #4b5563; line-height: 1.6; margin-bottom: 24px;">
       A new order <strong>#${data.orderNumber}</strong> has been received from ${data.customerName}.
     </p>

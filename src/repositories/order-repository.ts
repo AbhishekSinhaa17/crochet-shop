@@ -41,6 +41,8 @@ export class OrderRepository {
     p_shipping_address: any;
     p_items: any[];
     p_payment_method?: string;
+    p_status?: string;
+    p_payment_status?: string;
   }) {
     const supabase = await this.getClient();
     const { data, error } = await supabase.rpc("place_order_atomic", params);

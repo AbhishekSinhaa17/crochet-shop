@@ -21,6 +21,8 @@ export const orderCreateSchema = z.object({
   shipping_address: shippingAddressSchema,
   payment_method: z.enum(["razorpay", "stripe"]).default("razorpay"),
   notes: z.string().optional(),
+  status: z.string().optional(),
+  payment_status: z.string().optional(),
 });
 
 export const customOrderSchema = z.object({

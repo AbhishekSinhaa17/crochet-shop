@@ -2,7 +2,7 @@
 
 import { useEffect, useState, Suspense, useRef } from "react";
 import ProductPreviewModal from "@/components/admin/ProductPreviewModal";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Order } from "@/types";
 import { formatPrice, formatDate } from "@/lib/utils";
 import toast from "react-hot-toast";
@@ -39,6 +39,15 @@ const STATUS_OPTIONS = [
   "cancelled",
 ] as const;
 
+const STATUS_RANK: Record<string, number> = {
+  pending: 0,
+  confirmed: 1,
+  processing: 2,
+  shipped: 3,
+  delivered: 4,
+  cancelled: 99, // Terminal state
+};
+
 const FILTER_OPTIONS = ["all", ...STATUS_OPTIONS] as const;
 
 import {
@@ -70,6 +79,7 @@ function AdminOrdersPageContent() {
   const [trackingNumber, setTrackingNumber] = useState("");
   const [isUpdatingTracking, setIsUpdatingTracking] = useState(false);
   const [previewProductId, setPreviewProductId] = useState<string | null>(null);
+  const router = useRouter();
   const searchParams = useSearchParams();
   const highlightId = searchParams.get("id");
   const hasAutoOpened = useRef<string | null>(null);
@@ -80,9 +90,14 @@ function AdminOrdersPageContent() {
       if (order) {
         setSelectedOrder(order);
         hasAutoOpened.current = highlightId;
+        
+        // Clear the ID from URL to prevent re-opening on refreshes
+        const params = new URLSearchParams(searchParams.toString());
+        params.delete("id");
+        router.replace(`/admin/orders?${params.toString()}`, { scroll: false });
       }
     }
-  }, [highlightId, orders]);
+  }, [highlightId, orders, router, searchParams]);
 
   useEffect(() => {
     fetchOrders();
@@ -539,15 +554,13 @@ function AdminOrdersPageContent() {
               {filteredOrders.length > 0 ? (
                 filteredOrders.map((order, idx) => {
                   const s = getStatusStyle(order.status);
-                  const StatusIcon = s.icon;
 
                   return (
                     <tr
                       key={`${order.id}-${idx}`}
-                      onClick={() => setSelectedOrder(order)}
                       className="order-row group border-b
                         border-gray-50 dark:border-gray-800/60 
-                        animate-table-row cursor-pointer hover:bg-gray-50/50 
+                        animate-table-row hover:bg-gray-50/50 
                         dark:hover:bg-gray-800/30 transition-colors"
                       style={{ animationDelay: `${550 + idx * 60}ms` }}
                     >
@@ -599,7 +612,7 @@ function AdminOrdersPageContent() {
                       {/* Total */}
                       <td className="py-4 px-6">
                         <span className="text-sm font-bold text-gray-900 dark:text-white">
-                          {formatPrice(order.total)}
+                           {formatPrice(order.total)}
                         </span>
                       </td>
 
@@ -632,50 +645,69 @@ function AdminOrdersPageContent() {
                         </span>
                       </td>
 
-                      {/* Action dropdown */}
+                      {/* Action */}
                       <td className="py-4 px-6">
-                        <div
-                          className="relative"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          {updatingId === order.id && (
-                            <div className="absolute -left-6 top-1/2 -translate-y-1/2">
-                              <Loader2 className="w-3.5 h-3.5 animate-spin text-violet-500" />
-                            </div>
-                          )}
-                          <select
-                            value={order.status}
-                            onChange={(e) =>
-                              updateStatus(order.id, e.target.value)
-                            }
-                            disabled={updatingId === order.id}
-                            className="appearance-none text-xs font-medium px-3 py-2 pr-8 
-                              rounded-xl border cursor-pointer
-                              transition-all duration-300
-                              bg-white border-gray-200 text-gray-700
-                              hover:border-violet-300 hover:bg-violet-50
-                              focus:outline-none focus:ring-2 focus:ring-violet-200 
-                              focus:border-violet-400
-                              dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300
-                              dark:hover:border-violet-600 dark:hover:bg-violet-900/20
-                              dark:focus:ring-violet-800 dark:focus:border-violet-600
-                              disabled:opacity-50 disabled:cursor-wait
-                              capitalize"
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => setSelectedOrder(order)}
+                            className="p-2 rounded-lg bg-gray-50 text-gray-500 
+                              hover:bg-violet-50 hover:text-violet-600 transition-all 
+                              dark:bg-gray-800/50 dark:hover:bg-violet-900/20"
+                            title="View Details"
                           >
-                            {STATUS_OPTIONS.map((s) => (
-                              <option
-                                key={s}
-                                value={s}
-                                className="bg-white text-gray-900 dark:bg-gray-800 dark:text-gray-100 capitalize"
-                              >
-                                {s}
-                              </option>
-                            ))}
-                          </select>
-                          <ChevronDown
-                            className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 
-                              text-gray-400 dark:text-gray-500 pointer-events-none"
-                          />
+                            <Eye className="w-4 h-4" />
+                          </button>
+
+                          <div className="relative">
+                            {updatingId === order.id && (
+                              <div className="absolute -left-6 top-1/2 -translate-y-1/2">
+                                <Loader2 className="w-3.5 h-3.5 animate-spin text-violet-500" />
+                              </div>
+                            )}
+                            <select
+                               value={order.status}
+                               onChange={(e) =>
+                                 updateStatus(order.id, e.target.value)
+                               }
+                               disabled={updatingId === order.id}
+                               className="appearance-none text-[11px] font-bold px-3 py-1.5 pr-8 
+                                 rounded-lg border cursor-pointer
+                                 transition-all duration-300
+                                 bg-white border-gray-200 text-gray-700
+                                 hover:border-violet-300 hover:bg-violet-50
+                                 focus:outline-none focus:ring-2 focus:ring-violet-200 
+                                 focus:border-violet-400
+                                 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300
+                                 dark:hover:border-violet-600 dark:hover:bg-violet-900/20
+                                 disabled:opacity-50 disabled:cursor-wait
+                                 capitalize shadow-sm"
+                             >
+                               {STATUS_OPTIONS.filter(status => {
+                                 // Always show current status
+                                 if (status === order.status) return true;
+                                 
+                                 const currentRank = STATUS_RANK[order.status] || 0;
+                                 const targetRank = STATUS_RANK[status];
+                                 
+                                 // If already delivered or cancelled, no moving forward
+                                 if (currentRank >= 4) return false;
+
+                                 // Can always cancel unless delivered
+                                 if (status === 'cancelled') return true;
+
+                                 // Only allow moving forward
+                                 return targetRank > currentRank;
+                               }).map((status) => (
+                                 <option key={status} value={status} className="capitalize dark:bg-gray-800">
+                                   {status}
+                                 </option>
+                               ))}
+                             </select>
+                             <ChevronDown
+                               className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3 h-3 
+                                 text-gray-400 pointer-events-none"
+                             />
+                          </div>
                         </div>
                       </td>
                     </tr>
@@ -806,12 +838,34 @@ function AdminOrdersPageContent() {
                     <Package className="w-5 h-5" />
                   </div>
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
-                      Order Status
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-0.5">
+                      Update Status
                     </p>
-                    <p className="text-sm font-bold text-gray-900 dark:text-white capitalize">
-                      {selectedOrder.status}
-                    </p>
+                    <div className="relative">
+                      <select
+                        value={selectedOrder.status}
+                        onChange={async (e) => {
+                          const newStatus = e.target.value;
+                          await updateStatus(selectedOrder.id, newStatus);
+                          setSelectedOrder({ ...selectedOrder, status: newStatus as any });
+                        }}
+                        className="appearance-none text-sm font-bold bg-transparent pr-6 focus:outline-none cursor-pointer capitalize text-gray-900 dark:text-white"
+                      >
+                        {STATUS_OPTIONS.filter(status => {
+                          if (status === selectedOrder.status) return true;
+                          const currentRank = STATUS_RANK[selectedOrder.status] || 0;
+                          const targetRank = STATUS_RANK[status];
+                          if (currentRank >= 4) return false;
+                          if (status === 'cancelled') return true;
+                          return targetRank > currentRank;
+                        }).map((s) => (
+                          <option key={s} value={s} className="capitalize dark:bg-gray-900">
+                            {s}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown className="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                    </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">

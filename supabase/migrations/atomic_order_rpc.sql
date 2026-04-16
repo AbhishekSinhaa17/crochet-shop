@@ -6,7 +6,9 @@ CREATE OR REPLACE FUNCTION place_order_atomic(
     p_subtotal NUMERIC,
     p_shipping_address JSONB,
     p_items JSONB,
-    p_payment_method TEXT DEFAULT 'razorpay'
+    p_payment_method TEXT DEFAULT 'razorpay',
+    p_status TEXT DEFAULT 'confirmed',
+    p_payment_status TEXT DEFAULT 'paid'
 )
 RETURNS JSONB
 LANGUAGE plpgsql
@@ -36,8 +38,8 @@ BEGIN
         p_items, 
         p_shipping_address, 
         p_payment_method,
-        'pending',
-        'pending'
+        p_status,
+        p_payment_status
     ) RETURNING id INTO v_order_id;
 
     -- 2. Iterate through items to update stock
