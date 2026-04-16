@@ -1,5 +1,5 @@
 import { wrapInEmailTemplate } from '@/lib/email';
-import { EmailType, OrderConfirmationData, OrderDeliveredData, AdminNotificationData } from '@/types/email';
+import { EmailType, OrderConfirmationData, OrderDeliveredData, AdminNotificationData, CustomOrderAdminAlertData, CustomOrderUpdateData } from '@/types/email';
 import { formatPrice } from '@/lib/utils';
 
 /**
@@ -16,6 +16,10 @@ export async function renderEmailTemplate(type: EmailType, data: any): Promise<s
       return renderAdminNotification(data);
     case 'CUSTOM_ORDER_RECEIVED':
       return renderCustomOrderReceived(data);
+    case 'CUSTOM_ORDER_ADMIN_ALERT':
+      return renderAdminCustomOrderAlert(data);
+    case 'CUSTOM_ORDER_UPDATE':
+      return renderCustomOrderUpdate(data);
     default:
       throw new Error(`Unknown email type: ${type}`);
   }
@@ -159,4 +163,69 @@ function renderCustomOrderReceived(data: any) {
       </div>
     `;
     return wrapInEmailTemplate(content, `Custom Request Confirmation`);
+}
+
+function renderAdminCustomOrderAlert(data: CustomOrderAdminAlertData) {
+  const content = `
+    <h2 style="font-size: 20px; font-weight: 800; color: #111827; margin-bottom: 16px;">New Custom Request! ✨</h2>
+    <p style="font-size: 14px; color: #4b5563; line-height: 1.6; margin-bottom: 24px;">
+      A new custom order request <strong>"${data.title}"</strong> has been received from ${data.customerName}.
+    </p>
+
+    <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+      <h3 style="font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; margin: 0 0 8px 0;">Customer Details</h3>
+      <p style="margin: 0; font-size: 14px; color: #1e293b; font-weight: 600;">${data.customerName}</p>
+      <p style="margin: 4px 0 0 0; font-size: 14px; color: #64748b;">${data.customerEmail}</p>
+    </div>
+
+    <div style="border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 32px;">
+      <h3 style="font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; margin: 0 0 8px 0;">Request Title</h3>
+      <p style="margin: 0; font-size: 14px; color: #1e293b;">${data.title}</p>
+      <p style="margin: 8px 0 0 0; font-size: 12px; color: #64748b; line-height: 1.5;">${data.description}</p>
+    </div>
+
+    <div style="text-align: center;">
+      <a href="${data.adminLink}" class="btn">View in Admin Panel</a>
+    </div>
+  `;
+
+  return wrapInEmailTemplate(content, `Action Required: New Custom Request - ${data.title}`);
+}
+
+function renderCustomOrderUpdate(data: CustomOrderUpdateData) {
+  const isQuoted = data.status === 'quoted';
+  
+  const content = `
+    <h2 style="font-size: 24px; font-weight: 800; color: #111827; margin-bottom: 16px;">
+      ${isQuoted ? 'Your Quote is Ready! 🏷️' : 'Update on Your Custom Request'}
+    </h2>
+    
+    <p style="font-size: 16px; color: #4b5563; line-height: 1.6; margin-bottom: 24px;">
+      Hi ${data.customerName}, your request for <strong>${data.title}</strong> has been updated to: 
+      <span style="color: #7c3aed; font-weight: 700; text-transform: capitalize;">${data.status.replace(/_/g, ' ')}</span>.
+    </p>
+
+    ${data.message ? `
+      <div style="background-color: #f8fafc; border-left: 4px solid #7c3aed; padding: 16px; margin-bottom: 24px; font-style: italic; color: #4b5563;">
+        "${data.message}"
+      </div>
+    ` : ''}
+
+    ${isQuoted && data.quotedPrice ? `
+      <div style="background-color: #f1f5f9; border-radius: 16px; padding: 24px; margin-bottom: 32px; text-align: center;">
+        <p style="margin: 0 0 8px 0; font-size: 12px; color: #64748b; font-weight: 700; text-transform: uppercase;">Quoted Price</p>
+        <p style="margin: 0; font-size: 32px; font-weight: 800; color: #7c3aed;">${formatPrice(data.quotedPrice)}</p>
+      </div>
+    ` : ''}
+
+    <div style="text-align: center; margin-top: 32px;">
+      ${data.showPayButton ? `
+        <a href="${data.orderLink}" style="display: inline-block; padding: 16px 32px; background: #7c3aed; color: #ffffff; text-decoration: none; border-radius: 14px; font-weight: 700; font-size: 16px; box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.2);">Pay to Proceed</a>
+      ` : `
+        <a href="${data.orderLink}" class="btn">View Request Details</a>
+      `}
+    </div>
+  `;
+
+  return wrapInEmailTemplate(content, `${isQuoted ? 'Quote Received' : 'Update'} for your Custom Order: ${data.title}`);
 }

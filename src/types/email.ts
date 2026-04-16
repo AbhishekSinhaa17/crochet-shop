@@ -2,7 +2,13 @@
  * 📧 Email System Types & Interfaces
  */
 
-export type EmailType = 'ORDER_CONFIRMATION' | 'ORDER_DELIVERED' | 'ADMIN_NOTIFICATION' | 'CUSTOM_ORDER_RECEIVED';
+export type EmailType = 
+  | 'ORDER_CONFIRMATION' 
+  | 'ORDER_DELIVERED' 
+  | 'ADMIN_NOTIFICATION' 
+  | 'CUSTOM_ORDER_RECEIVED'
+  | 'CUSTOM_ORDER_ADMIN_ALERT'
+  | 'CUSTOM_ORDER_UPDATE';
 
 export interface EmailPayload {
   to: string | string[];
@@ -53,4 +59,22 @@ export interface AdminNotificationData {
     quantity: number;
   }>;
   adminLink: string;
+}
+
+export interface CustomOrderAdminAlertData {
+  customerName: string;
+  customerEmail: string;
+  title: string;
+  description: string;
+  adminLink: string;
+}
+
+export interface CustomOrderUpdateData {
+  customerName: string;
+  title: string;
+  status: string;
+  message: string;
+  quotedPrice?: number;
+  orderLink: string;
+  showPayButton?: boolean;
 }

@@ -8,7 +8,9 @@ import { supabaseAdmin } from "@/lib/supabase/admin";
 import { 
   OrderConfirmationData, 
   AdminNotificationData, 
-  OrderDeliveredData 
+  OrderDeliveredData,
+  CustomOrderAdminAlertData,
+  CustomOrderUpdateData
 } from "@/types/email";
 
 export class OrderService {
@@ -246,9 +248,9 @@ export class OrderService {
       user_id: userId
     });
 
-    // 📧 Async Email for Custom Order
+    // 📧 Async Emails for Custom Order (Customer & Admin)
     this.triggerCustomOrderEmail(userId, result).catch(err => 
-        Logger.error("Failed to trigger custom order email", err)
+        Logger.error("Failed to trigger custom order emails", err)
     );
 
     return result;
@@ -261,6 +263,7 @@ export class OrderService {
 
         const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
+        // 📧 Customer Confirmation
         await pushToEmailQueue({
             to: profile.email,
             subject: `We've received your custom request!`,
@@ -272,10 +275,26 @@ export class OrderService {
                 orderLink: `${siteUrl}/orders/custom/${order.id}`
             }
         });
+
+        // 📧 Admin Alert
+        const adminEmail = process.env.ADMIN_EMAIL || 'hellostrokesofcraft@gmail.com';
+        await pushToEmailQueue({
+            to: adminEmail,
+            subject: `Action Required: New Custom Request Received`,
+            type: 'CUSTOM_ORDER_ADMIN_ALERT',
+            orderId: order.id,
+            data: {
+                customerName: profile.full_name || 'Customer',
+                customerEmail: profile.email,
+                title: order.title,
+                description: order.description,
+                adminLink: `${siteUrl}/admin/custom-orders`
+            } as CustomOrderAdminAlertData
+        });
     } catch (error) {
         Logger.error("Error in triggerCustomOrderEmail", error);
     }
-  }
+}
 
   async getMyCustomOrders(userId: string) {
     return await this.repository.getCustomOrdersByUser(userId);
@@ -302,8 +321,46 @@ export class OrderService {
       throw new Error(`Cannot revert order to ${status} status after payment has been received.`);
     }
 
-    return await this.repository.updateCustomOrderStatus(id, status, adminNotes, quotedPrice, additionalData);
-  }
+    const updated = await this.repository.updateCustomOrderStatus(id, status, adminNotes, quotedPrice, additionalData);
+
+    // 📧 Trigger Status Update Email
+    this.triggerCustomOrderStatusUpdateEmail(updated).catch(err => 
+        Logger.error("Failed to trigger custom status update email", err)
+    );
+
+    return updated;
+}
+
+private async triggerCustomOrderStatusUpdateEmail(order: any) {
+    try {
+        const profile = await this.userRepository.getProfile(order.user_id);
+        if (!profile) return;
+
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
+        // Custom logic for status messages
+        let message = order.admin_notes || "";
+        const isQuoted = order.status === 'quoted';
+
+        await pushToEmailQueue({
+            to: profile.email,
+            subject: isQuoted ? "Your Custom Quote is Ready! 🏷️" : `Update on your request: ${order.title}`,
+            type: 'CUSTOM_ORDER_UPDATE',
+            orderId: order.id,
+            data: {
+                customerName: profile.full_name || 'Customer',
+                title: order.title,
+                status: order.status,
+                message: message,
+                quotedPrice: order.quoted_price,
+                orderLink: `${siteUrl}/orders/custom/${order.id}`,
+                showPayButton: isQuoted
+            } as CustomOrderUpdateData
+        });
+    } catch (error) {
+        Logger.error("Error in triggerCustomOrderStatusUpdateEmail", error);
+    }
+}
 
   async updateCustomOrder(id: string, data: any) {
     return await this.repository.updateCustomOrder(id, data);
