@@ -360,13 +360,7 @@ export default function AdminDashboardPage() {
                         icon={Users}
                         gradient="from-blue-500 to-cyan-600"
                       />
-                      <QuickActionLink
-                        href="/admin/settings"
-                        label="Store Settings"
-                        description="Configure your store"
-                        icon={Settings}
-                        gradient="from-amber-500 to-orange-600"
-                      />
+
                     </div>
                   </div>
                 </div>
