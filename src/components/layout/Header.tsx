@@ -36,7 +36,7 @@ import { Logger } from "@/lib/logger";
 import ThemeToggle from "./ThemeToggle";
 
 export default function Header() {
-  const { user, profile, signOut } = useAuthStore();
+  const { user, profile, isAdmin, signOut } = useAuthStore();
   const [mounted, setMounted] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -145,7 +145,6 @@ export default function Header() {
   };
 
   const userInitial = profile?.full_name?.charAt(0)?.toUpperCase();
-  const isAdmin = profile?.role?.toLowerCase()?.trim() === "admin";
 
   const navLinks = [
     { href: "/products", label: "Shop", icon: ShoppingBag },

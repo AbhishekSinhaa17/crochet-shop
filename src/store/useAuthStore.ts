@@ -65,7 +65,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         }
 
         if (profile) {
-          const isAdmin = profile.role === "admin";
+          const isAdmin = profile.role?.toLowerCase()?.trim() === "admin";
           Logger.info("Profile fetched successfully", { userId, role: profile.role });
           set({
             profile,

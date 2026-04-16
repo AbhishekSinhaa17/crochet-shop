@@ -52,8 +52,7 @@ export default function ProductDetailClient({
   const [isImageZoomed, setIsImageZoomed] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const { user } = useAuthStore();
+  const { user, isAdmin } = useAuthStore();
   const addItem = useCartStore((s) => s.addItem);
   const { toggleWishlist, items, processingIds } = useWishlistStore();
   const isInWishlist = items.includes(product.id);
@@ -62,18 +61,6 @@ export default function ProductDetailClient({
 
   useEffect(() => {
     setIsLoaded(true);
-    const fetchAdminStatus = async () => {
-      try {
-        const res = await fetch("/api/profile");
-        const json = await res.json();
-        if (json.profile?.role?.toLowerCase()?.trim() === "admin") {
-          setIsAdmin(true);
-        }
-      } catch (e) {
-        console.error("Error fetching admin status:", e);
-      }
-    };
-    fetchAdminStatus();
     Analytics.viewProduct(product, user?.id);
   }, [product, user?.id]);
 
