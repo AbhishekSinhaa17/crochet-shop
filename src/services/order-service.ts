@@ -262,23 +262,31 @@ export class OrderService {
   private async triggerCustomOrderEmail(userId: string, order: any) {
     try {
         const profile = await this.userRepository.getProfile(userId);
-        if (!profile) return;
+        // Fetch email from auth.users (profiles table often has null email)
+        const authUserRes = await supabaseAdmin.auth.admin.getUserById(userId);
+        const customerEmail = authUserRes.data?.user?.email || profile?.email;
+
+        if (!customerEmail) {
+            Logger.warn("No email found for custom order user, skipping emails", { userId });
+            return;
+        }
 
         const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
         const adminEmail = process.env.ADMIN_EMAIL || 'hellostrokesofcraft@gmail.com';
+        const customerName = profile?.full_name || 'Customer';
 
-        Logger.info("Triggering dual custom order emails", { orderId: order.id });
+        Logger.info("Triggering dual custom order emails", { orderId: order.id, customerEmail });
 
         // 📧 Parallel isolated triggers
         await Promise.allSettled([
             // 1. Customer Confirmation
             pushToEmailQueue({
-                to: profile.email,
+                to: customerEmail,
                 subject: `We've received your custom request!`,
                 type: 'CUSTOM_ORDER_RECEIVED',
                 orderId: order.id,
                 data: {
-                    customerName: profile.full_name || 'Customer',
+                    customerName: customerName,
                     title: order.title || 'Custom Request',
                     orderLink: `${siteUrl}/orders?tab=custom`
                 }
@@ -291,8 +299,8 @@ export class OrderService {
                 type: 'CUSTOM_ORDER_ADMIN_ALERT',
                 orderId: order.id,
                 data: {
-                    customerName: profile.full_name || 'Customer',
-                    customerEmail: profile.email,
+                    customerName: customerName,
+                    customerEmail: customerEmail,
                     title: order.title,
                     description: order.description,
                     adminLink: `${siteUrl}/admin/custom-orders`
@@ -344,7 +352,14 @@ export class OrderService {
 private async triggerCustomOrderStatusUpdateEmail(order: any) {
     try {
         const profile = await this.userRepository.getProfile(order.user_id);
-        if (!profile) return;
+        // Fetch email from auth.users (profiles table often has null email)
+        const authUserRes = await supabaseAdmin.auth.admin.getUserById(order.user_id);
+        const customerEmail = authUserRes.data?.user?.email || profile?.email;
+
+        if (!customerEmail) {
+            Logger.warn("No email found for custom order status update, skipping", { userId: order.user_id });
+            return;
+        }
 
         const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
@@ -359,14 +374,15 @@ private async triggerCustomOrderStatusUpdateEmail(order: any) {
         if (isShipped) subject = "Your Custom Order is on the way! 🚚";
         if (isDelivered) subject = "Your Custom Order has been delivered! 🎉";
 
-        Logger.info(`Attempting to send custom status update email to ${profile.email} for order ${order.id}`);
+        Logger.info(`Sending custom status update email to ${customerEmail} for order ${order.id} (status: ${order.status})`);
         await pushToEmailQueue({
-            to: profile.email,
+            to: customerEmail,
             subject: subject,
             type: 'CUSTOM_ORDER_UPDATE',
-            orderId: order.id,
+            // Append status to orderId so each status change gets its own idempotency key
+            orderId: `${order.id}-${order.status}`,
             data: {
-                customerName: profile.full_name || 'Customer',
+                customerName: profile?.full_name || 'Customer',
                 title: order.title || 'Custom Project',
                 status: displayStatus,
                 message: order.admin_notes || "",
