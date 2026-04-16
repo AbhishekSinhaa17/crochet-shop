@@ -658,12 +658,7 @@ function AdminOrdersPageContent() {
                             <Eye className="w-4 h-4" />
                           </button>
 
-                          <div className="relative">
-                            {updatingId === order.id && (
-                              <div className="absolute -left-6 top-1/2 -translate-y-1/2">
-                                <Loader2 className="w-3.5 h-3.5 animate-spin text-violet-500" />
-                              </div>
-                            )}
+                          <div className="relative flex items-center">
                             <select
                                value={order.status}
                                onChange={(e) =>
@@ -703,10 +698,17 @@ function AdminOrdersPageContent() {
                                  </option>
                                ))}
                              </select>
-                             <ChevronDown
-                               className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3 h-3 
-                                 text-gray-400 pointer-events-none"
-                             />
+                             {updatingId === order.id ? (
+                               <Loader2
+                                 className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 
+                                   text-violet-500 animate-spin pointer-events-none"
+                               />
+                             ) : (
+                               <ChevronDown
+                                 className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3 h-3 
+                                   text-gray-400 pointer-events-none group-hover:text-violet-500 transition-colors"
+                               />
+                             )}
                           </div>
                         </div>
                       </td>
