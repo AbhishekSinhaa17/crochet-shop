@@ -120,6 +120,13 @@ export class Logger {
   }
 
   static apiError(route: string, error: unknown, context?: LogContext) {
+    // 🛡️ Filter out routine auth errors to keep logs clean
+    const status = (error as any)?.status || (error as any)?.statusCode;
+    if (status === 401 || status === 403) {
+      this.debug(`Unauthorized access ignored on ${route}`);
+      return;
+    }
+
     this.error(`API error on ${route}`, error, { module: "api", action: route, ...context });
   }
 

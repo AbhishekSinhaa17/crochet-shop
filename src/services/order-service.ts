@@ -73,6 +73,7 @@ export class OrderService {
         ...result,
         total,
         subtotal,
+        shipping_fee: total - subtotal,
         shipping_address: validated.shipping_address
       };
 
@@ -118,7 +119,7 @@ export class OrderService {
           subtotal: order.subtotal,
           shippingFee: order.shipping_fee || 0,
           total: order.total,
-          shippingAddress: order.shipping_address,
+          shippingAddress: order.shipping_address || {},
           orderLink
         } as OrderConfirmationData
       });
