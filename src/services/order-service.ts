@@ -3,6 +3,13 @@ import { ProductRepository } from "@/repositories/product-repository";
 import { UserRepository } from "@/repositories/user-repository";
 import { orderCreateSchema, customOrderSchema } from "@/validators/order";
 import { Logger } from "@/lib/logger";
+import { pushToEmailQueue } from "@/lib/mail-queue";
+import { supabaseAdmin } from "@/lib/supabase/admin";
+import { 
+  OrderConfirmationData, 
+  AdminNotificationData, 
+  OrderDeliveredData 
+} from "@/types/email";
 
 export class OrderService {
 
@@ -58,10 +65,67 @@ export class OrderService {
       });
 
       Logger.info("Order placed successfully", { userId, orderNumber, orderId: result.id });
+
+      // 📧 Async Email Trigger
+      this.triggerOrderEmails(userId, result, itemsWithDetails).catch(err => 
+        Logger.error("Failed to trigger order emails", err)
+      );
+
       return result;
     } catch (error: any) {
       Logger.error("Failed to place order", error);
       throw error;
+    }
+  }
+
+  /**
+   * 📧 Helper to trigger emails after order placement
+   */
+  private async triggerOrderEmails(userId: string, order: any, items: any[]) {
+    try {
+      const profile = await this.userRepository.getProfile(userId);
+      if (!profile) return;
+
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+      const orderLink = `${siteUrl}/orders/${order.id}`;
+
+      // 1. Send to Customer
+      await pushToEmailQueue({
+        to: profile.email,
+        subject: `Order Confirmed - #${order.order_number}`,
+        type: 'ORDER_CONFIRMATION',
+        orderId: order.id,
+        data: {
+          orderNumber: order.order_number,
+          customerName: profile.full_name || 'Customer',
+          items: items,
+          subtotal: order.subtotal,
+          shippingFee: order.shipping_fee || 0,
+          total: order.total,
+          shippingAddress: order.shipping_address,
+          orderLink
+        } as OrderConfirmationData
+      });
+
+      // 2. Send to Admin
+      const adminEmail = process.env.ADMIN_EMAIL || 'hellostrokesofcraft@gmail.com';
+      await pushToEmailQueue({
+        to: adminEmail,
+        subject: `NEW SALE! - Order #${order.order_number}`,
+        type: 'ADMIN_NOTIFICATION',
+        orderId: order.id,
+        data: {
+          orderNumber: order.order_number,
+          customerName: profile.full_name || profile.email,
+          customerEmail: profile.email,
+          total: order.total,
+          items: items.map(i => ({ name: i.name, quantity: i.quantity })),
+          adminLink: `${siteUrl}/admin/orders?id=${order.id}`
+        } as AdminNotificationData
+      });
+
+    } catch (error) {
+      Logger.error("Error in triggerOrderEmails", error);
     }
   }
 
@@ -79,7 +143,58 @@ export class OrderService {
   }
 
   async updateStatus(id: string, status: string, note?: string) {
-    return await this.repository.updateOrderStatus(id, status, note);
+    const order = await this.repository.updateOrderStatus(id, status, note);
+    
+    // 📧 Trigger Delivery Email
+    if (status === 'delivered') {
+      this.triggerDeliveryEmail(order).catch(err => Logger.error("Delivery email failed", err));
+    }
+
+    return order;
+  }
+
+  private async triggerDeliveryEmail(order: any) {
+    try {
+      const profile = await this.userRepository.getProfile(order.user_id);
+      if (!profile) return;
+
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
+      // Smart dynamic review link generation
+      let productReviewLink = `${siteUrl}/products`; 
+      
+      try {
+        const { data: item } = await supabaseAdmin
+          .from("order_items")
+          .select("product_id")
+          .eq("order_id", order.id)
+          .limit(1)
+          .single();
+          
+        if (item && item.product_id) {
+           productReviewLink = `${siteUrl}/products/${item.product_id}#reviews`; 
+        }
+      } catch(e) {
+        // Fallback gracefully without breaking the email trigger
+        Logger.warn('Failed to fetch product_id for review link fallback applied.');
+      }
+
+      await pushToEmailQueue({
+        to: profile.email,
+        subject: `Your order has been delivered! 🎉`,
+        type: 'ORDER_DELIVERED',
+        orderId: order.id,
+        data: {
+          orderNumber: order.order_number,
+          customerName: profile.full_name || 'Customer',
+          orderId: order.id,
+          orderLink: `${siteUrl}/orders/${order.id}`,
+          reviewLink: productReviewLink
+        } as OrderDeliveredData
+      });
+    } catch (error) {
+      Logger.error("Error in triggerDeliveryEmail", error);
+    }
   }
 
   async updateTracking(id: string, trackingNumber: string, courier: string = 'INDIA_POST', status?: string) {
@@ -104,10 +219,40 @@ export class OrderService {
     // 2. Clear out any admin-only fields if they exist in data (though Zod handles it)
     
     // 3. Create
-    return await this.repository.createCustomOrder({
+    const result = await this.repository.createCustomOrder({
       ...validated,
       user_id: userId
     });
+
+    // 📧 Async Email for Custom Order
+    this.triggerCustomOrderEmail(userId, result).catch(err => 
+        Logger.error("Failed to trigger custom order email", err)
+    );
+
+    return result;
+  }
+
+  private async triggerCustomOrderEmail(userId: string, order: any) {
+    try {
+        const profile = await this.userRepository.getProfile(userId);
+        if (!profile) return;
+
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
+        await pushToEmailQueue({
+            to: profile.email,
+            subject: `We've received your custom request!`,
+            type: 'CUSTOM_ORDER_RECEIVED',
+            orderId: order.id,
+            data: {
+                customerName: profile.full_name || 'Customer',
+                title: order.title,
+                orderLink: `${siteUrl}/orders/custom/${order.id}`
+            }
+        });
+    } catch (error) {
+        Logger.error("Error in triggerCustomOrderEmail", error);
+    }
   }
 
   async getMyCustomOrders(userId: string) {

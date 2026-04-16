@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { formatPrice } from "@/lib/utils";
 import { ShieldCheck, Lock } from "lucide-react";
 import toast from "react-hot-toast";
+import { placeOrderAction } from "@/actions/order-actions";
 
 declare global {
   interface Window {
@@ -71,48 +72,27 @@ export default function CheckoutPage() {
     payment_id: string;
     signature: string;
   }) => {
-    const currentUser = useAuthStore.getState().user;
-    if (!currentUser) throw new Error("Not authenticated");
+    const result = await placeOrderAction({
+      items,
+      shipping_address: {
+        ...address,
+        name: profile?.full_name || user?.email,
+        postal_code: address.pincode,
+        phone: phone,
+      },
+      payment_id: paymentData.payment_id,
+      order_id: paymentData.order_id,
+      signature: paymentData.signature,
+    });
 
-    const orderNumber = `SC-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
-    const orderItems = items.map((item) => ({
-      product_id: item.id,
-      name: item.name,
-      price: item.price,
-      quantity: item.quantity,
-      image: item.image,
-    }));
-
-    const { data: order, error } = await supabase
-      .from("orders")
-      .insert({
-        user_id: currentUser.id,
-        order_number: orderNumber,
-        status: "confirmed",
-        items: orderItems,
-        subtotal,
-        shipping_fee: shipping,
-        total,
-        shipping_address: {
-          ...address,
-          name: profile?.full_name || currentUser.email,
-          postal_code: address.pincode,
-          phone: phone,
-        },
-        payment_status: "paid",
-        razorpay_order_id: paymentData.order_id,
-        razorpay_payment_id: paymentData.payment_id,
-        razorpay_signature: paymentData.signature,
-      })
-      .select()
-      .single();
-
-    if (error) throw error;
+    if (!result.success) {
+      throw new Error(result.error);
+    }
 
     setIsSuccess(true);
     clearCart();
     toast.success("Order placed successfully!");
-    router.push(`/orders/${order.id}`);
+    router.push(`/orders/${result.orderId}`);
   };
 
   const handlePayment = async () => {
