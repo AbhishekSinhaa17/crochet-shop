@@ -152,10 +152,12 @@ function renderAdminNotification(data: AdminNotificationData) {
 }
 
 function renderCustomOrderReceived(data: any) {
+    const customerName = data.customerName || 'Customer';
+    const title = data.title || 'Custom Project';
     const content = `
       <h2 style="font-size: 24px; font-weight: 800; color: #111827; margin-bottom: 8px;">Custom Request Received 🧶</h2>
       <p style="font-size: 16px; color: #4b5563; line-height: 1.6; margin-bottom: 32px;">
-        Hi ${data.customerName}, we've received your request for: <strong>${data.title}</strong>. 
+        Hi ${customerName}, we've received your request for: <strong>${title}</strong>. 
         Our artisans will review it and get back to you with a quote soon!
       </p>
        <div style="text-align: center;">
@@ -166,10 +168,13 @@ function renderCustomOrderReceived(data: any) {
 }
 
 function renderAdminCustomOrderAlert(data: CustomOrderAdminAlertData) {
+  const customerName = data.customerName || 'Customer';
+  const title = data.title || 'Custom Project';
+
   const content = `
     <h2 style="font-size: 20px; font-weight: 800; color: #111827; margin-bottom: 16px;">New Custom Request! ✨</h2>
     <p style="font-size: 14px; color: #4b5563; line-height: 1.6; margin-bottom: 24px;">
-      A new custom order request <strong>"${data.title}"</strong> has been received from ${data.customerName}.
+      A new custom order request <strong>"${title}"</strong> has been received from ${customerName}.
     </p>
 
     <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 24px;">

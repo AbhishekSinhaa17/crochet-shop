@@ -171,7 +171,7 @@ export class OrderService {
     
     // 📧 Trigger Delivery Email
     if (status === 'delivered') {
-      this.triggerDeliveryEmail(order).catch(err => Logger.error("Delivery email failed", err));
+      await this.triggerDeliveryEmail(order).catch(err => Logger.error("Delivery email failed", err));
     }
 
     return order;
@@ -252,7 +252,7 @@ export class OrderService {
     });
 
     // 📧 Async Emails for Custom Order (Customer & Admin)
-    this.triggerCustomOrderEmail(userId, result).catch(err => 
+    await this.triggerCustomOrderEmail(userId, result).catch(err => 
         Logger.error("Failed to trigger custom order emails", err)
     );
 
@@ -279,8 +279,8 @@ export class OrderService {
                 orderId: order.id,
                 data: {
                     customerName: profile.full_name || 'Customer',
-                    title: order.title,
-                    orderLink: `${siteUrl}/orders/custom/${order.id}`
+                    title: order.title || 'Custom Request',
+                    orderLink: `${siteUrl}/orders?tab=custom`
                 }
             }).then(() => Logger.info("Custom order customer email queued")),
 
@@ -350,21 +350,28 @@ private async triggerCustomOrderStatusUpdateEmail(order: any) {
 
         // Custom logic for status messages
         const isQuoted = order.status === 'quoted';
+        const isDelivered = order.status === 'delivered';
+        const isShipped = order.status === 'shipped';
         const displayStatus = (order.status || 'pending').toString().replace(/_/g, ' ');
+
+        let subject = `Update on your request: ${order.title}`;
+        if (isQuoted) subject = "Your Custom Quote is Ready! 🏷️";
+        if (isShipped) subject = "Your Custom Order is on the way! 🚚";
+        if (isDelivered) subject = "Your Custom Order has been delivered! 🎉";
 
         Logger.info(`Attempting to send custom status update email to ${profile.email} for order ${order.id}`);
         await pushToEmailQueue({
             to: profile.email,
-            subject: isQuoted ? "Your Custom Quote is Ready! 🏷️" : `Update on your request: ${order.title}`,
+            subject: subject,
             type: 'CUSTOM_ORDER_UPDATE',
             orderId: order.id,
             data: {
                 customerName: profile.full_name || 'Customer',
-                title: order.title,
+                title: order.title || 'Custom Project',
                 status: displayStatus,
                 message: order.admin_notes || "",
                 quotedPrice: order.quoted_price,
-                orderLink: `${siteUrl}/orders/custom/${order.id}`,
+                orderLink: `${siteUrl}/orders?tab=custom`,
                 showPayButton: isQuoted
             } as CustomOrderUpdateData
         });
