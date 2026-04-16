@@ -472,7 +472,7 @@ export default function AdminLayout({
               >
                 <ChevronLeft className="w-4 h-4" />
               </div>
-              {!sidebarCollapsed && <span>Back to Homepage</span>}
+              {!sidebarCollapsed && <span>Back to Home</span>}
             </Link>
 
             {/* User Profile */}
