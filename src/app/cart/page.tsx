@@ -689,7 +689,7 @@ function CartItemCard({
               <button
                 onClick={onRemove}
                 disabled={isRemoving}
-                className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/50 rounded-xl transition-colors opacity-0 group-hover:opacity-100"
+                className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/50 rounded-xl transition-all sm:opacity-0 sm:group-hover:opacity-100"
               >
                 {isRemoving ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
@@ -706,21 +706,20 @@ function CartItemCard({
                 <div className="flex items-center bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden">
                   <button
                     onClick={() => onUpdateQuantity(item.quantity - 1)}
-                    disabled={item.quantity <= 1 || isUpdating}
+                    disabled={item.quantity <= 1}
                     className="p-2.5 hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     <Minus className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                   </button>
-                  <span className="w-12 text-center font-semibold text-gray-900 dark:text-white">
-                    {isUpdating ? (
-                      <Loader2 className="w-4 h-4 animate-spin mx-auto" />
-                    ) : (
-                      item.quantity
-                    )}
+                  <span className={cn(
+                    "w-12 text-center font-semibold text-gray-900 dark:text-white transition-opacity",
+                    isUpdating && "opacity-50"
+                  )}>
+                    {item.quantity}
                   </span>
                   <button
                     onClick={() => onUpdateQuantity(item.quantity + 1)}
-                    disabled={isUpdating || (item.stock !== undefined && item.quantity >= item.stock)}
+                    disabled={item.stock !== undefined && item.quantity >= item.stock}
                     className="p-2.5 hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     <Plus className="w-4 h-4 text-gray-600 dark:text-gray-400" />
@@ -747,7 +746,7 @@ function CartItemCard({
       </div>
 
       {/* Quick Actions Bar */}
-      <div className="px-4 sm:px-6 py-3 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="px-4 sm:px-6 py-3 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
         <button className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-rose-500 dark:hover:text-rose-400 transition-colors">
           <Heart className="w-4 h-4" />
           Save for Later

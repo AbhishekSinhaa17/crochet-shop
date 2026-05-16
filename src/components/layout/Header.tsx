@@ -430,6 +430,15 @@ export default function Header() {
 
 
 
+                {/* Search Trigger */}
+                <button
+                  onClick={() => setSearchOpen(true)}
+                  className="p-2.5 rounded-xl text-slate-500 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-500/10 transition-all duration-300 group"
+                  aria-label="Search"
+                >
+                  <Search className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
+                </button>
+
                 {/* Wishlist */}
                 {!isAdmin && (
                   <Link
@@ -476,7 +485,7 @@ export default function Header() {
 
                 {/* ========== USER MENU ========== */}
                 {mounted && user ? (
-                  <div className="relative" ref={dropdownRef}>
+                  <div className="relative hidden md:block" ref={dropdownRef}>
                     <button
                       onClick={() => setUserMenuOpen(!userMenuOpen)}
                       className={cn(
@@ -589,7 +598,7 @@ export default function Header() {
                 ) : mounted ? (
                   <Link
                     href="/auth/login"
-                    className="relative flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold text-white overflow-hidden group transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40"
+                    className="relative hidden md:flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold text-white overflow-hidden group transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40"
                   >
                     {/* Animated Gradient Background */}
                     <div className="absolute inset-0 bg-linear-to-r from-pink-500 via-purple-600 to-violet-600 bg-size-[200%_100%] animate-gradient-x" />
@@ -662,8 +671,45 @@ export default function Header() {
             {/* Gradient Top Border */}
             <div className="h-1 bg-linear-to-r from-pink-500 via-purple-500 to-violet-500" />
 
+            {/* User Profile Section (Mobile Only) */}
+            {mounted && user && (
+              <div className="p-6 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-full bg-linear-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                    {userInitial || "A"}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-slate-900 dark:text-white text-lg truncate">
+                      {profile?.full_name || "Guest"}
+                    </p>
+                    <p className="text-sm text-slate-500 truncate">
+                      {user.email}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Nav Links */}
             <nav className="p-4">
+              {/* Search Link (Mobile Only) */}
+              <button
+                onClick={() => {
+                  setMenuOpen(false);
+                  setSearchOpen(true);
+                }}
+                className="flex items-center gap-4 w-full p-4 rounded-2xl mb-2 transition-all duration-300 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+              >
+                <div className="w-12 h-12 rounded-xl bg-linear-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white shadow-lg">
+                  <Search className="w-5 h-5" />
+                </div>
+                <div className="flex-1 text-left">
+                  <p className="font-semibold">Search</p>
+                  <span className="text-xs text-slate-500">Find your favorite item</span>
+                </div>
+                <ChevronRight className="w-5 h-5 text-slate-300 dark:text-slate-600" />
+              </button>
+
               {navLinks.map((link, i) => {
                 const isActive = pathname === link.href;
                 return (
@@ -742,6 +788,28 @@ export default function Header() {
                 Theme
               </span>
               <ThemeToggle />
+            </div>
+
+            {/* Auth Links (Mobile Only) */}
+            <div className="p-4 border-t border-slate-100 dark:border-slate-800">
+              {mounted && user ? (
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-500 font-bold transition-colors"
+                >
+                  <LogOut className="w-5 h-5" />
+                  Sign Out
+                </button>
+              ) : mounted ? (
+                <Link
+                  href="/auth/login"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl bg-linear-to-r from-pink-500 via-purple-600 to-violet-600 text-white font-bold shadow-lg"
+                >
+                  <User className="w-5 h-5" />
+                  Sign In to Account
+                </Link>
+              ) : null}
             </div>
           </div>
         </div>

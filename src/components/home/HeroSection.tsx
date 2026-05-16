@@ -454,7 +454,7 @@ export default function HeroSection() {
               {/* Main Heading */}
               <div className="space-y-5">
                 <h1 
-                  className={`text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold tracking-tight leading-[0.95] transition-all duration-700 delay-100 ${
+                  className={`text-4xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold tracking-tight leading-[0.95] transition-all duration-700 delay-100 ${
                     isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
                   }`}
                 >
@@ -588,35 +588,35 @@ export default function HeroSection() {
                 </div>
 
                 {/* Floating Card - Top Left */}
-                <div className="absolute -left-6 top-12 z-20 animate-float-slow">
-                  <div className="flex items-center gap-3 px-5 py-4 glass-premium rounded-2xl shadow-premium hover-lift">
-                    <div className="w-12 h-12 rounded-xl bg-linear-to-br from-violet-500 to-rose-500 flex items-center justify-center shadow-lg">
-                      <Sparkles className="w-6 h-6 text-white" />
+                <div className="absolute -left-4 sm:-left-6 top-8 sm:top-12 z-20 animate-float-slow">
+                  <div className="flex items-center gap-2 sm:gap-3 px-3 py-2 sm:px-5 sm:py-4 glass-premium rounded-xl sm:rounded-2xl shadow-premium hover-lift">
+                    <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-linear-to-br from-violet-500 to-rose-500 flex items-center justify-center shadow-lg">
+                      <Sparkles className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
                     </div>
                     <div>
-                      <div className="text-sm font-bold text-foreground">Handcrafted</div>
-                      <div className="text-xs text-muted-foreground">Premium Yarn</div>
+                      <div className="text-[10px] sm:text-sm font-bold text-foreground">Handcrafted</div>
+                      <div className="text-[8px] sm:text-xs text-muted-foreground">Premium Yarn</div>
                     </div>
                   </div>
                 </div>
 
                 {/* Floating Card - Bottom Right */}
-                <div className="absolute -right-4 bottom-16 z-20 animate-float-medium" style={{ animationDelay: '1s' }}>
-                  <div className="flex items-center gap-3 px-5 py-4 glass-premium rounded-2xl shadow-premium hover-lift">
-                    <div className="w-12 h-12 rounded-xl bg-linear-to-br from-rose-500 to-pink-500 flex items-center justify-center shadow-lg">
-                      <Heart className="w-6 h-6 text-white fill-current" />
+                <div className="absolute -right-2 sm:-right-4 bottom-12 sm:bottom-16 z-20 animate-float-medium" style={{ animationDelay: '1s' }}>
+                  <div className="flex items-center gap-2 sm:gap-3 px-3 py-2 sm:px-5 sm:py-4 glass-premium rounded-xl sm:rounded-2xl shadow-premium hover-lift">
+                    <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-linear-to-br from-rose-500 to-pink-500 flex items-center justify-center shadow-lg">
+                      <Heart className="w-4 h-4 sm:w-6 sm:h-6 text-white fill-current" />
                     </div>
                     <div>
-                      <div className="text-sm font-bold text-foreground">100+</div>
-                      <div className="text-xs text-muted-foreground">Happy Customers</div>
+                      <div className="text-[10px] sm:text-sm font-bold text-foreground">100+</div>
+                      <div className="text-[8px] sm:text-xs text-muted-foreground">Happy Customers</div>
                     </div>
                   </div>
                 </div>
 
                 {/* Price tag */}
-                <div className="absolute top-6 right-6 z-20 animate-float-fast" style={{ animationDelay: '0.5s' }}>
-                  <div className="px-4 py-2 glass-premium rounded-full shadow-premium">
-                    <span className="text-sm font-bold text-gradient-primary">From ₹299</span>
+                <div className="absolute top-4 sm:top-6 right-4 sm:right-6 z-20 animate-float-fast" style={{ animationDelay: '0.5s' }}>
+                  <div className="px-3 py-1 sm:px-4 sm:py-2 glass-premium rounded-full shadow-premium">
+                    <span className="text-[10px] sm:text-sm font-bold text-gradient-primary">From ₹299</span>
                   </div>
                 </div>
 

@@ -442,7 +442,7 @@ export default function CategoryBento({ categories }: CategoryBentoProps) {
           </div>
 
           {/* Bento Grid */}
-          <div className="grid grid-cols-12 gap-4 md:gap-6 auto-rows-[180px] md:auto-rows-[200px]">
+          <div className="grid grid-cols-12 gap-4 md:gap-6 auto-rows-[220px] md:auto-rows-[200px]">
             {(categories || []).map((cat, idx) => {
               const isLarge = idx === 0;
               const gradient = gradients[idx % gradients.length];

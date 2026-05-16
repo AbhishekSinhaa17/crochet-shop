@@ -717,6 +717,7 @@ function OrderCard({
                     src={item.image || "https://images.unsplash.com/photo-1615529151169-7b1ff50dc7f2?w=80"}
                     alt={item.name || "Product"}
                     fill
+                    sizes="48px"
                     className="object-cover"
                   />
                 </div>

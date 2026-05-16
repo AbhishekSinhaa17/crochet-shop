@@ -38,14 +38,15 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
 
     // 🕒 Timeout to prevent permanent hang
     const timer = setTimeout(() => {
+      const state = useAuthStore.getState();
+      if (state.initialized) return;
+
       setShowTimeout(true);
-      // Log diagnostic info to help debug production issues
       Logger.warn("Auth initialization is taking longer than expected", {
         module: "auth-provider",
-        mounted,
-        storesHydrated,
-        loading,
-        initialized,
+        mounted: true,
+        loading: state.loading,
+        initialized: state.initialized,
         hasSupabaseUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
       });
     }, 10000);

@@ -19,6 +19,7 @@ import {
   useSpring,
   useTransform,
 } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 interface ProductCardProps {
   product: Product;
@@ -65,6 +66,9 @@ export default function ProductCard({
 
     mouseX.set(e.clientX - rect.left);
     mouseY.set(e.clientY - rect.top);
+
+    // Disable tilt on small screens
+    if (window.innerWidth < 768) return;
 
     const rotateXValue = ((e.clientY - centerY) / (rect.height / 2)) * -5;
     const rotateYValue = ((e.clientX - centerX) / (rect.width / 2)) * 5;
@@ -246,7 +250,7 @@ export default function ProductCard({
           />
 
           {/* Animated badges */}
-          <div className="absolute top-4 left-4 flex flex-col gap-2 z-20">
+          <div className="absolute top-2 left-2 sm:top-4 sm:left-4 flex flex-col gap-1 sm:gap-2 z-20">
             <AnimatePresence>
               {hasDiscount && (
                 <motion.span
@@ -255,7 +259,7 @@ export default function ProductCard({
                   animate={{ x: 0, opacity: 1, scale: 1 }}
                   exit={{ x: -30, opacity: 0, scale: 0.8 }}
                   transition={{ delay: 0.1, type: "spring", stiffness: 200 }}
-                  className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full bg-linear-to-r from-rose-500 to-pink-500 text-white shadow-lg shadow-rose-500/25"
+                  className="inline-flex items-center gap-1.5 text-[10px] sm:text-xs font-bold px-2 py-1 sm:px-3 sm:py-1.5 rounded-full bg-linear-to-r from-rose-500 to-pink-500 text-white shadow-lg shadow-rose-500/25"
                 >
                   <Sparkles className="w-3 h-3" />
                   {getDiscountPercent(product.price, product.compare_price!)}%
@@ -270,7 +274,7 @@ export default function ProductCard({
                   animate={{ x: 0, opacity: 1, scale: 1 }}
                   exit={{ x: -30, opacity: 0, scale: 0.8 }}
                   transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-                  className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full bg-linear-to-r from-violet-500 to-purple-500 text-white shadow-lg shadow-violet-500/25"
+                  className="inline-flex items-center gap-1.5 text-[10px] sm:text-xs font-bold px-2 py-1 sm:px-3 sm:py-1.5 rounded-full bg-linear-to-r from-violet-500 to-purple-500 text-white shadow-lg shadow-violet-500/25"
                 >
                   <Star className="w-3 h-3 fill-current" />
                   Featured
@@ -295,7 +299,7 @@ export default function ProductCard({
                   initial={{ x: -30, opacity: 0, scale: 0.8 }}
                   animate={{ x: 0, opacity: 1, scale: 1 }}
                   transition={{ delay: 0.2 }}
-                  className="inline-flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-full bg-linear-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/25"
+                  className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-bold px-2 py-1 sm:px-3 sm:py-1.5 rounded-full bg-linear-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/25"
                 >
                   <span className="relative flex h-2 w-2">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
@@ -309,7 +313,7 @@ export default function ProductCard({
 
           {/* Action buttons - Wishlist always visible */}
           {!isAdmin && (
-            <div className="absolute top-4 right-4 flex flex-col gap-2 z-20">
+            <div className="absolute top-3 right-3 sm:top-4 sm:right-4 flex flex-col gap-2 z-20">
               {/* Wishlist button */}
               <motion.button
                 onClick={handleWishlist}
@@ -319,10 +323,10 @@ export default function ProductCard({
                 style={{
                   background:
                     mounted && isInWishlist
-                      ? "rgba(244, 63, 94, 0.9)"
-                      : "rgba(255, 255, 255, 0.9)",
+                      ? "rgba(244, 63, 94, 0.95)"
+                      : "rgba(255, 255, 255, 0.95)",
                   backdropFilter: "blur(10px)",
-                  boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
+                  boxShadow: "0 4px 15px rgba(0,0,0,0.15)",
                 }}
               >
                 {mounted ? (
@@ -337,7 +341,7 @@ export default function ProductCard({
                         className={`w-4 h-4 transition-all duration-300 ${
                           isInWishlist
                             ? "fill-white text-white"
-                            : "text-gray-600 group-hover/btn:text-rose-500"
+                            : "text-gray-700 group-hover/btn:text-rose-500"
                         }`}
                       />
                     </motion.div>
@@ -352,57 +356,52 @@ export default function ProductCard({
                     )}
                   </>
                 ) : (
-                  <Heart className="w-4 h-4 text-gray-600" />
+                  <Heart className="w-4 h-4 text-gray-700" />
                 )}
               </motion.button>
             </div>
           )}
 
-          {/* Other hover action buttons container */}
-          <motion.div
-            className="absolute top-4 right-4 flex flex-col gap-2 z-20 mt-12"
-            initial={false}
-            animate={{
-              opacity: isHovered ? 1 : 0,
-              x: isHovered ? 0 : 20,
-            }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
-          ></motion.div>
-
-          {/* Add to Cart button */}
+          {/* Add to Cart button - Always visible on mobile, hover on desktop */}
           {!isAdmin && (
             <motion.div
-              className="absolute bottom-0 left-0 right-0 p-4 z-20"
-              initial={false}
-              animate={{
-                y: isHovered ? 0 : 20,
-                opacity: isHovered ? 1 : 0,
-              }}
-              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              className={cn(
+                "absolute bottom-0 left-0 right-0 p-3 sm:p-4 z-20 transition-all duration-300",
+                "translate-y-0 opacity-100 sm:translate-y-4 sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100"
+              )}
             >
               <motion.button
                 onClick={handleAddToCart}
-                disabled={product.stock <= 0 || isCartProcessing}
+                disabled={product.stock <= 0}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className={`
-                  w-full py-3 px-4 rounded-2xl font-semibold text-sm
-                  flex items-center justify-center gap-2
-                  transition-all duration-300
-                  disabled:opacity-50 disabled:cursor-not-allowed
-                  ${
-                    isInCart
-                      ? "bg-green-500 text-white"
-                      : "bg-white text-gray-900 hover:bg-gray-50"
-                  }
-                `}
+                className={cn(
+                  "w-full py-2.5 sm:py-3 px-4 rounded-2xl font-semibold text-xs sm:text-sm",
+                  "flex items-center justify-center gap-2",
+                  "transition-all duration-300",
+                  "disabled:opacity-50 disabled:cursor-not-allowed",
+                  isInCart
+                    ? "bg-green-500 text-white"
+                    : "bg-white/95 dark:bg-gray-900/95 text-gray-900 dark:text-white"
+                )}
                 style={{
                   backdropFilter: "blur(10px)",
-                  boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
+                  boxShadow: "0 8px 24px rgba(0,0,0,0.2)",
                 }}
               >
                 <AnimatePresence mode="wait">
-                  {isCartProcessing ? (
+                  {isInCart ? (
+                    <motion.div
+                      key="added"
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                      className="flex items-center gap-2"
+                    >
+                      <Check className="w-4 h-4" />
+                      In Your Cart
+                    </motion.div>
+                  ) : isCartProcessing ? (
                     <motion.div
                       key="loading"
                       initial={{ opacity: 0, scale: 0.8 }}
@@ -428,17 +427,6 @@ export default function ProductCard({
                       </svg>
                       Updating...
                     </motion.div>
-                  ) : isInCart ? (
-                    <motion.div
-                      key="added"
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.8 }}
-                      className="flex items-center gap-2"
-                    >
-                      <Check className="w-4 h-4" />
-                      In Your Cart
-                    </motion.div>
                   ) : (
                     <motion.div
                       key="default"
@@ -458,7 +446,7 @@ export default function ProductCard({
         </div>
 
         {/* Card content */}
-        <div className="p-5 relative">
+        <div className="p-3 sm:p-5 relative">
           {/* Subtle top border gradient */}
           <div
             className="absolute top-0 left-0 right-0 h-px"
@@ -494,7 +482,7 @@ export default function ProductCard({
 
           {/* Product name */}
           <motion.h3
-            className="font-display font-semibold text-base mb-2 line-clamp-2 leading-snug transition-colors duration-300"
+            className="font-display font-semibold text-sm sm:text-base mb-1 sm:mb-2 line-clamp-2 leading-snug transition-colors duration-300"
             style={{
               color: isHovered ? "var(--primary)" : "var(--foreground)",
             }}
@@ -539,7 +527,7 @@ export default function ProductCard({
           {/* Price section */}
           <div className="flex items-baseline gap-2 flex-wrap">
             <motion.span
-              className="text-xl font-bold"
+              className="text-lg sm:text-xl font-bold"
               animate={{
                 scale: isHovered ? 1.05 : 1,
               }}

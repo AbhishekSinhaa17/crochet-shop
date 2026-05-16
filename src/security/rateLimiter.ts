@@ -78,19 +78,36 @@ export async function checkRateLimit(
     prefix: `@crochet/ratelimit:${configName}`,
   });
 
-  const result = await limiter.limit(key);
+  try {
+    const result = await limiter.limit(key);
 
-  if (!result.success) {
-    Logger.warn(`Rate limit exceeded`, { 
+    if (!result.success) {
+      Logger.warn(`Rate limit exceeded`, { 
+        module: "security", 
+        action: options?.action || "api_call", 
+        identifier,
+        config: configName
+      });
+      throw new RateLimitError();
+    }
+
+    return result;
+  } catch (err) {
+    if (err instanceof RateLimitError) throw err;
+    
+    // 🛡️ Fail-open: If Redis is down, allow the request but log the error
+    Logger.error("Rate limiter service unreachable (Redis)", err, { 
       module: "security", 
-      action: options?.action || "api_call", 
-      identifier,
-      config: configName
+      identifier 
     });
-    throw new RateLimitError();
+    
+    return { 
+      success: true, 
+      limit: config.limit, 
+      remaining: config.limit - 1, 
+      reset: Date.now() + 60000 
+    };
   }
-
-  return result;
 }
 
 /**
